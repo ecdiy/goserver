@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package ws;
+
+
+service RpcUser {
+    rpc Verify (Token) returns (UserBase);
+    //    rpc UpCount (UpReq) returns (UpResp); //修改统计数据
+    //    rpc Msg (MsgReq) returns (NilResp);
+    rpc UpScore (ScoreReq) returns (RpcStatus);
+    //  scoreType, scoreDesc string
+}
+message ScoreReq {
+    int64 UserId = 1;
+    int64 Fee = 2; //增量变动积分
+    string EntityId = 3;
+    string ScoreType = 4;
+    string ScoreDesc = 5;
+}
+message RpcStatus {
+    int64 Code = 1;
+    string Msg = 2;
+}
+//message MsgReq {
+//    int64 UserId = 1;
+//    int64 FromUserId = 2;
+//    string Title = 3;
+//    string Body = 4;
+//    int64 SiteId = 5;
+//    string EntityId = 6;
+//    string MsgType = 7;
+//    string FromUsername = 8;
+//}
+//message NilResp {
+//}
+//
+//message UpResp {
+//    int64 Row = 1;
+//    int64 Score = 2;
+//}
+//message UpReq {
+//    int64 UserId = 1;
+//    string Type = 2;
+//    int64 Val = 3;
+//    //积分变化值
+//    int64 Fee = 4;
+//    string EntityId = 5;
+//    string ScoreType = 6;
+//    string ScoreDesc = 7;
+//    //
+//    int64 SiteId = 8;
+//}
+
+message Token {
+    string Token = 1;
+    string Ua = 2;
+}
+
+message UserBase {
+    bool Result = 1;
+    int64 UserId = 2;
+    string Username = 3;
+    int64 Score = 4;
+}
