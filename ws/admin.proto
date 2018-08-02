@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package ws;
+
+service RpcAdmin {
+    rpc Verify (AdminToken) returns (AdminBase);
+}
+
+message AdminToken {
+    string Token = 1;
+    string Ua = 2;
+}
+
+message AdminBase {
+    bool Auth = 1;
+    int64 UserId = 2;
+}

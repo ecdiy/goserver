@@ -17,8 +17,8 @@ var (
 	StErrorDb        = st(7, "数据逻辑错误")
 	StErrorCaptcha   = st(8, "认证码错误")
 	StErrorUnknown   = st(9, "未知错误")
-
-	StVerifyFail = st(12, "数据认证失败")
+	StScoreUpFail    = st(10, "积分修改失败")
+	StVerifyFail     = st(12, "数据认证失败")
 
 	//1~2 AppId 3~4 状态
 	StUsernameExist    = st(1000, "用户名已存在")
@@ -39,4 +39,9 @@ func st(Code int32, Desc string) *ST {
 type ST struct {
 	Code int32
 	Msg  string
+}
+
+func (m *RpcStatus) SetSt(st *ST) {
+	m.Code = st.Code
+	m.Msg = st.Msg
 }

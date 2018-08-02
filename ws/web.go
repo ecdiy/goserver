@@ -91,7 +91,9 @@ func byAuthFun(url string, fun func(wdb *Web), auth func(c *gin.Context) *Web) {
 		}
 	})
 }
-
+func AdminAuth(url string, fun func(wdb *Web)) {
+	byAuthFun(url, fun, VerifyAdmin)
+}
 func WebAuth(url string, fun func(wdb *Web)) {
 	byAuthFun(url, fun, VerifyRpc)
 }

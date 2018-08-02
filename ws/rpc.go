@@ -32,3 +32,12 @@ func RpcRegister(addr string, regFunc func(server *grpc.Server)) {
 		panic("启动微服务失败")
 	}
 }
+
+func RpcAdmin(fun func(client RpcAdminClient, ctx context.Context)) {
+	conn, err := grpc.DialContext(context.Background(), RpcAdminHost, grpc.WithInsecure())
+	if err == nil {
+		defer conn.Close()
+		client := NewRpcAdminClient(conn)
+		fun(client, context.Background())
+	}
+}
