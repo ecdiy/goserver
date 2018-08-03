@@ -77,7 +77,7 @@ func GetUa(ctx *gin.Context) string {
 	return "web"
 }
 
-func byAuthFun(url string, fun func(wdb *Web), auth func(c *gin.Context) *Web) {
+func WebByAuthFun(url string, fun func(wdb *Web), auth func(c *gin.Context) *Web) {
 	WebGin.POST(url, func(c *gin.Context) {
 		web := auth(c)
 		if web.Auth {
@@ -93,11 +93,11 @@ func byAuthFun(url string, fun func(wdb *Web), auth func(c *gin.Context) *Web) {
 }
 
 func AdminAuth(url string, fun func(wdb *Web)) {
-	byAuthFun(url, fun, VerifyAdmin)
+	WebByAuthFun(url, fun, VerifyAdmin)
 }
 
 func WebAuth(url string, fun func(wdb *Web)) {
-	byAuthFun(url, fun, VerifyRpc)
+	WebByAuthFun(url, fun, VerifyRpc)
 }
 
 func WebPost(url string, fun func(wdb *Web)) {
@@ -111,12 +111,17 @@ func WebPost(url string, fun func(wdb *Web)) {
 
 func WebBase(url string, fun func(wdb *Web)) {
 	WebGin.POST(url, func(c *gin.Context) {
-		web := &Web{}
-		web.Ua = GetUa(c)
-		web.Context = c
-		web.Out = make(map[string]interface{})
-		web.initParam()
+		web := WebGet(c)
 		fun(web)
 		c.JSON(200, web.Out)
 	})
+}
+
+func WebGet(c *gin.Context) *Web {
+	web := &Web{}
+	web.Ua = GetUa(c)
+	web.Context = c
+	web.Out = make(map[string]interface{})
+	web.initParam()
+	return web
 }
