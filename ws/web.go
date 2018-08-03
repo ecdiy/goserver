@@ -91,9 +91,11 @@ func byAuthFun(url string, fun func(wdb *Web), auth func(c *gin.Context) *Web) {
 		}
 	})
 }
+
 func AdminAuth(url string, fun func(wdb *Web)) {
 	byAuthFun(url, fun, VerifyAdmin)
 }
+
 func WebAuth(url string, fun func(wdb *Web)) {
 	byAuthFun(url, fun, VerifyRpc)
 }
@@ -103,7 +105,18 @@ func WebPost(url string, fun func(wdb *Web)) {
 		web := VerifyRpc(c)
 		web.initParam()
 		fun(web)
-		//	ws.VerifyRpc(param.Context) DAU
+		c.JSON(200, web.Out)
+	})
+}
+
+func WebBase(url string, fun func(wdb *Web)) {
+	WebGin.POST(url, func(c *gin.Context) {
+		web := &Web{}
+		web.Ua = GetUa(c)
+		web.Context = c
+		web.Out = make(map[string]interface{})
+		web.initParam()
+		fun(web)
 		c.JSON(200, web.Out)
 	})
 }

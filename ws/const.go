@@ -30,7 +30,6 @@ ImgHost=http://127.0.0.1:9000
 ImgMaxWidth=800
 MultiSite=0
 RpcUserHost=127.0.0.1:32000
-RpcSiteHost=127.0.0.1:32001
 RpcAdminHost=127.0.0.1:32002
 `)
 
@@ -43,7 +42,6 @@ ImgHost=http://s.ecdiy.cn
 ImgMaxWidth=800
 MultiSite=0
 RpcUserHost=127.0.0.1:32000
-RpcSiteHost=127.0.0.1:32001
 RpcAdminHost=127.0.0.1:32002
 `)
 	RpcUserHost = EnvParam("RpcUserHost")

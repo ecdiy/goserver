@@ -8,6 +8,11 @@ service RpcUser {
     rpc Msg (MsgReq) returns (RpcStatus);
     rpc UpScore (ScoreReq) returns (RpcStatus);
 }
+
+service RpcAdmin {
+    rpc Verify (Token) returns (UserBase);
+}
+
 message ScoreReq {
     int64 UserId = 1;
     int64 Fee = 2; //增量变动积分
@@ -29,23 +34,6 @@ message MsgReq {
     string FromUsername = 7;
     string GroupId = 8;
 }
-
-//message UpResp {
-//    int64 Row = 1;
-//    int64 Score = 2;
-//}
-//message UpReq {
-//    int64 UserId = 1;
-//    string Type = 2;
-//    int64 Val = 3;
-//    //积分变化值
-//    int64 Fee = 4;
-//    string EntityId = 5;
-//    string ScoreType = 6;
-//    string ScoreDesc = 7;
-//    //
-//    int64 SiteId = 8;
-//}
 
 message Token {
     string Token = 1;

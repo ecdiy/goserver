@@ -6,12 +6,12 @@ import (
 	"context"
 )
 
-func VerifyRpc(c *gin.Context) *Web {
+func verify(c *gin.Context, tokenName string) *Web {
 	auth := &Web{}
 	auth.Ua = GetUa(c)
 	auth.Context = c
 	auth.Out = make(map[string]interface{})
-	sut, e := c.Cookie(auth.Ua + "Token")
+	sut, e := c.Cookie(auth.Ua + tokenName)
 	if e == nil && len(sut) > 1 {
 		idx := strings.Index(sut, "_")
 		if idx > 0 {
@@ -35,29 +35,10 @@ func VerifyRpc(c *gin.Context) *Web {
 	return auth
 }
 
+func VerifyRpc(c *gin.Context) *Web {
+	return verify(c, "Token")
+}
+
 func VerifyAdmin(c *gin.Context) *Web {
-	auth := &Web{}
-	auth.Ua = GetUa(c)
-	auth.Context = c
-	auth.Out = make(map[string]interface{})
-	sut, e := c.Cookie(auth.Ua + "Token")
-	if e == nil && len(sut) > 1 {
-		idx := strings.Index(sut, "_")
-		if idx > 0 {
-			RpcAdmin(func(client RpcAdminClient, ctx context.Context) {
-				sc, _ := client.Verify(ctx, &AdminToken{Token: sut, Ua: auth.Ua})
-				if sc.Auth {
-					auth.UserId = sc.UserId
-					auth.Auth = true
-				} else {
-					auth.Auth = false
-				}
-			})
-		} else {
-			auth.Auth = false
-		}
-	} else {
-		auth.Auth = false
-	}
-	return auth
+	return verify(c, "Admin")
 }
