@@ -7,10 +7,15 @@ service RpcUser {
     //    rpc UpCount (UpReq) returns (UpResp); //修改统计数据
     rpc Msg (MsgReq) returns (RpcStatus);
     rpc UpScore (ScoreReq) returns (RpcStatus);
+    rpc Dau (DauReq) returns (RpcStatus);
 }
 
 service RpcAdmin {
     rpc Verify (Token) returns (UserBase);
+}
+
+message DauReq {
+    int64 UserId = 1;
 }
 
 message ScoreReq {

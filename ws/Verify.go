@@ -1,17 +1,12 @@
 package ws
 
 import (
-	"github.com/gin-gonic/gin"
 	"strings"
 	"context"
 )
 
-func VerifyRpc(c *gin.Context) *Web {
-	auth := &Web{}
-	auth.Ua = GetUa(c)
-	auth.Context = c
-	auth.Out = make(map[string]interface{})
-	sut, e := c.Cookie(auth.Ua + "Token")
+func VerifyRpc(auth *Web) {
+	sut, e := auth.Context.Cookie(auth.Ua + "Token")
 	if e == nil && len(sut) > 1 {
 		idx := strings.Index(sut, "_")
 		if idx > 0 {
@@ -32,15 +27,10 @@ func VerifyRpc(c *gin.Context) *Web {
 	} else {
 		auth.Auth = false
 	}
-	return auth
 }
 
-func VerifyAdmin(c *gin.Context) *Web {
-	auth := &Web{}
-	auth.Ua = GetUa(c)
-	auth.Context = c
-	auth.Out = make(map[string]interface{})
-	sut, e := c.Cookie(auth.Ua + "Admin")
+func VerifyAdmin(auth *Web) {
+	sut, e := auth.Context.Cookie(auth.Ua + "Admin")
 	if e == nil && len(sut) > 1 {
 		idx := strings.Index(sut, "_")
 		if idx > 0 {
@@ -61,5 +51,4 @@ func VerifyAdmin(c *gin.Context) *Web {
 	} else {
 		auth.Auth = false
 	}
-	return auth
 }

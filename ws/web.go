@@ -7,6 +7,15 @@ import (
 	"strconv"
 )
 
+var router = make(map[string]*MultiMerge)
+
+type MultiMerge struct {
+	Fun, Verify func(wdb *Web)
+	ReqType     string
+}
+
+//var authFunMap=make([string])
+
 type Web struct {
 	param, Out map[string]interface{}
 	Ua         string
@@ -77,9 +86,10 @@ func GetUa(ctx *gin.Context) string {
 	return "web"
 }
 
-func WebByAuthFun(url string, fun func(wdb *Web), auth func(c *gin.Context) *Web) {
+func WebByAuthFun(url string, fun func(wdb *Web), auth func(wdb *Web)) {
 	WebGin.POST(url, func(c *gin.Context) {
-		web := auth(c)
+		web := WebNew(c)
+		auth(web)
 		if web.Auth {
 			web.initParam()
 			fun(web)
@@ -98,15 +108,19 @@ func AdminAuth(url string, fun func(wdb *Web)) {
 
 func WebAuth(url string, fun func(wdb *Web)) {
 	WebByAuthFun(url, fun, VerifyRpc)
+	router[url] = &MultiMerge{Fun: fun, Verify: VerifyRpc, ReqType: "WebAuth"}
 }
 
 func WebPost(url string, fun func(wdb *Web)) {
 	WebGin.POST(url, func(c *gin.Context) {
-		web := VerifyRpc(c)
+		web := WebNew(c)
+		//VerifyRpc(c) //FOR DAU TODO
+		//TODO DAU
 		web.initParam()
 		fun(web)
 		c.JSON(200, web.Out)
 	})
+	router[url] = &MultiMerge{Fun: fun, ReqType: "WebPost"}
 }
 
 func WebBase(url string, fun func(wdb *Web)) {
@@ -115,13 +129,19 @@ func WebBase(url string, fun func(wdb *Web)) {
 		fun(web)
 		c.JSON(200, web.Out)
 	})
+	router[url] = &MultiMerge{Fun: fun, ReqType: "WebBase"}
 }
 
-func WebGet(c *gin.Context) *Web {
+func WebNew(c *gin.Context) *Web {
 	web := &Web{}
 	web.Ua = GetUa(c)
 	web.Context = c
 	web.Out = make(map[string]interface{})
+	return web
+}
+
+func WebGet(c *gin.Context) *Web {
+	web := WebNew(c)
 	web.initParam()
 	return web
 }

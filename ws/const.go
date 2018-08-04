@@ -25,7 +25,7 @@ func ParamBase(db string) {
 UploadDir=./upload/
 DownDir=./down/
 DbDriver=mysql
-DbDsn=root:root@tcp(127.0.0.1:3306)/`+ db+ `?timeout=30s&charset=utf8mb4&parseTime=true
+DbDsn=root:root@tcp(127.0.0.1:3306)/`+db+`?timeout=30s&charset=utf8mb4&parseTime=true
 ImgHost=http://127.0.0.1:9000
 ImgMaxWidth=800
 MultiSite=0
@@ -37,7 +37,7 @@ RpcAdminHost=127.0.0.1:32002
 UploadDir=./upload/
 DownDir=./down/
 DbDriver=mysql
-DbDsn=root:root@tcp(127.0.0.1:3306)/`+ db+ `?timeout=30s&charset=utf8mb4&parseTime=true
+DbDsn=root:root@tcp(127.0.0.1:3306)/`+db+`?timeout=30s&charset=utf8mb4&parseTime=true
 ImgHost=http://s.ecdiy.cn
 ImgMaxWidth=800
 MultiSite=0
@@ -47,4 +47,6 @@ RpcAdminHost=127.0.0.1:32002
 	RpcUserHost = EnvParam("RpcUserHost")
 
 	RpcAdminHost = EnvParam("RpcAdminHost")
+
+	WebGin.NoRoute(WebNoRouterMultiRequestMerge)
 }
