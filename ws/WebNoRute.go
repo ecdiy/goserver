@@ -1,14 +1,14 @@
 package ws
 
 import (
+	"github.com/cihub/seelog"
 	"github.com/gin-gonic/gin"
 	"strings"
-	"github.com/cihub/seelog"
 )
 
 /**
 多个请求合并
- */
+*/
 func WebNoRouterMultiRequestMerge(ctx *gin.Context) {
 	url := ctx.Request.URL.Path
 	if strings.Index(url, ",") >= 0 {
@@ -44,4 +44,17 @@ func WebNoRouterMultiRequestMerge(ctx *gin.Context) {
 	} else {
 		seelog.Warn("no router.", url)
 	}
+}
+
+/**
+
+ */
+
+func WebNoRouterToHtml(ctx *gin.Context) {
+	url := ctx.Request.URL.Path
+	if len(url) == 1 {
+		url = "/index"
+	}
+	web := WebNew(ctx)
+	ctx.HTML(200, url[1:]+"-"+web.Ua, web)
 }

@@ -1,18 +1,17 @@
 package ws
 
 import (
+	"github.com/cihub/seelog"
 	"os"
 	"strconv"
 	"strings"
-	"github.com/cihub/seelog"
 )
 
 //--所有常量
 const (
 	KeyBindAddr = "BindAddr"
-
-	EnvProd = "prod"
-	EnvDev  = "dev"
+	EnvProd     = "prod"
+	EnvDev      = "dev"
 )
 
 func init() {
@@ -83,33 +82,31 @@ func EnvParamSet(key, val string) {
 Key1=111
 Key2=abc
 `)
- */
-func ParamInit(paramArg ... string) {
-	for pi, pn := range paramArg {
-		if pn == profile && pi < len(paramArg)-1 {
-			args := strings.Split(paramArg[len(paramArg)-1], "\n")
-			for _, arg := range args {
-				idx2 := strings.Index(arg, "#")
-				if idx2 == 0 {
+*/
+func ParamInit(prof, conf string) {
+	if prof == profile {
+		args := strings.Split(conf, "\n")
+		for _, arg := range args {
+			idx2 := strings.Index(arg, "#")
+			if idx2 == 0 {
+				continue
+			}
+			idx := strings.Index(arg, "=")
+			if idx > 0 {
+				n := arg[0:idx]
+				_, b := params[n]
+				if b {
 					continue
-				}
-				idx := strings.Index(arg, "=")
-				if idx > 0 {
-					n := arg[0:idx]
-					_, b := params[n]
-					if b {
-						continue
+				} else {
+					av := os.Getenv(n)
+					if av != "" {
+						params[n] = strings.TrimSpace(av)
 					} else {
-						av := os.Getenv(n)
-						if av != "" {
-							params[n] = strings.TrimSpace(av)
-						} else {
-							params[n] = strings.TrimSpace(arg[idx+1:])
-						}
+						params[n] = strings.TrimSpace(arg[idx+1:])
 					}
 				}
 			}
-			break
 		}
+		seelog.Info("profile=", prof, params)
 	}
 }

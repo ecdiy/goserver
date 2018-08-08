@@ -1,8 +1,8 @@
 package ws
 
 import (
-	"strings"
 	"context"
+	"strings"
 )
 
 func VerifyRpc(auth *Web) {

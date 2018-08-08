@@ -1,14 +1,12 @@
 package gpa
 
 import (
-	"strings"
 	"github.com/cihub/seelog"
 	"strconv"
+	"strings"
 )
 
-
-
-func (g *Gpa) Sp(sp string, params ... interface{}) (map[string][]map[string]string, error) {
+func (g *Gpa) Sp(sp string, params ...interface{}) (map[string][]map[string]string, error) {
 	data := make(map[string][]map[string]string)
 	runSql := sp
 	if strings.Index(sp, "(") < 0 {
@@ -40,7 +38,7 @@ func (g *Gpa) Sp(sp string, params ... interface{}) (map[string][]map[string]str
 			list = append(list, rowToMap(rows, cols))
 		}
 		nodeStr := strconv.Itoa(node)
-		data["r"+nodeStr ] = list
+		data["r"+nodeStr] = list
 		//data["c"+nodeStr ] = cols
 		node++
 		if !rows.NextResultSet() {

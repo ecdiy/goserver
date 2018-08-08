@@ -3,9 +3,9 @@ package ws
 import (
 	"google.golang.org/grpc"
 
-	"net"
-	"github.com/cihub/seelog"
 	"context"
+	"github.com/cihub/seelog"
+	"net"
 )
 
 func RpcUser(fun func(client RpcUserClient, ctx context.Context)) {

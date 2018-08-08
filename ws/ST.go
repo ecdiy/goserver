@@ -5,7 +5,7 @@ var (
 	NE  : NOT EXIST
 	Err : ERROR
 	Dis ：disable
-	 */
+	*/
 	OK = st(0, "")
 	//---0~9 全局系统错误
 	StErrorParameter = st(1, "参数错误")

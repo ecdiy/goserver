@@ -8,9 +8,9 @@ import (
 
 /**
 返回影响记录的行数
- */
+*/
 
-func (me *Gpa) Exec(runSql string, p ... interface{}) (int64, error) {
+func (me *Gpa) Exec(runSql string, p ...interface{}) (int64, error) {
 	row, er := me.conn.Exec(runSql, p...)
 	if er == nil {
 		ra, _ := row.RowsAffected()
@@ -23,8 +23,8 @@ func (me *Gpa) Exec(runSql string, p ... interface{}) (int64, error) {
 
 /**
 返回 自增ID
- */
-func (me *Gpa) Insert(s string, param ... interface{}) (int64, error) {
+*/
+func (me *Gpa) Insert(s string, param ...interface{}) (int64, error) {
 	row, err := me.conn.Exec(s, param...)
 	if err == nil {
 		return row.LastInsertId()

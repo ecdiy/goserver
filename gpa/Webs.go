@@ -1,9 +1,9 @@
 package gpa
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/cihub/seelog"
 	"encoding/json"
+	"github.com/cihub/seelog"
+	"github.com/gin-gonic/gin"
 )
 
 func ginMap(c *gin.Context) (map[string]interface{}, error) {

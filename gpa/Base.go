@@ -1,11 +1,11 @@
 package gpa
 
 import (
-	"reflect"
 	"database/sql"
-	"strings"
 	"github.com/cihub/seelog"
 	_ "github.com/go-sql-driver/mysql"
+	"reflect"
+	"strings"
 )
 
 const (
@@ -20,7 +20,7 @@ type Gpa struct {
 	conn        *sql.DB
 }
 
-func Init(Driver, Dsn string, models ... interface{}) *Gpa {
+func Init(Driver, Dsn string, models ...interface{}) *Gpa {
 	impl := &Gpa{driver: Driver, dsn: Dsn}
 	var err error
 	impl.conn, err = sql.Open(impl.driver, impl.dsn)
@@ -53,7 +53,7 @@ func getSqlByMethod(ft reflect.StructField) string {
 		d := strings.Index(ty, ".")
 		x := strings.Index(ty, ",")
 		if d > 0 && x > d {
-			tb := ty[d+1 : x ]
+			tb := ty[d+1 : x]
 			rep := strings.Replace(name[6:], "And", "=? And ", -1)
 			return "select * from " + tb + " where " + rep + "=?"
 		} else {
@@ -115,7 +115,7 @@ func (impl *Gpa) setMethodImpl(di interface{}) {
 				if strings.Index(runSql, "select * ") == 0 {
 					runSql = fmtSelectAllSql(runSql, ft.Type.Out(0))
 				}
-				fv.Set(reflect.MakeFunc(fv.Type(), func(in []reflect.Value) ([]reflect.Value) {
+				fv.Set(reflect.MakeFunc(fv.Type(), func(in []reflect.Value) []reflect.Value {
 					defer func() {
 						if err := recover(); err != nil {
 							seelog.Error("query object fail.methodName=", methodName,
@@ -131,7 +131,7 @@ func (impl *Gpa) setMethodImpl(di interface{}) {
 				if strings.Index(runSql, "select * ") == 0 {
 					runSql = fmtSelectAllSql(runSql, ft.Type.Out(0).Elem())
 				}
-				fv.Set(reflect.MakeFunc(fv.Type(), func(in []reflect.Value) ([]reflect.Value) {
+				fv.Set(reflect.MakeFunc(fv.Type(), func(in []reflect.Value) []reflect.Value {
 					defer func() {
 						if err := recover(); err != nil {
 							seelog.Error("query object fail.methodName=", methodName,
@@ -157,7 +157,7 @@ func (impl *Gpa) setMethodImpl(di interface{}) {
 			}
 			implM, b := implVO.Type().MethodByName(methodName)
 			if b {
-				fv.Set(reflect.MakeFunc(fv.Type(), func(in []reflect.Value) ([]reflect.Value) {
+				fv.Set(reflect.MakeFunc(fv.Type(), func(in []reflect.Value) []reflect.Value {
 					params := make([]reflect.Value, len(in)+1)
 					defer func() {
 						if err := recover(); err != nil {
@@ -201,7 +201,7 @@ func scan(rows *sql.Rows, cols []string) ([]interface{}, error) {
 	return arr, rows.Scan(arr...)
 }
 
-func rowToInterface(rows *sql.Rows, cols []string) (map[string]interface{}) {
+func rowToInterface(rows *sql.Rows, cols []string) map[string]interface{} {
 	arr, _ := scan(rows, cols)
 	res := make(map[string]interface{})
 	for i := 0; i < len(cols); i++ {
@@ -215,7 +215,7 @@ func rowToInterface(rows *sql.Rows, cols []string) (map[string]interface{}) {
 	return res
 }
 
-func rowToMap(rows *sql.Rows, cols []string) (map[string]string) {
+func rowToMap(rows *sql.Rows, cols []string) map[string]string {
 	arr, _ := scan(rows, cols)
 	res := make(map[string]string)
 	for i := 0; i < len(cols); i++ {

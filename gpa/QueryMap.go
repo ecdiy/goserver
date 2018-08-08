@@ -5,7 +5,7 @@ import (
 	"github.com/cihub/seelog"
 )
 
-func (g *Gpa) QueryMapStringString(sqlString string, param ... interface{}) (map[string]string, bool, error) {
+func (g *Gpa) QueryMapStringString(sqlString string, param ...interface{}) (map[string]string, bool, error) {
 	rows, err := g.conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {

@@ -2,7 +2,7 @@ package gpa
 
 import "github.com/cihub/seelog"
 
-func (g *Gpa) ListMapStringString(sql string, param ... interface{}) ([]map[string]string, error) {
+func (g *Gpa) ListMapStringString(sql string, param ...interface{}) ([]map[string]string, error) {
 	rows, err := g.conn.Query(sql, param...)
 	defer rows.Close()
 	if err == nil {
@@ -19,7 +19,7 @@ func (g *Gpa) ListMapStringString(sql string, param ... interface{}) ([]map[stri
 	}
 	return nil, nil
 }
-func (g *Gpa) ListMapStringInterface(sql string, param ... interface{}) ([]map[string]interface{}, error) {
+func (g *Gpa) ListMapStringInterface(sql string, param ...interface{}) ([]map[string]interface{}, error) {
 	rows, err := g.conn.Query(sql, param...)
 	defer rows.Close()
 	if err == nil {

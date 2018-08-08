@@ -2,7 +2,7 @@ package gpa
 
 /**
 批量保存数据,性能最优
- */
+*/
 //func (g *Gpa) BatchSaveByMap(userId interface{}, ds []interface{}, tableName, pk, cols string) *base.ST {
 //	return g.BatchSave(userId, func() string {
 //		fs := strings.Split(cols, ",")

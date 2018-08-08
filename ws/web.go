@@ -1,9 +1,9 @@
 package ws
 
 import (
-	"github.com/gin-gonic/gin"
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"strconv"
 )
 
@@ -39,13 +39,19 @@ func (p *Web) initParam() {
 	}
 }
 func (p *Web) String(n string) string {
-	return fmt.Sprint(p.param[ n])
+	v, vb := p.param[n]
+	if vb {
+		return fmt.Sprint(v)
+	} else {
+		v2, _ := p.Context.GetQuery(n)
+		return v2
+	}
 }
 func (p *Web) Int64(n string) int64 {
 	return p.Int64Default(n, 0)
 }
 func (p *Web) Int64Default(n string, def int64) int64 {
-	i, e := strconv.ParseInt(fmt.Sprint(p.param[ n]), 10, 0)
+	i, e := strconv.ParseInt(p.String(n), 10, 0)
 	if e != nil {
 		return def
 	}
@@ -61,15 +67,15 @@ func (p *Web) StartPageSize(ps int64) int64 {
 	}
 	return (page - 1) * ps
 }
-func (p *Web) Result(result ... interface{}) {
+func (p *Web) Result(result ...interface{}) {
 	if result != nil {
 		p.Out["result"] = result
 	}
 }
-func (p *Web) ST(st *ST, result ... interface{}) {
+func (p *Web) ST(st *ST, result ...interface{}) {
 	p.Out["code"] = st.Code
 	p.Out["msg"] = st.Msg
-	p.Result(result ...)
+	p.Result(result...)
 }
 
 func GetUa(ctx *gin.Context) string {

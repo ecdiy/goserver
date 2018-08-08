@@ -5,7 +5,7 @@ import (
 	"github.com/cihub/seelog"
 )
 
-func (me *Gpa) ListArrayString(sqlString string, param ... interface{}) ([][]string, error) {
+func (me *Gpa) ListArrayString(sqlString string, param ...interface{}) ([][]string, error) {
 	rows, err := me.conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
@@ -22,15 +22,15 @@ func (me *Gpa) ListArrayString(sqlString string, param ... interface{}) ([][]str
 	}
 	return nil, nil
 }
-func rowToStringArray(rows *sql.Rows, cols []string) ([]string) {
+func rowToStringArray(rows *sql.Rows, cols []string) []string {
 	arr, _ := scan(rows, cols)
 	res := make([]string, len(cols))
 	for i := 0; i < len(cols); i++ {
 		v := arr[i].(*sql.NullString)
 		if v.Valid {
-			res[ i ] = arr[i].(*sql.NullString).String
+			res[i] = arr[i].(*sql.NullString).String
 		} else {
-			res[ i] = ""
+			res[i] = ""
 		}
 	}
 	return res

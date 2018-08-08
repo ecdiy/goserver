@@ -1,11 +1,11 @@
 package gpa
 
 import (
-	"reflect"
 	"database/sql"
-	"strings"
 	"github.com/cihub/seelog"
+	"reflect"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -13,9 +13,9 @@ import (
 这个方法可能不是最有效的办法， 如果用   v.FieldByName(tf.Name).Addr().Interface()
 会有nil无法转换的问题
 用sql.NullString==> value方式能解决nil问题
- */
+*/
 
-func (me *Gpa) QueryObjectArray(runSql string, resultType reflect.Type, param ... interface{}) []reflect.Value {
+func (me *Gpa) QueryObjectArray(runSql string, resultType reflect.Type, param ...interface{}) []reflect.Value {
 
 	rows, _ := me.conn.Query(runSql, param...)
 	defer rows.Close()
@@ -41,7 +41,7 @@ func (me *Gpa) QueryObjectArray(runSql string, resultType reflect.Type, param ..
 	return []reflect.Value{slice, nilVf}
 }
 
-func (me *Gpa) QueryObject(runSql string, resultType reflect.Type, param ... interface{}) []reflect.Value {
+func (me *Gpa) QueryObject(runSql string, resultType reflect.Type, param ...interface{}) []reflect.Value {
 	rows, err := me.conn.Query(runSql, param...)
 	defer rows.Close()
 	rv := reflect.New(resultType).Elem()
