@@ -116,7 +116,6 @@ func WebAuth(url string, fun func(wdb *Web)) {
 	WebByAuthFun(url, fun, VerifyRpc)
 	router[url] = &MultiMerge{Fun: fun, Verify: VerifyRpc, ReqType: "WebAuth"}
 }
-
 func WebPost(url string, fun func(wdb *Web)) {
 	WebGin.POST(url, func(c *gin.Context) {
 		web := WebNew(c)
