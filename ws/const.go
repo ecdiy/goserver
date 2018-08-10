@@ -49,7 +49,6 @@ RpcAdminHost=127.0.0.1:32002
 
 	WebGin.NoRoute(WebNoRouterMultiRequestMerge)
 
-	WebGin.Delims("{%", "%}")
 	if profile == EnvDev {
 		gin.SetMode(gin.DebugMode)
 	} else {

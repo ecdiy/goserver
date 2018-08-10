@@ -45,16 +45,3 @@ func WebNoRouterMultiRequestMerge(ctx *gin.Context) {
 		seelog.Warn("no router.", url)
 	}
 }
-
-/**
-
- */
-
-func WebNoRouterToHtml(ctx *gin.Context) {
-	url := ctx.Request.URL.Path
-	if len(url) == 1 {
-		url = "/index"
-	}
-	web := WebNew(ctx)
-	ctx.HTML(200, url[1:]+"-"+web.Ua, web)
-}

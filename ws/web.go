@@ -17,13 +17,18 @@ type MultiMerge struct {
 //var authFunMap=make([string])
 
 type Web struct {
-	param, Out map[string]interface{}
+	param, Out map[string]interface{} //参数，输出
 	Ua         string
 	Context    *gin.Context
 	//---
 	Auth          bool
 	UserId, Score int64
 	Username      string
+}
+
+func (p *Web) SetString(k, v string) string { //For template.
+	p.Out[k] = v
+	return ""
 }
 
 func (p *Web) initParam() {
