@@ -1,31 +1,11 @@
-package ws
+package web
 
 import (
 	"github.com/cihub/seelog"
 	"github.com/gin-contrib/multitemplate"
-	"github.com/gin-gonic/gin"
-	"html/template"
 	"path/filepath"
 	"strings"
 )
-
-type Tpl struct {
-	*Web
-	TplName string //模版名称
-}
-
-func (p *Tpl) GetTplName() string {
-	if len(p.TplName) > 1 {
-		return p.TplName + "-" + p.Ua
-	}
-	url := p.Context.Request.URL.Path
-	if len(url) == 1 {
-		url = "/index"
-	}
-	return url[1:] + "-" + p.Ua
-}
-
-func (p *Tpl) Html(x string) template.HTML { return template.HTML(x) }
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
 func WebTplRenderCreate(templatesDir string, pages ...string) multitemplate.Renderer {
@@ -48,7 +28,7 @@ func WebTplRenderCreate(templatesDir string, pages ...string) multitemplate.Rend
 				continue
 			}
 			layout := templatesDir + "layout/" + page[j+1:]
-			n := page[0 : len(page)-len(ext)][len(templatesDir):]
+			n := page[0:len(page)-len(ext)][len(templatesDir):]
 			d := strings.Index(n, ",")
 			if d > 0 {
 				n = n[0:d]
@@ -71,28 +51,4 @@ func WebTplRenderCreate(templatesDir string, pages ...string) multitemplate.Rend
 		}
 	}
 	return r
-}
-
-func WebTpl(url string, fun func(wdb *Tpl)) {
-	WebGin.GET(url, func(c *gin.Context) {
-		tpl := &Tpl{}
-		tpl.Web = WebNew(c)
-		fun(tpl)
-		c.HTML(200, tpl.GetTplName(), tpl)
-	})
-}
-
-func WebTplNoRouter(ctx *gin.Context) {
-	url := ctx.Request.URL.Path
-	if strings.Index(url, ".") > 0 {
-		seelog.Warn("404:", url)
-		ctx.AbortWithStatus(404)
-		return
-	}
-	if len(url) == 1 {
-		url = "/index"
-	}
-	tpl := &Tpl{}
-	tpl.Web = WebNew(ctx)
-	ctx.HTML(200, url[1:]+"-"+tpl.Ua, tpl)
 }

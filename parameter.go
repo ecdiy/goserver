@@ -1,4 +1,4 @@
-package ws
+package utils
 
 import (
 	"github.com/cihub/seelog"
@@ -13,6 +13,10 @@ const (
 	EnvProd     = "prod"
 	EnvDev      = "dev"
 )
+
+func EnvIsDev() bool {
+	return profile == EnvDev
+}
 
 func init() {
 	logger, _ := seelog.LoggerFromConfigAsBytes([]byte(`
