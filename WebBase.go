@@ -7,13 +7,13 @@ import (
 )
 
 type WebBase struct {
-	param, Out map[string]interface{} //参数，输出
+	Param, Out map[string]interface{} //参数，输出
 	Ua         string
 	Context    *gin.Context
 }
 
 func (p *WebBase) String(n string) string {
-	v, vb := p.param[n]
+	v, vb := p.Param[n]
 	if vb {
 		return fmt.Sprint(v)
 	} else {
@@ -50,4 +50,12 @@ func (p *WebBase) ST(st *ST, result ...interface{}) {
 	p.Out["code"] = st.Code
 	p.Out["msg"] = st.Msg
 	p.Result(result...)
+}
+
+func WebBaseNew(c *gin.Context) *WebBase {
+	web := &WebBase{}
+	web.Ua = GetUa(c)
+	web.Context = c
+	web.Out = make(map[string]interface{})
+	return web
 }
