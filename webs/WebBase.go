@@ -7,17 +7,31 @@ import (
 	"utils"
 )
 
-
+type WebBase struct {
+	Param, Out map[string]interface{} //参数，输出
+	Ua         string
+	Context    *gin.Context
+}
 
 func (p *WebBase) String(n string) string {
 	v, vb := p.Param[n]
 	if vb {
 		return fmt.Sprint(v)
 	} else {
-		v2, _ := p.Context.GetQuery(n)
+		v2 := p.Context.Param(n)
+		if v2 == "" {
+			v2 = p.Context.PostForm(n)
+		}
+		if v2 == "" {
+			v2 = p.Context.Query(n)
+		}
+		if v2 == "" {
+			v2, _ = p.Context.GetQuery(n)
+		}
 		return v2
 	}
 }
+
 func (p *WebBase) Int64(n string) int64 {
 	return p.Int64Default(n, 0)
 }

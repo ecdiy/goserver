@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"github.com/cihub/seelog"
 	"utils/gpa"
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -12,8 +13,27 @@ const (
 	SqlSpInfo = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE' and name=?"
 )
 
-func NewSp(val []string) (*Sp, bool) {
-	sp := &Sp{Name: val[0]}
+func spInitCache(g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
+	list, err := g.ListArrayString(SqlSpAll)
+	if err != nil {
+		seelog.Error("查询所有的存储过程出错：", err)
+	} else {
+		if list != nil {
+			sps := ""
+			for _, val := range list {
+				sp, b := NewSp(val, auth)
+				if b {
+					spCache [sp.Name] = sp
+					sps += sp.Sql + ","
+				}
+			}
+			seelog.Info("~~sp:~~", sps)
+		}
+	}
+}
+
+func NewSp(val []string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
+	sp := &Sp{Name: val[0], Auth: auth}
 	if len(val) < 3 || len(strings.TrimSpace(val[2])) == 0 {
 		return sp, false
 	}
@@ -58,7 +78,7 @@ func NewSp(val []string) (*Sp, bool) {
 				//	pType = strings.TrimSpace(pType[0:idx])
 				//}
 				pName := strings.TrimSpace(pTrim[0:idxArray[1]])
-				spn,spe:= sp.GetParam(pName)
+				spn, spe := sp.GetParam(pName)
 				if spe != nil {
 					return sp, false
 				}
@@ -72,11 +92,11 @@ func NewSp(val []string) (*Sp, bool) {
 	return sp, true
 }
 
-func NewSpByName(g *gpa.Gpa, spName string) (*Sp, bool) {
+func NewSpByName(g *gpa.Gpa, spName string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
 	info, e := g.ListString(SqlSpInfo, spName)
 	if e != nil || len(info) != 3 {
 		seelog.Error("存储过程不存在:", spName, e)
 		return &Sp{}, false
 	}
-	return NewSp(info)
+	return NewSp(info, auth)
 }
