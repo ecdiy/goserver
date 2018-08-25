@@ -17,19 +17,19 @@ var nilVf = reflect.Zero(reflect.TypeOf((*error)(nil)).Elem())
 
 type Gpa struct {
 	driver, dsn string
-	conn        *sql.DB
+	Conn        *sql.DB
 }
 
 func Init(Driver, Dsn string, models ...interface{}) *Gpa {
 	impl := &Gpa{driver: Driver, dsn: Dsn}
 	var err error
-	impl.conn, err = sql.Open(impl.driver, impl.dsn)
+	impl.Conn, err = sql.Open(impl.driver, impl.dsn)
 	if err != nil {
 		panic("数据库连接错误:driver=" + impl.driver + ";" + impl.dsn)
 	} else {
-		impl.conn.SetMaxOpenConns(5)
-		//	dao.conn.SetMaxIdleConns(0)
-		impl.conn.Ping()
+		impl.Conn.SetMaxOpenConns(5)
+		//	dao.Conn.SetMaxIdleConns(0)
+		impl.Conn.Ping()
 	}
 	for _, d := range models {
 		impl.setMethodImpl(d)
@@ -161,7 +161,7 @@ func (impl *Gpa) setMethodImpl(di interface{}) {
 					params := make([]reflect.Value, len(in)+1)
 					defer func() {
 						if err := recover(); err != nil {
-							seelog.Error(impl.conn == nil, ";", impl.dsn, ";\n\tmethodName=", methodName,
+							seelog.Error(impl.Conn == nil, ";", impl.dsn, ";\n\tmethodName=", methodName,
 								";runSql=", runSql, ",", vti(in),
 								"\n\t", err)
 							seelog.Flush()
@@ -180,59 +180,4 @@ func (impl *Gpa) setMethodImpl(di interface{}) {
 			}
 		}
 	}
-}
-
-func fmtSelectAllSql(runSql string, objCls reflect.Type) string {
-	//seelog.Info("query object runSql=", objCls.Name(), runSql)
-	n := objCls.NumField()
-	fields := ""
-	for i := 0; i < n; i++ {
-		fields += objCls.Field(i).Name + ","
-	}
-	return "select " + fields[0:len(fields)-1] + runSql[8:]
-}
-
-func scan(rows *sql.Rows, cols []string) ([]interface{}, error) {
-	arr := make([]interface{}, len(cols))
-	for i := 0; i < len(cols); i++ {
-		var inf sql.NullString
-		arr[i] = &inf
-	}
-	return arr, rows.Scan(arr...)
-}
-
-func rowToInterface(rows *sql.Rows, cols []string) map[string]interface{} {
-	arr, _ := scan(rows, cols)
-	res := make(map[string]interface{})
-	for i := 0; i < len(cols); i++ {
-		v := arr[i].(*sql.NullString)
-		if v.Valid {
-			res[cols[i]] = arr[i].(*sql.NullString).String
-		} else {
-			res[cols[i]] = ""
-		}
-	}
-	return res
-}
-
-func rowToMap(rows *sql.Rows, cols []string) map[string]string {
-	arr, _ := scan(rows, cols)
-	res := make(map[string]string)
-	for i := 0; i < len(cols); i++ {
-		v := arr[i].(*sql.NullString)
-		if v.Valid {
-			res[cols[i]] = arr[i].(*sql.NullString).String
-		} else {
-			res[cols[i]] = ""
-		}
-	}
-	return res
-}
-
-func vti(in []reflect.Value) []interface{} {
-	p := make([]interface{}, len(in))
-	for idx, pin := range in {
-		p[idx] = pin.Interface()
-	}
-	return p
 }

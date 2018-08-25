@@ -5,7 +5,6 @@ import "regexp"
 const (
 	DefaultPageSize = 20
 
-	SqlSpAll = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE'"
 )
 
 var (

@@ -6,7 +6,7 @@ import (
 )
 
 func (g *Gpa) QueryInt64(sqlString string, param ...interface{}) (int64, bool, error) {
-	rows, err := g.conn.Query(sqlString, param...)
+	rows, err := g.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if rows.Next() {
@@ -21,7 +21,7 @@ func (g *Gpa) QueryInt64(sqlString string, param ...interface{}) (int64, bool, e
 	return 0, false, nil
 }
 func (g *Gpa) QueryInt32(sqlString string, param ...interface{}) (int32, bool, error) {
-	rows, err := g.conn.Query(sqlString, param...)
+	rows, err := g.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if rows.Next() {
@@ -37,7 +37,7 @@ func (g *Gpa) QueryInt32(sqlString string, param ...interface{}) (int32, bool, e
 }
 
 func (g *Gpa) QueryInt(sqlString string, param ...interface{}) (int, bool, error) {
-	rows, err := g.conn.Query(sqlString, param...)
+	rows, err := g.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if rows.Next() {
@@ -53,7 +53,7 @@ func (g *Gpa) QueryInt(sqlString string, param ...interface{}) (int, bool, error
 }
 
 func (g *Gpa) QueryString(sqlString string, param ...interface{}) (string, bool, error) {
-	rows, err := g.conn.Query(sqlString, param...)
+	rows, err := g.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if rows.Next() {

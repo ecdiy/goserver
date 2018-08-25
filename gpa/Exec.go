@@ -11,7 +11,7 @@ import (
 */
 
 func (me *Gpa) Exec(runSql string, p ...interface{}) (int64, error) {
-	row, er := me.conn.Exec(runSql, p...)
+	row, er := me.Conn.Exec(runSql, p...)
 	if er == nil {
 		ra, _ := row.RowsAffected()
 		return ra, nil
@@ -25,7 +25,7 @@ func (me *Gpa) Exec(runSql string, p ...interface{}) (int64, error) {
 返回 自增ID
 */
 func (me *Gpa) Insert(s string, param ...interface{}) (int64, error) {
-	row, err := me.conn.Exec(s, param...)
+	row, err := me.Conn.Exec(s, param...)
 	if err == nil {
 		return row.LastInsertId()
 	} else {
@@ -84,7 +84,7 @@ func (me *Gpa) exist(toe reflect.Type, voe reflect.Value) (int64, error) {
 	}
 	s = s[0 : len(s)-4]
 	//fmt.Println(s)
-	rows, err := me.conn.Query(s, param...)
+	rows, err := me.Conn.Query(s, param...)
 	defer rows.Close()
 	if err != nil {
 		seelog.Error("SQL出错", s, ":", err)
@@ -123,7 +123,7 @@ func (me *Gpa) insert(toe reflect.Type, voe reflect.Value) (int64, error) {
 	}
 
 	s = s[0:len(s)-1] + ")values(" + cols[0:len(cols)-1] + ")"
-	row, err := me.conn.Exec(s, param...)
+	row, err := me.Conn.Exec(s, param...)
 	if err == nil {
 		rii, _ := row.LastInsertId()
 		if rii > 0 && len(auto) > 0 {
@@ -163,7 +163,7 @@ func (me *Gpa) update(toe reflect.Type, voe reflect.Value) (int64, error) {
 	for _, v := range priParam {
 		param = append(param, v)
 	}
-	row, er := me.conn.Exec(s, param...)
+	row, er := me.Conn.Exec(s, param...)
 	if er == nil {
 		raf, _ := row.RowsAffected()
 		return raf, er

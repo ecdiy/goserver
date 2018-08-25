@@ -6,7 +6,7 @@ import (
 )
 
 func (me *Gpa) ListArrayString(sqlString string, param ...interface{}) ([][]string, error) {
-	rows, err := me.conn.Query(sqlString, param...)
+	rows, err := me.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if cols, ec := rows.Columns(); ec == nil {

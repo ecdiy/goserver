@@ -6,7 +6,7 @@ import (
 )
 
 func (g *Gpa) QueryMapStringString(sqlString string, param ...interface{}) (map[string]string, bool, error) {
-	rows, err := g.conn.Query(sqlString, param...)
+	rows, err := g.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if cols, ec := rows.Columns(); ec == nil {

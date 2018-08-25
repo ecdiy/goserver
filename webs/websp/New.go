@@ -1,0 +1,82 @@
+package webs
+
+import (
+	"strings"
+	"regexp"
+	"github.com/cihub/seelog"
+	"utils/gpa"
+)
+
+const (
+	SqlSpAll  = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE'"
+	SqlSpInfo = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE' and name=?"
+)
+
+func NewSp(val []string) (*Sp, bool) {
+	sp := &Sp{Name: val[0]}
+	if len(val) < 3 || len(strings.TrimSpace(val[2])) == 0 {
+		return sp, false
+	}
+	rowReg := regexp.MustCompile(`\r|\n`)
+	rows := rowReg.Split(val[2], 0)
+	if len(rows) < 1 {
+		return sp, false
+	}
+	resInfo := strings.Split(rows[0], ";")
+	for _, str := range resInfo {
+		v := strings.Split(str, ":")
+		spr := &SpResult{}
+		if len(v) >= 2 {
+			spr.Type = v[1]
+		} else {
+			spr.Type = "list"
+		}
+		if len(v) >= 1 {
+			spr.Name = strings.TrimSpace(v[0])
+			if len(spr.Name) > 0 {
+				sp.Result = append(sp.Result, spr)
+			}
+		}
+	}
+	sp.Sql = "call " + sp.Name + "("
+	if len(strings.TrimSpace(val[1])) > 1 {
+		var spitBySpaceRegexp, _ = regexp.Compile(`\s+`)
+		pNum := ""
+		var spParams []*SpParam
+		paramArray := strings.Split(val[1], ",")
+		for _, p := range paramArray {
+			if len(pNum) > 0 {
+				pNum += ","
+			}
+			pNum += "?"
+			pTrim := strings.TrimSpace(p)
+			idxArray := spitBySpaceRegexp.FindIndex([]byte(pTrim))
+			if idxArray != nil && idxArray[0] > 0 {
+				//pType := strings.ToLower(pTrim[idxArray[1]:])
+				//idx := strings.Index(pType, "(")
+				//if idx > 0 {
+				//	pType = strings.TrimSpace(pType[0:idx])
+				//}
+				pName := strings.TrimSpace(pTrim[0:idxArray[1]])
+				spn,spe:= sp.GetParam(pName)
+				if spe != nil {
+					return sp, false
+				}
+				spParams = append(spParams, spn)
+			}
+		}
+		sp.Params = spParams
+		sp.Sql += pNum
+	}
+	sp.Sql += ")"
+	return sp, true
+}
+
+func NewSpByName(g *gpa.Gpa, spName string) (*Sp, bool) {
+	info, e := g.ListString(SqlSpInfo, spName)
+	if e != nil || len(info) != 3 {
+		seelog.Error("存储过程不存在:", spName, e)
+		return &Sp{}, false
+	}
+	return NewSp(info)
+}

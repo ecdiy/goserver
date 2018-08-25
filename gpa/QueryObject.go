@@ -17,7 +17,7 @@ import (
 
 func (me *Gpa) QueryObjectArray(runSql string, resultType reflect.Type, param ...interface{}) []reflect.Value {
 
-	rows, _ := me.conn.Query(runSql, param...)
+	rows, _ := me.Conn.Query(runSql, param...)
 	defer rows.Close()
 	var res [][]interface{}
 	cols, _ := rows.Columns()
@@ -42,7 +42,7 @@ func (me *Gpa) QueryObjectArray(runSql string, resultType reflect.Type, param ..
 }
 
 func (me *Gpa) QueryObject(runSql string, resultType reflect.Type, param ...interface{}) []reflect.Value {
-	rows, err := me.conn.Query(runSql, param...)
+	rows, err := me.Conn.Query(runSql, param...)
 	defer rows.Close()
 	rv := reflect.New(resultType).Elem()
 	if err == nil {

@@ -6,7 +6,7 @@ import (
 )
 
 func (me *Gpa) ListInt64(sqlString string, param ...interface{}) ([]int64, error) {
-	rows, err := me.conn.Query(sqlString, param...)
+	rows, err := me.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if cols, ec := rows.Columns(); ec == nil {
@@ -52,7 +52,7 @@ func (me *Gpa) ListInt64(sqlString string, param ...interface{}) ([]int64, error
 }
 
 func (me *Gpa) ListString(sqlString string, param ...interface{}) ([]string, error) {
-	rows, err := me.conn.Query(sqlString, param...)
+	rows, err := me.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if cols, ec := rows.Columns(); ec == nil {

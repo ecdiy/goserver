@@ -7,18 +7,3 @@ type WebBase struct {
 	Ua         string
 	Context    *gin.Context
 }
-type Sp struct {
-	Sql               string
-	Name, SessionName string
-	Params            []SpParam
-	Info              map[string]interface{}
-}
-type SpParam struct {
-	ParamName, ParamType string
-	Length               int
-	ValFunc              ParamValFunc
-	Param                []string
-	//FuncType             string
-}
-
-type ParamValFunc func(ctx *gin.Context, param map[string]interface{}) (string, error)
