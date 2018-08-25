@@ -6,6 +6,7 @@ import (
 	"utils/gpa"
 	"strings"
 	"errors"
+	"database/sql"
 )
 
 //--sp
@@ -25,8 +26,6 @@ type SpParam struct {
 }
 
 type ParamValFunc func(ctx *WebBase, p *SpParam) (interface{}, int)
-
-var spCache = make(map[string]*Sp)
 
 //--
 func (sp *Sp) InParam(ctx *WebBase, p *SpParam) (interface{}, int) {
@@ -57,8 +56,8 @@ func (sp *Sp) GinParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 }
 
 //--
-func (sp *Sp) GetParams(wb  *WebBase) ([]interface{}, int) {
-	var params []interface{} 
+func (sp *Sp) GetParams(wb *WebBase) ([]interface{}, int) {
+	var params []interface{}
 	for _, p := range sp.Params {
 		vf, code := p.ValFunc(wb, p)
 		if code != 200 {
@@ -86,19 +85,18 @@ func (sp *Sp) GetParam(ParamName string) (*SpParam, error) {
 	return p, errors.New("未知参数格式")
 }
 
-func (sp *Sp) Run(g *gpa.Gpa, params ...interface{}) (map[string]interface{}, error) {
-	data := make(map[string]interface{})
-	rows, err := g.Conn.Query(sp.Sql, params...)
+func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface{}) error {
+	rows, err := Conn.Query(sp.Sql, params...)
 	defer rows.Close()
 	if err != nil {
 		seelog.Error("调用存储过程出错了.", sp.Sql, params, "\n\t", err)
-		return data, err
+		return err
 	}
 	for node := 0; node < len(sp.Result); node++ {
 		cols, err := rows.Columns()
 		if err != nil {
 			seelog.Error("获取结果集columns出错:", err)
-			return data, err
+			return err
 		}
 		r := sp.Result[node]
 		if r.Type == "list" {
@@ -115,5 +113,5 @@ func (sp *Sp) Run(g *gpa.Gpa, params ...interface{}) (map[string]interface{}, er
 			break
 		}
 	}
-	return data, nil
+	return nil
 }

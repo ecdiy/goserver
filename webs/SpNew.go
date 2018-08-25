@@ -8,11 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	SqlSpAll  = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE'"
-	SqlSpInfo = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE' and name=?"
-)
-
 func spInitCache(g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
 	list, err := g.ListArrayString(SqlSpAll)
 	if err != nil {

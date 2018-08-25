@@ -9,7 +9,7 @@ func (g *Gpa) ListMapStringString(sql string, param ...interface{}) ([]map[strin
 		if cols, ec := rows.Columns(); ec == nil {
 			result := make([]map[string]string, 0)
 			for rows.Next() {
-				result = append(result, rowToMap(rows, cols))
+				result = append(result, RowToMap(rows, cols))
 			}
 			return result, nil
 		}

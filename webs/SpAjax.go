@@ -24,22 +24,11 @@ func SpAjax(uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(
 	}
 	eng.POST(uri+"/*sp", func(c *gin.Context) {
 		spName := spPrefix + c.Param("sp")
-		var sp *Sp
-		var ext bool
-		if gin.IsDebugging() {
-			sp, ext = NewSpByName(g, spName, auth)
-		} else {
-			sp, ext = spCache[spName]
-		}
-		if !ext {
-			seelog.Error("sp not exist.", sp)
-			c.AbortWithStatus(404)
-			return
-		}
+
 		wb := WebBaseNew(c)
-		data, code := SpExec(g, sp, wb)
+		code := SpExec(spName, g, wb, auth)
 		if code == 200 {
-			c.JSON(200, data)
+			c.JSON(200, wb.Out)
 		} else {
 			seelog.Error("数据存储过程错误:"+spName, "\n\t", code)
 			c.AbortWithStatus(code)
@@ -47,22 +36,33 @@ func SpAjax(uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(
 	})
 }
 
-func SpExec(g *gpa.Gpa, sp *Sp, ctx *WebBase) (map[string]interface{}, int) {
+func SpExec(spName string, g *gpa.Gpa, ctx *WebBase, auth func(c *gin.Context) (bool, int64)) int {
 	defer func() {
 		if err := recover(); err != nil {
-			delete(spCache, sp.Name)
+			delete(spCache, spName)
 		}
 	}()
+	var sp *Sp
+	var ext bool
+	if gin.IsDebugging() {
+		sp, ext = NewSpByName(g, spName, auth)
+	} else {
+		sp, ext = spCache[spName]
+	}
+	if !ext {
+		seelog.Error("sp not exist.", spName)
+		return 404
+	}
 	params, code := sp.GetParams(ctx)
 	if code == 200 {
-		m, e := sp.Run(g, params...)
+		e := sp.Run(ctx.Out, g.Conn, params...)
 		if e != nil {
 			seelog.Error("exec SP失败:", sp.Name)
 			delete(spCache, sp.Name)
-			return nil, 500
+			return 500
 		}
-		return m, 200
+		return 200
 	} else {
-		return nil, code
+		return code
 	}
 }

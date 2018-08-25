@@ -2,9 +2,13 @@ package webs
 
 import (
 	"github.com/cihub/seelog"
+	"strings"
+	"github.com/gin-gonic/gin"
+	"html/template"
+	"utils/gpa"
+	"strconv"
 	"github.com/gin-contrib/multitemplate"
 	"path/filepath"
-	"strings"
 )
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
@@ -34,9 +38,7 @@ func WebTplRenderCreate(templatesDir string, pages ...string) multitemplate.Rend
 				n = n[0:d]
 			}
 			n = strings.Replace(n, "\\", "/", -1)
-
 			ms := []string{layout, page}
-
 			if strings.Index(n, "-web") > 0 {
 				if len(webMs) > 0 {
 					ms = append(ms, webMs...)
@@ -51,4 +53,47 @@ func WebTplRenderCreate(templatesDir string, pages ...string) multitemplate.Rend
 		}
 	}
 	return r
+}
+
+type WebTemplate struct {
+	*WebBase
+	TplName string //模版名称
+}
+
+func (p *WebTemplate) GetTplName() string {
+	if len(p.TplName) > 1 {
+		return p.TplName + "-" + p.Ua
+	}
+	url := p.Context.Request.URL.Path
+	if len(url) == 1 {
+		url = "/index"
+	}
+	return url[1:] + "-" + p.Ua
+}
+
+func (p *WebTemplate) Html(x string) template.HTML { return template.HTML(x) }
+
+func WebTplWithSp(ctx *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
+	if strings.Index(ctx.Request.URL.Path, ".") > 0 {
+		seelog.Warn("404:", ctx.Request.URL.Path)
+		ctx.AbortWithStatus(404)
+		return
+	}
+	tpl := &WebTemplate{}
+	tpl.WebBase = WebBaseNew(ctx)
+	tplName := tpl.GetTplName()
+	ns := strings.Split(tplName, "/")
+	spName := "p"
+	for _, n := range ns {
+		if len(n) > 1 {
+			spName += strings.ToUpper(n[0:1]) + n[1:]
+		}
+	}
+	code := SpExec(spName, g, tpl.WebBase, auth)
+	if code == 200 {
+		ctx.HTML(200, tplName, tpl.Out)
+	} else {
+		seelog.Error(code, spName, tplName)
+		ctx.HTML(200, strconv.Itoa(code)+"-"+tpl.Ua, tpl)
+	}
 }
