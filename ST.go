@@ -1,5 +1,10 @@
 package utils
 
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
 var (
 	/**
 	NE  : NOT EXIST
@@ -39,4 +44,13 @@ func st(Code int32, Desc string) *ST {
 type ST struct {
 	Code int32
 	Msg  string
+}
+
+func (c *ST) OutJSON(gin *gin.Context, result interface{}) {
+	//	gin.Header("Content-Type", "application/json; charset=utf-8")
+	res := map[string]interface{}{"Status": c}
+	if result != nil {
+		res["Result"] = result
+	}
+	gin.JSON(http.StatusOK, res)
 }

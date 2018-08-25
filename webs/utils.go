@@ -1,4 +1,4 @@
-package utils
+package webs
 
 import "github.com/gin-gonic/gin"
 

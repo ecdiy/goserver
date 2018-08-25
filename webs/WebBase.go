@@ -1,16 +1,13 @@
-package utils
+package webs
 
 import (
 	"github.com/gin-gonic/gin"
 	"fmt"
 	"strconv"
+	"utils"
 )
 
-type WebBase struct {
-	Param, Out map[string]interface{} //参数，输出
-	Ua         string
-	Context    *gin.Context
-}
+
 
 func (p *WebBase) String(n string) string {
 	v, vb := p.Param[n]
@@ -46,7 +43,7 @@ func (p *WebBase) Result(result ...interface{}) {
 		p.Out["result"] = result
 	}
 }
-func (p *WebBase) ST(st *ST, result ...interface{}) {
+func (p *WebBase) ST(st *utils.ST, result ...interface{}) {
 	p.Out["code"] = st.Code
 	p.Out["msg"] = st.Msg
 	p.Result(result...)

@@ -1,8 +1,12 @@
-package utils
+package webs
 
 import "regexp"
 
-const DefaultPageSize = 20
+const (
+	DefaultPageSize = 20
+
+	SqlSpAll = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE'"
+)
 
 var (
 	UaSeo = regexp.MustCompile(`baiduspider|twitterbot|facebookexternalhit|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator`)
