@@ -30,10 +30,11 @@ func spInitCache(g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
 func NewSp(val []string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
 	sp := &Sp{Name: val[0], Auth: auth}
 	if len(val) < 3 || len(strings.TrimSpace(val[2])) == 0 {
+		seelog.Warn("没有返回值的参数申明")
 		return sp, false
 	}
 	rowReg := regexp.MustCompile(`\r|\n`)
-	rows := rowReg.Split(val[2], 0)
+	rows := rowReg.Split(val[2], -1)
 	if len(rows) < 1 {
 		return sp, false
 	}

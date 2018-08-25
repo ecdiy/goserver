@@ -11,6 +11,10 @@ import (
 	"path/filepath"
 )
 
+var FunConstantMaps = template.FuncMap{
+	"unescaped": func(x string) template.HTML { return template.HTML(x) },
+}
+
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
 func WebTplRenderCreate(templatesDir string, pages ...string) multitemplate.Renderer {
 	ext := ".html"
@@ -49,7 +53,9 @@ func WebTplRenderCreate(templatesDir string, pages ...string) multitemplate.Rend
 				}
 			}
 			seelog.Info(n, ms)
-			r.AddFromFiles(n, ms...)
+			//r.AddFromFiles(n, FunConstantMaps, ms...)
+
+			r.AddFromFilesFuncs(n, FunConstantMaps, ms...)
 		}
 	}
 	return r
@@ -62,16 +68,14 @@ type WebTemplate struct {
 
 func (p *WebTemplate) GetTplName() string {
 	if len(p.TplName) > 1 {
-		return p.TplName + "-" + p.Ua
+		return p.TplName
 	}
 	url := p.Context.Request.URL.Path
 	if len(url) == 1 {
 		url = "/index"
 	}
-	return url[1:] + "-" + p.Ua
+	return url[1:]
 }
-
-func (p *WebTemplate) Html(x string) template.HTML { return template.HTML(x) }
 
 func WebTplWithSp(ctx *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
 	if strings.Index(ctx.Request.URL.Path, ".") > 0 {
@@ -91,9 +95,9 @@ func WebTplWithSp(ctx *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool,
 	}
 	code := SpExec(spName, g, tpl.WebBase, auth)
 	if code == 200 {
-		ctx.HTML(200, tplName, tpl.Out)
+		ctx.HTML(200, tplName+"-"+tpl.Ua, tpl.Out)
 	} else {
-		seelog.Error(code, spName, tplName)
+		seelog.Error("code=", code, ",spName=", spName, ",tplName=", tplName)
 		ctx.HTML(200, strconv.Itoa(code)+"-"+tpl.Ua, tpl)
 	}
 }
