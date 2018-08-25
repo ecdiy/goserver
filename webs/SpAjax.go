@@ -23,8 +23,7 @@ func SpAjax(uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(
 		spInitCache(g, auth)
 	}
 	eng.POST(uri+"/*sp", func(c *gin.Context) {
-		spName := spPrefix + c.Param("sp")
-
+		spName := c.Param("sp") + spPrefix
 		wb := WebBaseNew(c)
 		code := SpExec(spName, g, wb, auth)
 		if code == 200 {

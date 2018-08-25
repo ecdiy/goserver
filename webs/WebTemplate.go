@@ -87,14 +87,15 @@ func WebTplWithSp(ctx *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool,
 	tpl.WebBase = WebBaseNew(ctx)
 	tplName := tpl.GetTplName()
 	ns := strings.Split(tplName, "/")
-	spName := "p"
+	spName := ""
 	for _, n := range ns {
 		if len(n) > 1 {
 			spName += strings.ToUpper(n[0:1]) + n[1:]
 		}
 	}
+	spName += "Page"
 	code := SpExec(spName, g, tpl.WebBase, auth)
-	if code == 200 {
+	if code == 200 || code == 404 {
 		ctx.HTML(200, tplName+"-"+tpl.Ua, tpl.Out)
 	} else {
 		seelog.Error("code=", code, ",spName=", spName, ",tplName=", tplName)

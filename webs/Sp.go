@@ -28,6 +28,9 @@ type SpParam struct {
 type ParamValFunc func(ctx *WebBase, p *SpParam) (interface{}, int)
 
 //--
+func (sp *Sp) UaParam(wb *WebBase, p *SpParam) (interface{}, int) {
+	return wb.Ua, 200
+}
 func (sp *Sp) InParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 	v := ctx.String(p.ParamName)
 	return v, 200
@@ -79,6 +82,10 @@ func (sp *Sp) GetParam(ParamName string) (*SpParam, error) {
 	if strings.Index(ParamName, "in") == 0 {
 		p.ParamName = p.ParamName[2:]
 		p.ValFunc = sp.InParam
+		return p, nil
+	}
+	if strings.Index(ParamName, "ua") == 0 {
+		p.ValFunc = sp.UaParam
 		return p, nil
 	}
 	seelog.Error("合法参数以(in,gin开头)未知参数格式，", ParamName)
