@@ -112,9 +112,12 @@ func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface
 				list = append(list, gpa.RowToMap(rows, cols))
 			}
 			data[sp.Result[node].Name] = list
-		}
-		if r.Type == "object" {
-			data[sp.Result[node].Name] = gpa.RowToMap(rows, cols)
+		} else if r.Type == "object" {
+			if rows.Next() {
+				data[sp.Result[node].Name] = gpa.RowToMap(rows, cols)
+			}
+		} else {
+			seelog.Warn("未知类型:", r.Type)
 		}
 		if !rows.NextResultSet() {
 			break

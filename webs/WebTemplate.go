@@ -16,18 +16,18 @@ var FunConstantMaps = template.FuncMap{
 }
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
-func WebTplRenderCreate(templatesDir string, pages ...string) multitemplate.Renderer {
+func WebTplRenderCreate(templatesDir, layoutDir string, pages ...string) multitemplate.Renderer {
 	ext := ".html"
 	r := multitemplate.NewRenderer()
-	webMs, _ := filepath.Glob(templatesDir + "layout/web/*" + ext)
-	h5Ms, _ := filepath.Glob(templatesDir + "layout/h5/*" + ext)
+	webMs, _ := filepath.Glob(layoutDir + "/web/*" + ext)
+	h5Ms, _ := filepath.Glob(layoutDir + "/h5/*" + ext)
 	seelog.Info("web modules:", webMs)
 	for _, p := range pages {
-		pages, err := filepath.Glob(templatesDir + p + ext)
+		pp, err := filepath.Glob(templatesDir + p + ext)
 		if err != nil {
 			panic(err.Error())
 		}
-		for _, page := range pages {
+		for _, page := range pp {
 			j := strings.LastIndex(page, "-")
 			if j < 0 || j < len(templatesDir) {
 				if strings.Index(page, "layout") < 0 {
@@ -35,7 +35,7 @@ func WebTplRenderCreate(templatesDir string, pages ...string) multitemplate.Rend
 				}
 				continue
 			}
-			layout := templatesDir + "layout/" + page[j+1:]
+			layout := layoutDir + "/" + page[j+1:]
 			n := page[0:len(page)-len(ext)][len(templatesDir):]
 			d := strings.Index(n, ",")
 			if d > 0 {

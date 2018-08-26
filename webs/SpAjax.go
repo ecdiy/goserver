@@ -22,7 +22,7 @@ func SpAjax(uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(
 	if !gin.IsDebugging() {
 		spInitCache(g, auth)
 	}
-	eng.POST(uri+"/*sp", func(c *gin.Context) {
+	eng.POST(uri+"/:sp", func(c *gin.Context) {
 		spName := c.Param("sp") + spPrefix
 		wb := WebBaseNew(c)
 		code := SpExec(spName, g, wb, auth)
