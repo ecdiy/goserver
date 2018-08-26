@@ -38,7 +38,7 @@ func NewSp(val []string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
 	if len(rows) < 1 {
 		return sp, false
 	}
-	resInfo := strings.Split(rows[0], ";")
+	resInfo := strings.Split(rows[0], ",")
 	for _, str := range resInfo {
 		v := strings.Split(str, ":")
 		spr := &SpResult{}
@@ -91,7 +91,7 @@ func NewSp(val []string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
 func NewSpByName(g *gpa.Gpa, spName string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
 	info, e := g.ListString(SqlSpInfo, spName)
 	if e != nil || len(info) != 3 {
-		seelog.Error("存储过程不存在:", spName, e)
+		//seelog.Warn("存储过程不存在:", spName, e)
 		return &Sp{}, false
 	}
 	return NewSp(info, auth)

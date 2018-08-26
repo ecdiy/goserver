@@ -49,7 +49,7 @@ func SpExec(spName string, g *gpa.Gpa, ctx *WebBase, auth func(c *gin.Context) (
 		sp, ext = spCache[spName]
 	}
 	if !ext {
-		seelog.Error("sp not exist.spName=", spName, ";IsDebugging=", gin.IsDebugging())
+		//seelog.Error("sp not exist.spName=", spName, ";IsDebugging=", gin.IsDebugging())
 		return 404
 	}
 	params, code := sp.GetParams(ctx)
