@@ -9,14 +9,27 @@ import (
 	"strconv"
 	"github.com/gin-contrib/multitemplate"
 	"path/filepath"
+	"io/ioutil"
+	"regexp"
 )
 
 var FunConstantMaps = template.FuncMap{
 	"unescaped": func(x string) template.HTML { return template.HTML(x) },
+	"zip": func(z map[string]interface{}) map[string]interface{} {
+		seelog.Info(z)
+		return z
+	},
 }
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
 func WebTplRenderCreate(templatesDir, layoutDir string, pages ...string) multitemplate.Renderer {
+
+	regs := []*regexp.Regexp{regexp.MustCompile(">\\s*<"),
+		regexp.MustCompile(";\\s*"), regexp.MustCompile(",\\s*"),
+		regexp.MustCompile("{\\s*"), regexp.MustCompile("\\s+[}]\\s*"),
+		regexp.MustCompile("[\r|\n]+\\s*")}
+	tos := []string{"><", ";", ",", "{", "}\n", "\n"}
+
 	ext := ".html"
 	r := multitemplate.NewRenderer()
 	webMs, _ := filepath.Glob(layoutDir + "/web/*" + ext)
@@ -54,8 +67,20 @@ func WebTplRenderCreate(templatesDir, layoutDir string, pages ...string) multite
 			}
 			seelog.Info(n, ms)
 			//r.AddFromFiles(n, FunConstantMaps, ms...)
-
-			r.AddFromFilesFuncs(n, FunConstantMaps, ms...)
+			if gin.IsDebugging() {
+				r.AddFromFilesFuncs(n, FunConstantMaps, ms...)
+			} else {
+				html := []string{}
+				for _, mm := range ms {
+					bb, _ := ioutil.ReadFile(mm)
+					s := strings.TrimSpace(string(bb))
+					for i, r := range regs {
+						s = r.ReplaceAllString(s, tos[i])
+					}
+					html = append(html, s)
+				}
+				r.AddFromStringsFuncs(n, FunConstantMaps, html...)
+			}
 		}
 	}
 	return r
