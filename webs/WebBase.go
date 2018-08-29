@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"utils"
+	"encoding/json"
 )
 
 type WebBase struct {
@@ -14,6 +15,16 @@ type WebBase struct {
 }
 
 func (p *WebBase) String(n string) string {
+	if p.Param == nil {
+		row, b := p.Context.GetRawData()
+		if b == nil {
+			var data map[string]interface{}
+			je := json.Unmarshal(row, &data)
+			if je == nil {
+				p.Param = data
+			}
+		}
+	}
 	v, vb := p.Param[n]
 	if vb {
 		return fmt.Sprint(v)
