@@ -15,10 +15,6 @@ import (
 
 var FunConstantMaps = template.FuncMap{
 	"unescaped": func(x string) template.HTML { return template.HTML(x) },
-	"zip": func(z map[string]interface{}) map[string]interface{} {
-		seelog.Info(z)
-		return z
-	},
 }
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
@@ -102,14 +98,14 @@ func (p *WebTemplate) GetTplName() string {
 	return url[1:]
 }
 
-func WebTplWithSp(ctx *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
+func WebTplWithSp(tpl *WebTemplate, ctx *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
 	if strings.Index(ctx.Request.URL.Path, ".") > 0 {
 		seelog.Warn("404:", ctx.Request.URL.Path)
 		ctx.AbortWithStatus(404)
 		return
 	}
-	tpl := &WebTemplate{}
-	tpl.WebBase = WebBaseNew(ctx)
+	//tpl := &WebTemplate{}
+	//tpl.WebBase = WebBaseNew(ctx)
 	tplName := tpl.GetTplName()
 	ns := strings.Split(tplName, "/")
 	spName := ""

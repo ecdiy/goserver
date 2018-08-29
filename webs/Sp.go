@@ -41,7 +41,8 @@ func (sp *Sp) GinParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 	if b {
 		return v, 200
 	} else {
-		if sp.Auth != nil {
+		_, CallAuth := ctx.Context.Get("CallAuth")
+		if !CallAuth && sp.Auth != nil {
 			auth, _ := sp.Auth(ctx.Context)
 			if !auth {
 				return "", 401
