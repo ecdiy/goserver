@@ -23,7 +23,7 @@ var FunConstantMaps = template.FuncMap{
 }
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
-func WebTplRenderCreate(templatesDir, layoutDir string, pages ...string) multitemplate.Renderer {
+func WebTplRenderCreate(templatesDir, layoutDir string, extends map[string][]string, pages ...string) multitemplate.Renderer {
 
 	regs := []*regexp.Regexp{regexp.MustCompile(">\\s*<"),
 		regexp.MustCompile(";\\s*"), regexp.MustCompile(",\\s*"),
@@ -65,6 +65,10 @@ func WebTplRenderCreate(templatesDir, layoutDir string, pages ...string) multite
 				if len(h5Ms) > 0 {
 					ms = append(ms, h5Ms...)
 				}
+			}
+			mds, mb := extends[n]
+			if mb {
+				ms = append(ms, mds...)
 			}
 			seelog.Info(n, ms)
 			//r.AddFromFiles(n, FunConstantMaps, ms...)
