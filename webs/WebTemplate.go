@@ -103,7 +103,7 @@ func (p *WebTemplate) GetTplName() string {
 	return url[1:]
 }
 
-func WebTplWithSp(tpl *WebTemplate, ctx *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
+func WebTplWithSp(loginUrl string, tpl *WebTemplate, ctx *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
 	if strings.Index(ctx.Request.URL.Path, ".") > 0 {
 		seelog.Warn("404:", ctx.Request.URL.Path)
 		ctx.AbortWithStatus(404)
@@ -125,7 +125,11 @@ func WebTplWithSp(tpl *WebTemplate, ctx *gin.Context, g *gpa.Gpa, auth func(c *g
 		}
 		ctx.HTML(200, tplName+"-"+tpl.Ua, tpl.Out)
 	} else {
-		seelog.Error("code=", code, ",spName=", spName, ",tplName=", tplName)
-		ctx.HTML(200, strconv.Itoa(code)+"-"+tpl.Ua, tpl)
+		if code == 401 {
+			ctx.Redirect(302, loginUrl)
+		} else {
+			seelog.Error("code=", code, ",spName=", spName, ",tplName=", tplName)
+			ctx.HTML(200, strconv.Itoa(code)+"-"+tpl.Ua, tpl)
+		}
 	}
 }
