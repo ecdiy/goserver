@@ -11,10 +11,15 @@ import (
 	"path/filepath"
 	"io/ioutil"
 	"regexp"
+	"encoding/json"
 )
 
 var FunConstantMaps = template.FuncMap{
 	"unescaped": func(x string) template.HTML { return template.HTML(x) },
+	"marshal": func(in interface{}) template.JS {
+		jsonStr, _ := json.Marshal(in)
+		return template.JS(string(jsonStr))
+	},
 }
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
@@ -104,8 +109,6 @@ func WebTplWithSp(tpl *WebTemplate, ctx *gin.Context, g *gpa.Gpa, auth func(c *g
 		ctx.AbortWithStatus(404)
 		return
 	}
-	//tpl := &WebTemplate{}
-	//tpl.WebBase = WebBaseNew(ctx)
 	tplName := tpl.GetTplName()
 	ns := strings.Split(tplName, "/")
 	spName := ""
@@ -117,6 +120,9 @@ func WebTplWithSp(tpl *WebTemplate, ctx *gin.Context, g *gpa.Gpa, auth func(c *g
 	spName += "Page"
 	code := SpExec(spName, g, tpl.WebBase, auth)
 	if code == 200 || code == 404 {
+		if code == 404 {
+			seelog.Warn("Not Find SpName:", spName)
+		}
 		ctx.HTML(200, tplName+"-"+tpl.Ua, tpl.Out)
 	} else {
 		seelog.Error("code=", code, ",spName=", spName, ",tplName=", tplName)
