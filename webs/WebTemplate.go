@@ -60,7 +60,7 @@ func WebTplRenderCreate(templatesDir, layoutDir string, extends map[string][]str
 			j := strings.LastIndex(page, "-")
 			if j < 0 || j < len(templatesDir) {
 				if strings.Index(page, "layout") < 0 {
-					seelog.Warn("命名规则不对:-ua[].html")
+					seelog.Warn("命名规则不对:-ua[].html,", page)
 				}
 				continue
 			}
@@ -86,11 +86,10 @@ func WebTplRenderCreate(templatesDir, layoutDir string, extends map[string][]str
 				ms = append(ms, mds...)
 			}
 			seelog.Info(n, ms)
-			//r.AddFromFiles(n, FunConstantMaps, ms...)
 			if gin.IsDebugging() {
 				r.AddFromFilesFuncs(n, FunConstantMaps, ms...)
 			} else {
-				html := []string{}
+				var html []string
 				for _, mm := range ms {
 					bb, _ := ioutil.ReadFile(mm)
 					s := strings.TrimSpace(string(bb))
@@ -142,6 +141,12 @@ func WebTplWithSp(loginUrl string, tpl *WebTemplate, ctx *gin.Context, g *gpa.Gp
 		if code == 404 {
 			seelog.Warn("Not Find SpName:", spName)
 		}
+		defer func() {
+			if err := recover(); err != nil {
+				seelog.Error("template error;template=", tplName+"-"+tpl.Ua,
+					"\nData=", tpl.Out, "\n\n", err)
+			}
+		}()
 		ctx.HTML(200, tplName+"-"+tpl.Ua, tpl.Out)
 	} else {
 		if code == 401 {

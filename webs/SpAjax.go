@@ -12,9 +12,10 @@ URL 映射到存储过程调用，返回json数据格式
 SpAjax(true,"/sp/","Sp",authFun)
  */
 
-func SpAjax(uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(c *gin.Context) (bool, int64)) {
+func SpAjax(reloadFun func(), uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(c *gin.Context) (bool, int64)) {
 	eng.GET(uri+"Reload", func(c *gin.Context) {
 		seelog.Info("Reload Sp Cache")
+		reloadFun()
 		spCache = make(map[string]*Sp)
 		spInitCache(g, auth)
 		utils.OK.OutJSON(c, nil)
