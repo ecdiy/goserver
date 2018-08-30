@@ -11,15 +11,30 @@ import (
 	"path/filepath"
 	"io/ioutil"
 	"regexp"
-	"encoding/json"
+	"fmt"
 )
 
 var FunConstantMaps = template.FuncMap{
 	"unescaped": func(x string) template.HTML { return template.HTML(x) },
-	"marshal": func(in interface{}) template.JS {
-		jsonStr, _ := json.Marshal(in)
-		return template.JS(string(jsonStr))
+	"add": func(v ... int) int {
+		vs := 0
+		for _, vv := range v {
+			vs += vv
+		}
+		return vs
 	},
+	"eq": func(a, b interface{}) bool {
+		r := a == b
+		if r {
+			return r
+		} else {
+			return fmt.Sprint(a) == fmt.Sprint(b)
+		}
+	},
+	//"marshal": func(in interface{}) template.JS {
+	//	jsonStr, _ := json.Marshal(in)
+	//	return template.JS(string(jsonStr))
+	//},
 }
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
