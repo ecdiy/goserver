@@ -68,13 +68,13 @@ func NewSp(val []string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
 			pTrim := strings.TrimSpace(p)
 			idxArray := spitBySpaceRegexp.FindIndex([]byte(pTrim))
 			if idxArray != nil && idxArray[0] > 0 {
-				//pType := strings.ToLower(pTrim[idxArray[1]:])
-				//idx := strings.Index(pType, "(")
-				//if idx > 0 {
-				//	pType = strings.TrimSpace(pType[0:idx])
-				//}
+				pType := strings.ToLower(pTrim[idxArray[1]:])
+				idx := strings.Index(pType, "(")
+				if idx > 0 {
+					pType = strings.TrimSpace(pType[0:idx])
+				}
 				pName := strings.TrimSpace(pTrim[0:idxArray[1]])
-				spn, spe := sp.GetParam(pName)
+				spn, spe := sp.GetParam(pName,pType)
 				if spe != nil {
 					return sp, false
 				}

@@ -21,8 +21,8 @@ type SpResult struct {
 	Name, Type string //[ [total,object],[list,list] ]
 }
 type SpParam struct {
-	ParamName string
-	ValFunc   ParamValFunc
+	ParamName, DefaultVal string
+	ValFunc               ParamValFunc
 }
 
 type ParamValFunc func(ctx *WebBase, p *SpParam) (interface{}, int)
@@ -34,6 +34,20 @@ func (sp *Sp) UaParam(wb *WebBase, p *SpParam) (interface{}, int) {
 func (sp *Sp) InParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 	v := ctx.String(p.ParamName)
 	return v, 200
+}
+
+func (sp *Sp) GkParam(ctx *WebBase, p *SpParam) (interface{}, int) {
+	_, CallAuth := ctx.Context.Get("CallAuth")
+	if !CallAuth && sp.Auth != nil {
+		sp.Auth(ctx.Context)
+	}
+	v, b := ctx.Context.Get(p.ParamName)
+	if b {
+		return v, 200
+	} else {
+		seelog.Error("ctx.Get not find.", p.ParamName)
+		return p.DefaultVal, 200
+	}
 }
 
 func (sp *Sp) GinParam(ctx *WebBase, p *SpParam) (interface{}, int) {
@@ -73,7 +87,7 @@ func (sp *Sp) GetParams(wb *WebBase) ([]interface{}, int) {
 	return params, 200
 }
 
-func (sp *Sp) GetParam(ParamName string) (*SpParam, error) {
+func (sp *Sp) GetParam(ParamName, pType string) (*SpParam, error) {
 	p := &SpParam{ParamName: ParamName}
 	if strings.Index(ParamName, "gin") == 0 {
 		p.ParamName = p.ParamName[3:]
@@ -87,6 +101,17 @@ func (sp *Sp) GetParam(ParamName string) (*SpParam, error) {
 	}
 	if strings.Index(ParamName, "ua") == 0 {
 		p.ValFunc = sp.UaParam
+		return p, nil
+	}
+	if strings.Index(ParamName, "gk") == 0 {
+		p.ParamName = p.ParamName[2:]
+		p.ValFunc = sp.GkParam
+		if pType == "bigint" || pType == "int" {
+			p.DefaultVal = "0"
+		} else {
+			p.DefaultVal = ""
+		}
+		seelog.Info("Type=", pType, ";default=", p.DefaultVal)
 		return p, nil
 	}
 	seelog.Error("合法参数以(in,gin开头)未知参数格式，", ParamName)
