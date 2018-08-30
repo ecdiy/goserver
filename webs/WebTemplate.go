@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"regexp"
 	"fmt"
+	"encoding/json"
 )
 
 var FunConstantMaps = template.FuncMap{
@@ -31,10 +32,10 @@ var FunConstantMaps = template.FuncMap{
 			return fmt.Sprint(a) == fmt.Sprint(b)
 		}
 	},
-	//"marshal": func(in interface{}) template.JS {
-	//	jsonStr, _ := json.Marshal(in)
-	//	return template.JS(string(jsonStr))
-	//},
+	"marshal": func(in interface{}) template.HTML {
+		jsonStr, _ := json.Marshal(in)
+		return template.HTML(string(jsonStr))
+	},
 }
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
@@ -43,7 +44,7 @@ func WebTplRenderCreate(templatesDir, layoutDir string, extends map[string][]str
 	regs := []*regexp.Regexp{regexp.MustCompile(">\\s*<"),
 		regexp.MustCompile(";\\s*"), regexp.MustCompile(",\\s*"),
 		regexp.MustCompile("{\\s*"), regexp.MustCompile("\\s+[}]\\s*"),
-		regexp.MustCompile("[\r|\n]+\\s*")}
+		regexp.MustCompile("[\r\n]+\\s*")}
 	tos := []string{"><", ";", ",", "{", "}\n", "\n"}
 
 	ext := ".html"
