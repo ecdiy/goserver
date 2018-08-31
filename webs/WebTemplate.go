@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"io/ioutil"
 	"regexp"
-	"fmt"
 	"encoding/json"
+	"fmt"
 )
 
 var FunConstantMaps = template.FuncMap{
@@ -24,6 +24,13 @@ var FunConstantMaps = template.FuncMap{
 		}
 		return vs
 	},
+	"marshal": func(in interface{}) template.HTML {
+		jsonStr, _ := json.Marshal(in)
+		return template.HTML(string(jsonStr))
+	},
+	"neq": func(a, b interface{}) bool {
+		return fmt.Sprint(a) != fmt.Sprint(b)
+	},
 	"eq": func(a, b interface{}) bool {
 		r := a == b
 		if r {
@@ -32,9 +39,10 @@ var FunConstantMaps = template.FuncMap{
 			return fmt.Sprint(a) == fmt.Sprint(b)
 		}
 	},
-	"marshal": func(in interface{}) template.HTML {
-		jsonStr, _ := json.Marshal(in)
-		return template.HTML(string(jsonStr))
+	"gt": func(a, b interface{}) bool {
+		ai, _ := strconv.ParseInt(fmt.Sprint(a), 10, 0)
+		bi, _ := strconv.ParseInt(fmt.Sprint(b), 10, 0)
+		return ai > bi
 	},
 }
 

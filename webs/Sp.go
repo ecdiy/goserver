@@ -33,6 +33,9 @@ func (sp *Sp) UaParam(wb *WebBase, p *SpParam) (interface{}, int) {
 }
 func (sp *Sp) InParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 	v := ctx.String(p.ParamName)
+	if v == "" {
+		v = p.DefaultVal
+	}
 	return v, 200
 }
 
@@ -89,6 +92,11 @@ func (sp *Sp) GetParams(wb *WebBase) ([]interface{}, int) {
 
 func (sp *Sp) GetParam(ParamName, pType string) (*SpParam, error) {
 	p := &SpParam{ParamName: ParamName}
+	if pType == "bigint" || pType == "int" {
+		p.DefaultVal = "0"
+	} else {
+		p.DefaultVal = ""
+	}
 	if strings.Index(ParamName, "gin") == 0 {
 		p.ParamName = p.ParamName[3:]
 		p.ValFunc = sp.GinParam
@@ -106,15 +114,10 @@ func (sp *Sp) GetParam(ParamName, pType string) (*SpParam, error) {
 	if strings.Index(ParamName, "gk") == 0 {
 		p.ParamName = p.ParamName[2:]
 		p.ValFunc = sp.GkParam
-		if pType == "bigint" || pType == "int" {
-			p.DefaultVal = "0"
-		} else {
-			p.DefaultVal = ""
-		}
 		seelog.Info("Type=", pType, ";default=", p.DefaultVal)
 		return p, nil
 	}
-	seelog.Error("合法参数以(in,gin开头)未知参数格式，", ParamName)
+	seelog.Error("合法参数以(in,gin,ua,gk开头)未知参数格式，", ParamName)
 	return p, errors.New("未知参数格式")
 }
 
