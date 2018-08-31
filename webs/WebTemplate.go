@@ -4,47 +4,14 @@ import (
 	"github.com/cihub/seelog"
 	"strings"
 	"github.com/gin-gonic/gin"
-	"html/template"
 	"utils/gpa"
 	"strconv"
 	"github.com/gin-contrib/multitemplate"
 	"path/filepath"
 	"io/ioutil"
 	"regexp"
-	"encoding/json"
-	"fmt"
 )
 
-var FunConstantMaps = template.FuncMap{
-	"unescaped": func(x string) template.HTML { return template.HTML(x) },
-	"add": func(v ... int) int {
-		vs := 0
-		for _, vv := range v {
-			vs += vv
-		}
-		return vs
-	},
-	"marshal": func(in interface{}) template.HTML {
-		jsonStr, _ := json.Marshal(in)
-		return template.HTML(string(jsonStr))
-	},
-	"neq": func(a, b interface{}) bool {
-		return fmt.Sprint(a) != fmt.Sprint(b)
-	},
-	"eq": func(a, b interface{}) bool {
-		r := a == b
-		if r {
-			return r
-		} else {
-			return fmt.Sprint(a) == fmt.Sprint(b)
-		}
-	},
-	"gt": func(a, b interface{}) bool {
-		ai, _ := strconv.ParseInt(fmt.Sprint(a), 10, 0)
-		bi, _ := strconv.ParseInt(fmt.Sprint(b), 10, 0)
-		return ai > bi
-	},
-}
 
 // WebTplRenderCreate("ui/views/wk-site/", "/**/*", "/*")
 func WebTplRenderCreate(templatesDir, layoutDir string, extends map[string][]string, pages ...string) multitemplate.Renderer {
