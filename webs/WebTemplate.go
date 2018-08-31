@@ -53,7 +53,7 @@ func WebTplRenderCreate(templatesDir, layoutDir string, extends map[string][]str
 		regexp.MustCompile(";\\s*"), regexp.MustCompile(",\\s*"),
 		regexp.MustCompile("{\\s*"), regexp.MustCompile("\\s+[}]\\s*"),
 		regexp.MustCompile("[\r\n]+\\s*")}
-	tos := []string{"><", ";", ",", "{", "}\n", "\n"}
+	tos := []string{"><", ";", ",", "{", "}", "\n"}
 
 	ext := ".html"
 	r := multitemplate.NewRenderer()
