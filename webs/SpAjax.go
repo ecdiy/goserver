@@ -20,7 +20,7 @@ func SpAjaxReload(reloadFun func(), c *gin.Context, g *gpa.Gpa, auth func(c *gin
 	utils.OK.OutJSON(c, nil)
 }
 
-func SpAjax(  uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(c *gin.Context) (bool, int64)) {
+func SpAjax(uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(c *gin.Context) (bool, int64)) {
 	if !gin.IsDebugging() {
 		spInitCache(g, auth)
 	}
@@ -31,7 +31,7 @@ func SpAjax(  uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth fun
 		if code == 200 {
 			c.JSON(200, wb.Out)
 		} else {
-			seelog.Error("数据存储过程错误:"+spName, "\n\t", code)
+			seelog.Error("数据存储过程错误:"+spName, ";", code)
 			c.AbortWithStatus(code)
 		}
 	})
