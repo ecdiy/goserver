@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func spInitCache(g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
+func spInitCache(g *gpa.Gpa, auth func(c *gin.Context) (bool, int64), spPrefix string) {
 	list, err := g.ListArrayString(SqlSpAll)
 	if err != nil {
 		seelog.Error("查询所有的存储过程出错：", err)
@@ -16,13 +16,15 @@ func spInitCache(g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
 		if list != nil {
 			sps := ""
 			for _, val := range list {
-				sp, b := NewSp(val, auth)
-				if b {
-					spCache [sp.Name] = sp
-					sps += sp.Sql + ","
+				if strings.LastIndex(val[0], spPrefix) == len(val[0])-len(spPrefix) {
+					sp, b := NewSp(val, auth)
+					if b {
+						spCache [sp.Name] = sp
+						sps += sp.Sql + ","
+					}
 				}
 			}
-			seelog.Info("~~sp:~~", sps)
+			seelog.Info("~~sp:~~", spPrefix, ";\n\t", sps)
 		}
 	}
 }
@@ -74,7 +76,7 @@ func NewSp(val []string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
 					pType = strings.TrimSpace(pType[0:idx])
 				}
 				pName := strings.TrimSpace(pTrim[0:idxArray[1]])
-				spn, spe := sp.GetParam(pName,pType)
+				spn, spe := sp.GetParam(pName, pType)
 				if spe != nil {
 					return sp, false
 				}
