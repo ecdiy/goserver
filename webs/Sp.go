@@ -82,7 +82,7 @@ func (sp *Sp) GetParams(wb *WebBase) ([]interface{}, int) {
 	for _, p := range sp.Params {
 		vf, code := p.ValFunc(wb, p)
 		if code != 200 {
-			seelog.Error("获取参数值出错：SpName=", sp.Name, ";ParamName=", p.ParamName, ";code=", code)
+			seelog.Error("获取参数值出错：SpName=", sp.Name, ";ParamName=", p.ParamName, ";code=", code, ",funName=", p.ValFunc)
 			return nil, code
 		}
 		params = append(params, vf)
