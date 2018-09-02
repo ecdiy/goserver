@@ -16,13 +16,13 @@ func spInitCache(g *gpa.Gpa, auth func(c *gin.Context) (bool, int64), spPrefix s
 		if list != nil {
 			sps := ""
 			for _, val := range list {
-				if strings.LastIndex(val[0], spPrefix) == len(val[0])-len(spPrefix) {
+				//if strings.LastIndex(val[0], spPrefix) == len(val[0])-len(spPrefix) {
 					sp, b := NewSp(val, auth)
 					if b {
 						spCache [sp.Name] = sp
 						sps += sp.Sql + ","
 					}
-				}
+				//}
 			}
 			seelog.Info("~~sp:~~", spPrefix, ";\n\t", sps)
 		}
