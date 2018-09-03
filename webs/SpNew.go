@@ -9,6 +9,7 @@ import (
 )
 
 func spInitCache(g *gpa.Gpa, auth func(c *gin.Context) (bool, int64), spPrefix string) {
+	spReloadFun[spPrefix] = auth
 	list, err := g.ListArrayString(SqlSpAll)
 	if err != nil {
 		seelog.Error("查询所有的存储过程出错：", err)

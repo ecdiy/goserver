@@ -12,32 +12,49 @@ URL 映射到存储过程调用，返回json数据格式
 SpAjax(true,"/sp/","Sp",authFun)
  */
 
-func SpAjaxReload(spPrefix string, reloadFun func(), c *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
-	seelog.Info("Reload Sp Cache")
-	reloadFun()
-	//spCache = make(map[string]*Sp)
-	//TODO
-	//spInitCache(g, auth, spPrefix)
-	utils.OK.OutJSON(c, nil)
+func WebSp(g *gpa.Gpa, eng *gin.Engine, auth func(c *gin.Context) (bool, int64), adminAuthFun func(c *gin.Context) (bool, int64), reload func()) {
+	if !gin.IsDebugging() {
+		if adminAuthFun != nil {
+			spInitCache(g, adminAuthFun, "Admin")
+		}
+		if auth != nil {
+			spInitCache(g, auth, "Ajax")
+			spInitCache(g, auth, "Page")
+		}
+	}
+	if auth != nil {
+		eng.POST("/sp/:sp", func(c *gin.Context) {
+			sp(g, c, "Ajax", auth)
+		})
+	}
+	if adminAuthFun != nil {
+		eng.POST("/spa/:sp", func(c *gin.Context) {
+			sp(g, c, "Admin", adminAuthFun)
+		})
+	}
+	eng.POST("/spReload", func(c *gin.Context) {
+		seelog.Info("Reload Sp Cache & template ...")
+		if reload != nil {
+			reload()
+		}
+		spCache = make(map[string]*Sp)
+		for fix, fun := range spReloadFun {
+			spInitCache(g, fun, fix)
+		}
+		utils.OK.OutJSON(c, nil)
+	})
 }
 
-func SpAjax(uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(c *gin.Context) (bool, int64)) {
-	if !gin.IsDebugging() {
-		seelog.Info("cache sp info ,", spPrefix, " Page")
-		spInitCache(g, auth, spPrefix)
-		spInitCache(g, auth, "Page")
+func sp(g *gpa.Gpa, c *gin.Context, spPrefix string, auth func(c *gin.Context) (bool, int64)) {
+	spName := c.Param("sp") + spPrefix
+	wb := WebBaseNew(c)
+	code := SpExec(spName, g, wb, auth)
+	if code == 200 {
+		c.JSON(200, wb.Out)
+	} else {
+		seelog.Error("数据存储过程错误:"+spName, ";", code)
+		c.AbortWithStatus(code)
 	}
-	eng.POST(uri+"/:sp", func(c *gin.Context) {
-		spName := c.Param("sp") + spPrefix
-		wb := WebBaseNew(c)
-		code := SpExec(spName, g, wb, auth)
-		if code == 200 {
-			c.JSON(200, wb.Out)
-		} else {
-			seelog.Error("数据存储过程错误:"+spName, ";", code)
-			c.AbortWithStatus(code)
-		}
-	})
 }
 
 func SpExec(spName string, g *gpa.Gpa, ctx *WebBase, auth func(c *gin.Context) (bool, int64)) int {
