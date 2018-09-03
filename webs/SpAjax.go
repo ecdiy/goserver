@@ -22,6 +22,7 @@ func SpAjaxReload(spPrefix string, reloadFun func(), c *gin.Context, g *gpa.Gpa,
 
 func SpAjax(uri string, g *gpa.Gpa, eng *gin.Engine, spPrefix string, auth func(c *gin.Context) (bool, int64)) {
 	if !gin.IsDebugging() {
+		seelog.Info("cache sp info ,", spPrefix, " Page")
 		spInitCache(g, auth, spPrefix)
 		spInitCache(g, auth, "Page")
 	}
