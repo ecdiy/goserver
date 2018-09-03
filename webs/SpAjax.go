@@ -15,7 +15,7 @@ SpAjax(true,"/sp/","Sp",authFun)
 func SpAjaxReload(spPrefix string, reloadFun func(), c *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
 	seelog.Info("Reload Sp Cache")
 	reloadFun()
-	spCache = make(map[string]*Sp)
+	//spCache = make(map[string]*Sp)
 	//TODO
 	//spInitCache(g, auth, spPrefix)
 	utils.OK.OutJSON(c, nil)
