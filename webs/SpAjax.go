@@ -32,7 +32,7 @@ func WebSp(g *gpa.Gpa, eng *gin.Engine, auth func(c *gin.Context) (bool, int64),
 			sp(g, c, "Admin", adminAuthFun)
 		})
 	}
-	eng.POST("/spReload", func(c *gin.Context) {
+	eng.GET("/spReload", func(c *gin.Context) {
 		seelog.Info("Reload Sp Cache & template ...")
 		if reload != nil {
 			reload()
