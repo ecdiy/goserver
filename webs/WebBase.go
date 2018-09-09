@@ -16,12 +16,18 @@ type WebBase struct {
 
 func (p *WebBase) String(n string) string {
 	if p.Param == nil {
-		row, b := p.Context.GetRawData()
-		if b == nil {
-			var data map[string]interface{}
-			je := json.Unmarshal(row, &data)
-			if je == nil {
-				p.Param = data
+		px, pb := p.Context.Get("param")
+		if pb {
+			p.Param = px.(map[string]interface{})
+		} else {
+			row, b := p.Context.GetRawData()
+			if b == nil {
+				var data map[string]interface{}
+				je := json.Unmarshal(row, &data)
+				if je == nil {
+					p.Param = data
+					p.Context.Set("param", p.Param)
+				}
 			}
 		}
 	}
