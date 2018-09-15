@@ -15,6 +15,10 @@ type WebBase struct {
 }
 
 func (p *WebBase) String(n string) string {
+	vx := p.Context.GetHeader(n)
+	if vx != "" {
+		return vx
+	}
 	if p.Param == nil {
 		px, pb := p.Context.Get("param")
 		if pb {
@@ -44,6 +48,9 @@ func (p *WebBase) String(n string) string {
 		}
 		if v2 == "" {
 			v2, _ = p.Context.GetQuery(n)
+		}
+		if v2 == "" {
+			v2 = p.Context.GetHeader(n)
 		}
 		return v2
 	}

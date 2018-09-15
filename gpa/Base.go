@@ -148,7 +148,7 @@ func (impl *Gpa) setMethodImpl(di interface{}) {
 			lowSql := strings.ToLower(runSql)[0:6]
 			if lowSql == "insert" {
 				methodName = "Insert"
-			} else if lowSql == "update" || lowSql == "delete" {
+			} else if lowSql == "update" || lowSql == "delete" || lowSql == "replac" {
 				methodName = "Exec"
 			} else {
 				methodName = "Query" + methodName
