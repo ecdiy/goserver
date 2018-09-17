@@ -24,15 +24,30 @@ func WebSp(g *gpa.Gpa, eng *gin.Engine, auth func(c *gin.Context) (bool, int64),
 	}
 	if auth != nil {
 		eng.POST("/sp/:sp", func(c *gin.Context) {
+			defer func() {
+				if err := recover(); err != nil {
+					seelog.Error("sp un catch error;", err)
+				}
+			}()
 			sp(g, c, "Ajax", auth)
 		})
 	}
 	if adminAuthFun != nil {
 		eng.POST("/spa/:sp", func(c *gin.Context) {
+			defer func() {
+				if err := recover(); err != nil {
+					seelog.Error("spa un catch error;", err)
+				}
+			}()
 			sp(g, c, "Admin", adminAuthFun)
 		})
 	}
 	eng.GET("/spReload", func(c *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				seelog.Error("spReload un catch error;", err)
+			}
+		}()
 		seelog.Info("Reload Sp Cache & template ...")
 		if reload != nil {
 			reload()
