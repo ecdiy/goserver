@@ -69,7 +69,8 @@ func (sp *Sp) GinParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 			if b {
 				return v, 200
 			} else {
-				return "", 404
+				seelog.Error("获取Gin参数错误:", p.ParamName)
+				return "", 401
 			}
 		}
 		seelog.Error("ctx.Get not find.", p.ParamName)

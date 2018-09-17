@@ -94,7 +94,7 @@ func NewSp(val []string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
 func NewSpByName(g *gpa.Gpa, spName string, auth func(c *gin.Context) (bool, int64)) (*Sp, bool) {
 	info, e := g.ListString(SqlSpInfo, spName)
 	if e != nil || len(info) != 3 {
-		//seelog.Warn("存储过程不存在:", spName, e)
+		seelog.Warn("存储过程不存在:", spName, e)
 		return &Sp{}, false
 	}
 	return NewSp(info, auth)
