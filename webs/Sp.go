@@ -62,7 +62,7 @@ func (sp *Sp) GinParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 		if !CallAuth && sp.Auth != nil {
 			auth, _ := sp.Auth(ctx.Context)
 			if !auth {
-				seelog.Error("获取参数值出错：SpName=", sp.Name, ";ParamName=", p.ParamName)
+				seelog.Error("Gin获取参数值出错：SpName=", sp.Name, ";ParamName=", p.ParamName)
 				return "", 401
 			}
 			v, b := ctx.Context.Get(p.ParamName)

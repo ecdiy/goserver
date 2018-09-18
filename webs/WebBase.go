@@ -49,9 +49,6 @@ func (p *WebBase) String(n string) string {
 		if v2 == "" {
 			v2, _ = p.Context.GetQuery(n)
 		}
-		if v2 == "" {
-			v2 = p.Context.GetHeader(n)
-		}
 		return v2
 	}
 }
