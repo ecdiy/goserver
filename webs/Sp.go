@@ -136,13 +136,13 @@ func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface
 			return err
 		}
 		r := sp.Result[node]
-		if r.Type == "list" {
+		if r.Type == "list" ||  r.Type == "l"  {
 			var list []map[string]string
 			for rows.Next() {
 				list = append(list, gpa.RowToMap(rows, cols))
 			}
 			data[sp.Result[node].Name] = list
-		} else if r.Type == "object" {
+		} else if r.Type == "object" ||  r.Type == "o" {
 			if rows.Next() {
 				data[sp.Result[node].Name] = gpa.RowToMap(rows, cols)
 			}
