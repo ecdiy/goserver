@@ -19,6 +19,10 @@ func (p *WebBase) String(n string) string {
 	if vx != "" {
 		return vx
 	}
+	sut, e := p.Context.Cookie(n)
+	if e == nil && len(sut) > 0 {
+		return sut
+	}
 	if p.Param == nil {
 		px, pb := p.Context.Get("param")
 		if pb {

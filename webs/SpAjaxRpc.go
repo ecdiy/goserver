@@ -48,10 +48,9 @@ func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
 }
 
 func setUb(ub *UserBase) {
+	ub.Result = true
 	m, mb := UserMap[ub.UserId]
 	if mb {
-		ub.Result = true
-		uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
 		un, unb := m["Username"]
 		if unb {
 			ub.Username = un
@@ -60,7 +59,6 @@ func setUb(ub *UserBase) {
 			be, _ := json.Marshal(m)
 			ub.AppendJson = string(be)
 		}
-		ub.UserId = uId
 	}
 }
 
