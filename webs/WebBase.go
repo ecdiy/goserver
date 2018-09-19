@@ -90,8 +90,11 @@ func (p *WebBase) ST(st *utils.ST, result ...interface{}) {
 
 func WebBaseNew(c *gin.Context) *WebBase {
 	web := &WebBase{}
-	web.Ua = GetUa(c)
 	web.Context = c
+	web.Ua = web.String("Ua")
+	if web.Ua == "" {
+		web.Ua = GetUa(c)
+	}
 	web.Out = make(map[string]interface{})
 	return web
 }

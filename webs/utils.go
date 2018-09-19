@@ -5,11 +5,11 @@ import (
 )
 
 func GetUa(ctx *gin.Context) string {
-	ua := ctx.Request.UserAgent()
+
+	ua :=  ctx.Request.UserAgent()
 	if len(ua) == 0 {
 		return "web"
 	}
-
 	if UaH5.MatchString(ua) {
 		return "h5"
 	}

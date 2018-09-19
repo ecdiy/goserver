@@ -106,7 +106,6 @@ func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, rpc *RpcUser, RpcUserHost, url,
 				})
 			} else {
 				ub, _ = rpc.Verify(nil, &Token{Token: tokenVal, Ua: wb.Ua})
-
 			}
 			if ub.Result {
 				gCtx.Set("UserId", ub.UserId)
@@ -122,6 +121,7 @@ func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, rpc *RpcUser, RpcUserHost, url,
 				}
 				auth = true
 			} else {
+				seelog.Warn("auth fail.tv=", tokenVal, ";ua=", wb.Ua)
 				auth = false
 			}
 			return auth, ub.UserId
@@ -135,7 +135,7 @@ func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, rpc *RpcUser, RpcUserHost, url,
 	eng.POST(url, func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				seelog.Error("sp un catch error;", err)
+				seelog.Error("sp un catch error;", url, ";", err)
 			}
 		}()
 		sp(g, c, ext, auth)
