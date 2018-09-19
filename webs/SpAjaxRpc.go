@@ -13,7 +13,8 @@ import (
 )
 
 var (
-	TokenMap = make(map[string]map[string]string)
+	TokenMap = make(map[string]int64)
+	UserMap  = make(map[int64]map[string]string)
 )
 
 type RpcUser struct {
@@ -30,12 +31,14 @@ func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
 	if len(in.Token) > 1 {
 		v, b := TokenMap[in.Token]
 		if b {
-			setUb(v, ub)
+			ub.UserId = v
+			setUb(ub)
 		} else {
 			m, b, ee := s.g.QueryMapStringString(s.sql, in.Token, in.Ua)
 			if ee == nil && b {
-				TokenMap[in.Token] = m
-				setUb(v, ub)
+				uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
+				TokenMap[in.Token] = uId
+				setUb(ub)
 			} else {
 				ub.Result = false
 			}
@@ -44,18 +47,21 @@ func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
 	return ub, nil
 }
 
-func setUb(m map[string]string, ub *UserBase) {
-	ub.Result = true
-	uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
-	un, unb := m["Username"]
-	if unb {
-		ub.Username = un
+func setUb(ub *UserBase) {
+	m, mb := UserMap[ub.UserId]
+	if mb {
+		ub.Result = true
+		uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
+		un, unb := m["Username"]
+		if unb {
+			ub.Username = un
+		}
+		if len(m) > 2 {
+			be, _ := json.Marshal(m)
+			ub.AppendJson = string(be)
+		}
+		ub.UserId = uId
 	}
-	if len(m) > 2 {
-		be, _ := json.Marshal(m)
-		ub.AppendJson = string(be)
-	}
-	ub.UserId = uId
 }
 
 func RpcRegister(addr string, regFunc ... func(server *grpc.Server)) {
