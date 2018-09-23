@@ -15,7 +15,7 @@ import (
 	"utils/webs"
 )
 
-func UpInit(RpcUserHost, DirUpload, url, TokenName string, ImgMaxWidth int, doFile func(userId int64, uri, pre string, out map[string]interface{})) {
+func UpInit(RpcUserHost, DirUpload, url, TokenName string, ImgMaxWidth int, doFile func(ctx *gin.Context, userId int64, out map[string]interface{})) {
 	tmpDir := DirUpload + "/temp/"
 	os.MkdirAll(tmpDir, 0777)
 	seelog.Info("tmpDir=", tmpDir)
@@ -30,13 +30,12 @@ func UpInit(RpcUserHost, DirUpload, url, TokenName string, ImgMaxWidth int, doFi
 				out := make(map[string]interface{})
 				mf, _ := ctx.MultipartForm()
 				for k, _ := range mf.File {
-					item := make(map[string]interface{})
-					res := doUploadFileMd5(ub.UserId, DirUpload, ImgMaxWidth, ctx, k, item, doFile)
-					out[k] = item
+					res := doUploadFileMd5(DirUpload, ImgMaxWidth, ctx, k)
 					if res != nil {
 						break
 					}
 				}
+				doFile(ctx, ub.UserId, out)
 				ctx.JSON(200, out)
 			} else {
 				seelog.Error("upload file auth fail.")
@@ -46,9 +45,7 @@ func UpInit(RpcUserHost, DirUpload, url, TokenName string, ImgMaxWidth int, doFi
 	})
 }
 
-func doUploadFileMd5(userId int64, DirUpload string, ImgMaxWidth int, c *gin.Context,
-	key string, m map[string]interface{},
-	doFile func(userId int64, uri, pre string, out map[string]interface{})) error {
+func doUploadFileMd5(DirUpload string, ImgMaxWidth int, c *gin.Context, key string) error {
 	tmp := strconv.FormatInt(time.Now().UnixNano(), 16)
 	file, header, err := c.Request.FormFile(key)
 
@@ -93,7 +90,10 @@ func doUploadFileMd5(userId int64, DirUpload string, ImgMaxWidth int, c *gin.Con
 		} else {
 			uri = uri + ext
 		}
-		doFile(userId, uri, pre, m)
+		c.Set(key+".pre", pre)
+		c.Set(key+".uri", uri)
+		//uri, pre string,
+		//out[""] = uri
 		return nil
 	}
 	return nil
