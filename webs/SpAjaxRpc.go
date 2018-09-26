@@ -38,6 +38,7 @@ func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
 			if ee == nil && b {
 				uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
 				TokenMap[in.Token] = uId
+				ub.UserId = uId
 				setUb(ub)
 			} else {
 				ub.Result = false
