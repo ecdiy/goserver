@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc"
 	"context"
 	"utils/webs"
+	"utils"
 )
 
 func UpInit(RpcUserHost, DirUpload, url, TokenName string, ImgMaxWidth int, doFile func(ctx *gin.Context, userId int64, out map[string]interface{})) {
@@ -70,7 +71,7 @@ func doUploadFileMd5(DirUpload string, ImgMaxWidth int, c *gin.Context, key stri
 	}
 	md5Name, e := Md5File(tmpFileName)
 	if e == nil {
-		pre, uri := FmtImgDir(DirUpload+"/", md5Name)
+		pre, uri := utils.FmtImgDir(DirUpload+"/", md5Name)
 		path := pre + ext
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			os.Rename(tmpFileName, path)

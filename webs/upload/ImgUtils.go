@@ -13,24 +13,7 @@ import (
 	"strings"
 )
 
-func FmtImgDir(dir, uri string) (string, string) {
-	ln := len(uri)
-	if ln > 6 {
-		x := uri[0:3] + "/" + uri[3:6]
-		os.MkdirAll(dir+x, 0644)
-		urx := x + "/" + uri[6:]
-		path := dir + urx
-		return path, urx
-	}
-	if ln > 3 {
-		x := uri[0:3]
-		os.MkdirAll(dir+x, 0644)
-		urx := x + "/" + uri[3:]
-		path := dir + urx
-		return path, urx
-	}
-	return dir + uri, uri
-}
+
 
 func Md5Byte(bs []byte) string {
 	md5Ctx := md5.New()
