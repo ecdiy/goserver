@@ -146,5 +146,6 @@ func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, rpc *RpcUser, RpcUserHost, url,
 func RegisterReload(url string,eng *gin.Engine){
 	eng.GET(url, func(i *gin.Context) {
 		spCache = make(map[string]*Sp)
+		i.String(200,"clear cache ok.")
 	})
 }
