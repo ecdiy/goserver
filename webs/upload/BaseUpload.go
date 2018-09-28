@@ -16,7 +16,7 @@ import (
 	"utils"
 )
 
-func UpInit(RpcUserHost, DirUpload, url, TokenName string, ImgMaxWidth int, doFile func(ctx *gin.Context, userId int64, out map[string]interface{})) {
+func UpInit(RpcUserHost, DirUpload, url, TokenName string, doFile func(ctx *gin.Context, userId int64, out map[string]interface{}), ImgMaxWidth ... int) {
 	tmpDir := DirUpload + "/temp/"
 	os.MkdirAll(tmpDir, 0777)
 	seelog.Info("tmpDir=", tmpDir)
@@ -31,7 +31,7 @@ func UpInit(RpcUserHost, DirUpload, url, TokenName string, ImgMaxWidth int, doFi
 				out := make(map[string]interface{})
 				mf, _ := ctx.MultipartForm()
 				for k, _ := range mf.File {
-					res := doUploadFileMd5(DirUpload, ImgMaxWidth, ctx, k)
+					res := doUploadFileMd5(DirUpload, ctx, k, ImgMaxWidth...)
 					if res != nil {
 						break
 					}
@@ -46,7 +46,7 @@ func UpInit(RpcUserHost, DirUpload, url, TokenName string, ImgMaxWidth int, doFi
 	})
 }
 
-func doUploadFileMd5(DirUpload string, ImgMaxWidth int, c *gin.Context, key string) error {
+func doUploadFileMd5(DirUpload string, c *gin.Context, key string, ImgMaxWidth ... int) error {
 	tmp := strconv.FormatInt(time.Now().UnixNano(), 16)
 	file, header, err := c.Request.FormFile(key)
 
@@ -78,23 +78,20 @@ func doUploadFileMd5(DirUpload string, ImgMaxWidth int, c *gin.Context, key stri
 		} else {
 			os.Remove(tmpFileName)
 		}
+		c.Set(key+".pre", pre)
 		if strings.ToLower(ext) != ".gif" {
-			if ImgMaxWidth > 0 {
-				ext8 := "_" + strconv.Itoa(ImgMaxWidth) + ext
+			for idx, w := range ImgMaxWidth {
+				ext8 := "_" + strconv.Itoa(w) + ext
 				if _, err := os.Stat(pre + ext8); os.IsNotExist(err) {
-					ImgResize(path, pre+ext8, ImgMaxWidth)
+					ImgResize(path, pre+ext8, w)
 				}
 				uri = uri + ext8
-			} else {
-				uri = uri + ext
+				c.Set(key+".uri."+strconv.Itoa(idx), uri)
 			}
 		} else {
 			uri = uri + ext
+			c.Set(key+".uri", uri)
 		}
-		c.Set(key+".pre", pre)
-		c.Set(key+".uri", uri)
-		//uri, pre string,
-		//out[""] = uri
 		return nil
 	}
 	return nil
