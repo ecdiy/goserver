@@ -82,7 +82,7 @@ func WebTplRenderCreate(templatesDir, layoutDir string, extends map[string][]str
 }
 
 type WebTemplate struct {
-	*WebBase
+	* Param
 	TplName string //模版名称
 }
 
@@ -112,7 +112,7 @@ func WebTplWithSp(loginUrl string, tpl *WebTemplate, ctx *gin.Context, g *gpa.Gp
 		}
 	}
 	spName += "Page"
-	code := SpExec(spName, g, tpl.WebBase, auth)
+	code := SpExec(spName, g, tpl. Param, auth)
 	if code == 200 || code == 404 {
 		if code == 404 {
 			seelog.Warn("Not Find SpName:", spName)

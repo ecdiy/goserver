@@ -96,7 +96,7 @@ func rpcUser(RpcUserHost string, fun func(client RpcUserClient, ctx context.Cont
 func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, rpc *RpcUser, RpcUserHost, url, ext, tokenName string) {
 	auth := func(gCtx *gin.Context) (bool, int64) {
 		gCtx.Set("CallAuth", 1)
-		wb := WebBaseNew(gCtx)
+		wb := NewParam(gCtx)
 		tokenVal := wb.String(tokenName)
 		if len(tokenVal) > 1 {
 			auth := false

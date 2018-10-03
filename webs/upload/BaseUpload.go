@@ -25,7 +25,7 @@ func UpInit(RpcUserHost, DirUpload, url, TokenName string, doFile func(ctx *gin.
 		if err == nil {
 			defer conn.Close()
 			client := webs.NewRpcUserClient(conn)
-			wb := webs.WebBaseNew(ctx)
+			wb := webs.NewParam(ctx)
 			ub, _ := client.Verify(context.Background(), &webs.Token{Token: wb.String(TokenName), Ua: wb.Ua})
 			if ub.Result {
 				out := make(map[string]interface{})

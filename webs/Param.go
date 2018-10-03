@@ -5,92 +5,101 @@ import (
 	"github.com/gin-gonic/gin"
 	"fmt"
 	"strconv"
-	"github.com/cihub/seelog"
-	"time"
+	"utils"
 )
 
 type Param struct {
-	Auth, Param map[string]interface{}
-	Ua          string
-	Context     *gin.Context
+	Auth, Param, Out map[string]interface{}
+	Ua               string
+	Context          *gin.Context
 }
 
-func (p *Param) String(n string) string {
-	return fmt.Sprint(p.Param[n])
-}
 func (p *Param) Username() string {
 	return fmt.Sprint(p.Auth["Username"])
 }
-func (p *Param) Int64(n string, def int64) int64 {
-	i, e := strconv.ParseInt(fmt.Sprint(p.Param[n]), 10, 0)
+
+
+func (p *Param) String(n string) string {
+	vx := p.Context.GetHeader(n)
+	if vx != "" {
+		return vx
+	}
+	sut, e := p.Context.Cookie(n)
+	if e == nil && len(sut) > 0 {
+		return sut
+	}
+	if p.Param == nil {
+		px, pb := p.Context.Get("param")
+		if pb {
+			p.Param = px.(map[string]interface{})
+		} else {
+			row, b := p.Context.GetRawData()
+			if b == nil {
+				var data map[string]interface{}
+				je := json.Unmarshal(row, &data)
+				if je == nil {
+					p.Param = data
+					p.Context.Set("param", p.Param)
+				}
+			}
+		}
+	}
+	v, vb := p.Param[n]
+	if vb {
+		return fmt.Sprint(v)
+	} else {
+		v2 := p.Context.Param(n)
+		if v2 == "" {
+			v2 = p.Context.PostForm(n)
+		}
+		if v2 == "" {
+			v2 = p.Context.Query(n)
+		}
+		if v2 == "" {
+			v2, _ = p.Context.GetQuery(n)
+		}
+		return v2
+	}
+}
+
+func (p *Param) Int64(n string) int64 {
+	return p.Int64Default(n, 0)
+}
+func (p *Param) Int64Default(n string, def int64) int64 {
+	i, e := strconv.ParseInt(p.String(n), 10, 0)
 	if e != nil {
 		return def
 	}
 	return i
 }
-
-func Parameter(c *gin.Context) (*Param, error) {
-	ua, _ := c.Cookie("ua")
-	if ua == "web" {
-		ua = "web"
-	} else {
-		ua = "h5"
+func (p *Param) Start() int64 {
+	return p.StartPageSize(DefaultPageSize)
+}
+func (p *Param) StartPageSize(ps int64) int64 {
+	page := p.Int64Default("page", 1)
+	if page < 1 {
+		return int64(0)
 	}
-	p, e := c.Get("param")
-	if e {
-		return p.(*Param), nil
+	return (page - 1) * ps
+}
+func (p *Param) Result(result ...interface{}) {
+	if result != nil {
+		p.Out["result"] = result
 	}
-	row, b := c.GetRawData()
-	if b == nil {
-		var data map[string]interface{}
-		je := json.Unmarshal(row, &data)
-		if je != nil {
-			seelog.Error("RawData JSON error:", row, je)
-			return &Param{Ua: ua, Context: c}, je
-		} else {
-			px := &Param{Param: data, Ua: ua, Context: c}
-			c.Set("param", px)
-			return px, je
-		}
-	}
-	return &Param{Ua: ua, Context: c}, b
+}
+func (p *Param) ST(st *utils.ST, result ...interface{}) {
+	p.Out["code"] = st.Code
+	p.Out["msg"] = st.Msg
+	p.Result(result...)
 }
 
-func Post(Gin *gin.Engine, url string, fun func(param *Param, res map[string]interface{})) {
-	Gin.POST(url, func(c *gin.Context) {
-		param, e := Parameter(c)
-		if e == nil {
-			res := make(map[string]interface{})
-			fun(param, res)
-			res["now"] = time.Now().Format("2006-01-02T15:04:05Z")
-			c.JSON(200, res)
-		}
-	})
+func NewParam(c *gin.Context) *Param {
+	web := &Param{}
+	web.Context = c
+	web.Ua = web.String("Ua")
+	if web.Ua == "" {
+		web.Ua = GetUa(c)
+	}
+	web.Out = make(map[string]interface{})
+	return web
 }
-
-func Auth(Gin *gin.Engine, url string, fun func(userId int64, param *Param, res map[string]interface{}), verify func(c *gin.Context) (bool, int64)) {
-	Gin.POST(url, func(c *gin.Context) {
-		auth, userId := verify(c)
-		if auth {
-			param, e := Parameter(c)
-			if e == nil {
-				param.Auth = c.Keys
-				res := make(map[string]interface{})
-				fun(userId, param, res)
-				res["now"] = time.Now().Format("2006-01-02T15:04:05Z")
-				c.JSON(200, res)
-			}
-		} else {
-			c.AbortWithStatus(401)
-		}
-	})
-}
-
-//func GinGetAcao(Gin *gin.Engine, relativePath string, hand HandlerResult) {
-//	Gin.GET(relativePath, func(c *gin.Context) {
-//		res := hand(c)
-//		c.Header("Access-Control-Allow-Origin", "*")
-//		c.Header("Content-Type", "application/json; charset=utf-8")
-//		c.JSON(http.StatusOK, res)
-//	})
-//}

@@ -62,7 +62,7 @@ func WebSp(g *gpa.Gpa, eng *gin.Engine, auth func(c *gin.Context) (bool, int64),
 
 func sp(g *gpa.Gpa, c *gin.Context, spPrefix string, auth func(c *gin.Context) (bool, int64)) {
 	spName := c.Param("sp") + spPrefix
-	wb := WebBaseNew(c)
+	wb := NewParam(c)
 	code := SpExec(spName, g, wb, auth)
 	if code == 200 {
 		c.JSON(200, wb.Out)
@@ -72,7 +72,7 @@ func sp(g *gpa.Gpa, c *gin.Context, spPrefix string, auth func(c *gin.Context) (
 	}
 }
 
-func SpExec(spName string, g *gpa.Gpa, ctx *WebBase, auth func(c *gin.Context) (bool, int64)) int {
+func SpExec(spName string, g *gpa.Gpa, ctx *Param, auth func(c *gin.Context) (bool, int64)) int {
 	defer func() {
 		if err := recover(); err != nil {
 			delete(spCache, spName)

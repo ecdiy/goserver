@@ -25,13 +25,13 @@ type SpParam struct {
 	ValFunc               ParamValFunc
 }
 
-type ParamValFunc func(ctx *WebBase, p *SpParam) (interface{}, int)
+type ParamValFunc func(ctx *Param, p *SpParam) (interface{}, int)
 
 //--
-func (sp *Sp) UaParam(wb *WebBase, p *SpParam) (interface{}, int) {
+func (sp *Sp) UaParam(wb *Param, p *SpParam) (interface{}, int) {
 	return wb.Ua, 200
 }
-func (sp *Sp) InParam(ctx *WebBase, p *SpParam) (interface{}, int) {
+func (sp *Sp) InParam(ctx *Param, p *SpParam) (interface{}, int) {
 	v := ctx.String(p.ParamName)
 	if v == "" {
 		v = p.DefaultVal
@@ -39,7 +39,7 @@ func (sp *Sp) InParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 	return v, 200
 }
 
-func (sp *Sp) GkParam(ctx *WebBase, p *SpParam) (interface{}, int) {
+func (sp *Sp) GkParam(ctx *Param, p *SpParam) (interface{}, int) {
 	_, CallAuth := ctx.Context.Get("CallAuth")
 	if !CallAuth && sp.Auth != nil {
 		sp.Auth(ctx.Context)
@@ -53,7 +53,7 @@ func (sp *Sp) GkParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 	}
 }
 
-func (sp *Sp) GinParam(ctx *WebBase, p *SpParam) (interface{}, int) {
+func (sp *Sp) GinParam(ctx *Param, p *SpParam) (interface{}, int) {
 	v, b := ctx.Context.Get(p.ParamName)
 	if b {
 		return v, 200
@@ -79,7 +79,7 @@ func (sp *Sp) GinParam(ctx *WebBase, p *SpParam) (interface{}, int) {
 }
 
 //--
-func (sp *Sp) GetParams(wb *WebBase) ([]interface{}, int) {
+func (sp *Sp) GetParams(wb *Param) ([]interface{}, int) {
 	var params []interface{}
 	for _, p := range sp.Params {
 		vf, code := p.ValFunc(wb, p)
