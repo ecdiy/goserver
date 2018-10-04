@@ -9,15 +9,15 @@ import (
 )
 
 type Param struct {
-	Auth, Param, Out map[string]interface{}
+	//Auth,
+	Param, Out map[string]interface{}
 	Ua               string
 	Context          *gin.Context
 }
 
-func (p *Param) Username() string {
-	return fmt.Sprint(p.Auth["Username"])
-}
-
+//func (p *Param) Username() string {
+//	return fmt.Sprint(p.Auth["Username"])
+//}
 
 func (p *Param) String(n string) string {
 	vx := p.Context.GetHeader(n)
@@ -66,7 +66,11 @@ func (p *Param) Int64(n string) int64 {
 	return p.Int64Default(n, 0)
 }
 func (p *Param) Int64Default(n string, def int64) int64 {
-	i, e := strconv.ParseInt(p.String(n), 10, 0)
+	vi := p.String(n)
+	if vi == "" {
+		return def
+	}
+	i, e := strconv.ParseInt(vi, 10, 0)
 	if e != nil {
 		return def
 	}
