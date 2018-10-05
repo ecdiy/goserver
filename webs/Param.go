@@ -11,8 +11,8 @@ import (
 type Param struct {
 	//Auth,
 	Param, Out map[string]interface{}
-	Ua               string
-	Context          *gin.Context
+	Ua         string
+	Context    *gin.Context
 }
 
 //func (p *Param) Username() string {
@@ -96,7 +96,9 @@ func (p *Param) ST(st *utils.ST, result ...interface{}) {
 	p.Out["msg"] = st.Msg
 	p.Result(result...)
 }
-
+func (p *Param) OK(result ...interface{}) {
+	p.ST(utils.OK, result ...)
+}
 func NewParam(c *gin.Context) *Param {
 	web := &Param{}
 	web.Context = c

@@ -38,17 +38,16 @@ func PostHost(Gin *gin.Engine, RpcUserHost, tokenName, url string, fun func(ub *
 }
 func AuthHost(Gin *gin.Engine, RpcUserHost, tokenName, url string, fun func(ub *UserBase, param *Param)) {
 	Gin.POST(url, func(c *gin.Context) {
-		var ub *UserBase
-		wb := NewParam(c)
 		rpcUser(RpcUserHost, func(client RpcUserClient, ctx context.Context) {
-			ub, _ = client.Verify(ctx, &Token{Token: wb.String(tokenName), Ua: wb.Ua})
+			wb := NewParam(c)
+			ub, _ := client.Verify(ctx, &Token{Token: wb.String(tokenName), Ua: wb.Ua})
+			if ub.Result {
+				fun(ub, wb)
+				c.JSON(200, wb.Out)
+			} else {
+				c.AbortWithStatus(401)
+			}
 		})
-		if ub.Result {
-			fun(ub, wb)
-			c.JSON(200, wb.Out)
-		} else {
-			c.AbortWithStatus(401)
-		}
 	})
 }
 
