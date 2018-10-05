@@ -34,6 +34,14 @@ func (p *Param) Print() {
 	seelog.Info("ctx.Request.body: %v", string(data))
 }
 
+func (p *Param) AllParameter() string {
+	m := make(map[string]interface{})
+	m["param"] = p.Param
+	m["form"] = p.Context.Request.Form
+	b, _ := json.Marshal(m)
+	return string(b)
+}
+
 func (p *Param) String(n string) string {
 	vx := p.Context.GetHeader(n)
 	if vx != "" {
