@@ -8,13 +8,14 @@ import (
 	"utils"
 	"io/ioutil"
 	"github.com/cihub/seelog"
+	"strings"
 )
 
 type Param struct {
 	//Auth,
-	Param, Out map[string]interface{}
-	Ua         string
-	Context    *gin.Context
+	Param, Out      map[string]interface{}
+	Ua, ContentType string
+	Context         *gin.Context
 }
 
 //func (p *Param) Username() string {
@@ -23,10 +24,10 @@ type Param struct {
 
 func (p *Param) Print() {
 	for k, v := range p.Context.Request.PostForm {
-		seelog.Info("post from:", k,   v)
+		seelog.Info("post from:", k, v)
 	}
 	for k, v := range p.Context.Request.Form {
-		seelog.Info(" from:", k,   v)
+		seelog.Info(" from:", k, v)
 	}
 
 	data, _ := ioutil.ReadAll(p.Context.Request.Body)
@@ -41,22 +42,6 @@ func (p *Param) String(n string) string {
 	sut, e := p.Context.Cookie(n)
 	if e == nil && len(sut) > 0 {
 		return sut
-	}
-	if p.Param == nil {
-		px, pb := p.Context.Get("param")
-		if pb {
-			p.Param = px.(map[string]interface{})
-		} else {
-			row, b := p.Context.GetRawData()
-			if b == nil && len(row) > 0 {
-				var data map[string]interface{}
-				je := json.Unmarshal(row, &data)
-				if je == nil {
-					p.Param = data
-					p.Context.Set("param", p.Param)
-				}
-			}
-		}
 	}
 	v, vb := p.Param[n]
 	if vb {
@@ -114,8 +99,19 @@ func (p *Param) OK(result ...interface{}) {
 	p.ST(utils.OK, result ...)
 }
 func NewParam(c *gin.Context) *Param {
-	web := &Param{}
-	web.Context = c
+	web := &Param{Context: c}
+	web.ContentType = c.ContentType()
+	if strings.Index(web.ContentType, "json") > 0 {
+		row, b := web.Context.GetRawData()
+		if b == nil && len(row) > 0 {
+			var data map[string]interface{}
+			je := json.Unmarshal(row, &data)
+			if je == nil {
+				web.Param = data
+				web.Context.Set("param", web.Param)
+			}
+		}
+	}
 	web.Ua = web.String("Ua")
 	if web.Ua == "" {
 		web.Ua = GetUa(c)
