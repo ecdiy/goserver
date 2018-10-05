@@ -37,7 +37,7 @@ func AliAppSign(appId, privateKey, returnUrl, notifyUrl, bizContent string) (str
 		data.Add("return_url", returnUrl)
 	}
 	if notifyUrl != "" {
-		data.Add("notify_url", returnUrl)
+		data.Add("notify_url", notifyUrl)
 	}
 	data.Add("format", "json")
 	data.Add("charset", "UTF-8")
