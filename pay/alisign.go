@@ -13,7 +13,7 @@ import (
 	"crypto"
 )
 
-func AliSign(m url.Values, privateKey string) string {
+func aliSign(m url.Values, privateKey string) string {
 	//对url.values进行排序
 	sign := ""
 	var keys []string
