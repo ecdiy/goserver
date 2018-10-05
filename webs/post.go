@@ -5,17 +5,13 @@ import (
 	"context"
 )
 
-//func Post(Gin *gin.Engine, url string, fun func(param *Param, res map[string]interface{})) {
-//	Gin.POST(url, func(c *gin.Context) {
-//		param := NewParam(c)
-//
-//		res := make(map[string]interface{})
-//		fun(param, res)
-//		res["now"] = time.Now().Format("2006-01-02T15:04:05Z")
-//		c.JSON(200, res)
-//
-//	})
-//}
+func Post(Gin *gin.Engine, url string, fun func(param *Param)) {
+	Gin.POST(url, func(c *gin.Context) {
+		wb := NewParam(c)
+		fun(wb)
+		c.JSON(200, wb.Out)
+	})
+}
 
 func PostRpc(Gin *gin.Engine, rpc *RpcUser, tokenName, url string, fun func(ub *UserBase, param *Param)) {
 	Gin.POST(url, func(c *gin.Context) {
