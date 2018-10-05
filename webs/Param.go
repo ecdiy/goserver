@@ -23,8 +23,12 @@ type Param struct {
 
 func (p *Param) Print() {
 	for k, v := range p.Context.Request.PostForm {
-		seelog.Info("k:%v\n", k, "v:%v\n", v)
+		seelog.Info("post from:", k,   v)
 	}
+	for k, v := range p.Context.Request.Form {
+		seelog.Info(" from:", k,   v)
+	}
+
 	data, _ := ioutil.ReadAll(p.Context.Request.Body)
 	seelog.Info("ctx.Request.body: %v", string(data))
 }
