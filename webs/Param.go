@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strconv"
 	"utils"
+	"io/ioutil"
+	"github.com/cihub/seelog"
 )
 
 type Param struct {
@@ -18,6 +20,14 @@ type Param struct {
 //func (p *Param) Username() string {
 //	return fmt.Sprint(p.Auth["Username"])
 //}
+
+func (p *Param) Print() {
+	for k, v := range p.Context.Request.PostForm {
+		seelog.Info("k:%v\n", k, "v:%v\n", v)
+	}
+	data, _ := ioutil.ReadAll(p.Context.Request.Body)
+	seelog.Info("ctx.Request.body: %v", string(data))
+}
 
 func (p *Param) String(n string) string {
 	vx := p.Context.GetHeader(n)
@@ -34,7 +44,7 @@ func (p *Param) String(n string) string {
 			p.Param = px.(map[string]interface{})
 		} else {
 			row, b := p.Context.GetRawData()
-			if b == nil {
+			if b == nil && len(row) > 0 {
 				var data map[string]interface{}
 				je := json.Unmarshal(row, &data)
 				if je == nil {
@@ -51,12 +61,12 @@ func (p *Param) String(n string) string {
 		v2 := p.Context.Param(n)
 		if v2 == "" {
 			v2 = p.Context.PostForm(n)
-		}
-		if v2 == "" {
-			v2 = p.Context.Query(n)
-		}
-		if v2 == "" {
-			v2, _ = p.Context.GetQuery(n)
+			if v2 == "" {
+				v2 = p.Context.Query(n)
+				if v2 == "" {
+					v2, _ = p.Context.GetQuery(n)
+				}
+			}
 		}
 		return v2
 	}
