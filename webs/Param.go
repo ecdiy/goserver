@@ -112,11 +112,10 @@ func NewParam(c *gin.Context) *Param {
 	if strings.Index(web.ContentType, "json") > 0 {
 		row, b := web.Context.GetRawData()
 		if b == nil && len(row) > 0 {
-			var data map[string]interface{}
-			je := json.Unmarshal(row, &data)
-			if je == nil {
-				web.Param = data
-				web.Context.Set("param", web.Param)
+			je := json.Unmarshal(row, &web.Param)
+			if je != nil {
+				seelog.Error("param error", je, ";\n\t", string(row))
+				//	web.Context.Set("param", web.Param)
 			}
 		}
 	}

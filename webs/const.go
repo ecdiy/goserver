@@ -3,7 +3,6 @@ package webs
 import (
 	"regexp"
 	"github.com/cihub/seelog"
-	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -15,7 +14,7 @@ const (
 
 var (
 	spCache = make(map[string]*Sp)
-	spReloadFun=make(map[string] func(c *gin.Context) (bool, int64))
+	spReloadFun=make(map[string] func(c *Param) (bool, int64))
 	UaH5    *regexp.Regexp
 )
 
