@@ -1,9 +1,9 @@
 package webs
 
 import (
-	"github.com/gin-gonic/gin"
 	"utils/gpa"
 	"github.com/cihub/seelog"
+	"utils"
 )
 
 /**
@@ -11,14 +11,14 @@ URL 映射到存储过程调用，返回json数据格式
 SpAjax(true,"/sp/","Sp",authFun)
  */
 
-//func WebSp(g *gpa.Gpa, eng *gin.Engine, auth func(c *gin.Context) (bool, int64), adminAuthFun func(c *gin.Context) (bool, int64), reload func()) {
+//func WebSp(Gpa *gpa.Gpa, eng *gin.Engine, auth func(c *gin.Context) (bool, int64), adminAuthFun func(c *gin.Context) (bool, int64), reload func()) {
 //	if !gin.IsDebugging() {
 //		if adminAuthFun != nil {
-//			spInitCache(g, adminAuthFun, "Admin")
+//			spInitCache(Gpa, adminAuthFun, "Admin")
 //		}
 //		if auth != nil {
-//			spInitCache(g, auth, "Ajax")
-//			spInitCache(g, auth, "Page")
+//			spInitCache(Gpa, auth, "Ajax")
+//			spInitCache(Gpa, auth, "Page")
 //		}
 //	}
 //	if auth != nil {
@@ -28,7 +28,7 @@ SpAjax(true,"/sp/","Sp",authFun)
 //					seelog.Error("sp un catch error;", err)
 //				}
 //			}()
-//			sp(g, c, "Ajax", auth)
+//			sp(Gpa, c, "Ajax", auth)
 //		})
 //	}
 //	if adminAuthFun != nil {
@@ -38,7 +38,7 @@ SpAjax(true,"/sp/","Sp",authFun)
 //					seelog.Error("spa un catch error;", err)
 //				}
 //			}()
-//			sp(g, c, "Admin", adminAuthFun)
+//			sp(Gpa, c, "Admin", adminAuthFun)
 //		})
 //	}
 //	eng.GET("/spReload", func(c *gin.Context) {
@@ -53,25 +53,14 @@ SpAjax(true,"/sp/","Sp",authFun)
 //		}
 //		spCache = make(map[string]*Sp)
 //		for fix, fun := range spReloadFun {
-//			spInitCache(g, fun, fix)
+//			spInitCache(Gpa, fun, fix)
 //		}
 //		utils.OK.OutJSON(c, nil)
 //	})
 //}
 
-func sp(g *gpa.Gpa, c *gin.Context, spPrefix string, auth func(c *Param) (bool, int64)) {
-	spName := c.Param("sp") + spPrefix
-	wb := NewParam(c)
-	code := SpExec(spName, g, wb, auth)
-	if code == 200 {
-		c.JSON(200, wb.Out)
-	} else {
-		seelog.Error("数据存储过程错误:"+spName, ";", code)
-		c.AbortWithStatus(code)
-	}
-}
 
-func SpExec(spName string, g *gpa.Gpa, ctx *Param, auth func(c *Param) (bool, int64)) int {
+func SpExec(spName string, g *gpa.Gpa, param *Param, auth func(c *Param) *UserBase) int {
 	defer func() {
 		if err := recover(); err != nil {
 			delete(spCache, spName)
@@ -79,7 +68,7 @@ func SpExec(spName string, g *gpa.Gpa, ctx *Param, auth func(c *Param) (bool, in
 	}()
 	var sp *Sp
 	var ext bool
-	if gin.IsDebugging() {
+	if utils.EnvIsDev {
 		sp, ext = NewSpByName(g, spName, auth)
 	} else {
 		sp, ext = spCache[spName]
@@ -93,9 +82,9 @@ func SpExec(spName string, g *gpa.Gpa, ctx *Param, auth func(c *Param) (bool, in
 	if !ext {
 		return 404
 	}
-	params, code := sp.GetParams(ctx)
+	params, code := sp.GetParams(param)
 	if code == 200 {
-		e := sp.Run(ctx.Out, g.Conn, params...)
+		e := sp.Run(param.Out, g.Conn, params...)
 		if e != nil {
 			seelog.Error("exec SP失败:", sp.Name)
 			delete(spCache, sp.Name)

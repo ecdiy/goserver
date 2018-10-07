@@ -18,12 +18,8 @@ var (
 )
 
 type RpcUser struct {
-	sql string
-	g   *gpa.Gpa
-}
-
-func GetRpc(dao *gpa.Gpa, sql string) *RpcUser {
-	return &RpcUser{g: dao, sql: sql}
+	Sql string
+	Gpa *gpa.Gpa
 }
 
 func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
@@ -34,7 +30,7 @@ func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
 			ub.UserId = v
 			setUb(ub)
 		} else {
-			m, b, ee := s.g.QueryMapStringString(s.sql, in.Token, in.Ua)
+			m, b, ee := s.Gpa.QueryMapStringString(s.Sql, in.Token, in.Ua)
 			if ee == nil && b {
 				uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
 				TokenMap[in.Token] = uId
@@ -93,42 +89,7 @@ func rpcUser(RpcUserHost string, fun func(client RpcUserClient, ctx context.Cont
 
 // "/sp/:sp"   "Ajax"
 // "/spa/:sp"  "Admin"
-func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, rpc *RpcUser, RpcUserHost, url, ext, tokenName string) {
-	auth := func(param *Param) (bool, int64) {
-		param.Context.Set("CallAuth", 1)
-		tokenVal := param.String(tokenName)
-		if len(tokenVal) > 1 {
-			auth := false
-			var ub *UserBase
-			if len(RpcUserHost) > 1 {
-				rpcUser(RpcUserHost, func(client RpcUserClient, ctx context.Context) {
-					ub, _ = client.Verify(ctx, &Token{Token: tokenVal, Ua: param.Ua})
-				})
-			} else {
-				ub, _ = rpc.Verify(nil, &Token{Token: tokenVal, Ua: param.Ua})
-			}
-			if ub.Result {
-				param.Context.Set("UserId", ub.UserId)
-				param.Context.Set("Username", ub.Username)
-				if len(ub.AppendJson) > 1 {
-					var data map[string]interface{}
-					je := json.Unmarshal([]byte(ub.AppendJson), &data)
-					if je == nil {
-						for k, v := range data {
-							param.Context	.Set(k, v)
-						}
-					}
-				}
-				auth = true
-			} else {
-				seelog.Warn("auth fail.tv=", tokenVal, ";ua=", param.Ua)
-				auth = false
-			}
-			return auth, ub.UserId
-		} else {
-			return false, 0
-		}
-	}
+func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, auth func(param *Param) *UserBase, url, ext string) {
 	if !gin.IsDebugging() {
 		spInitCache(g, auth, ext)
 	}
@@ -138,13 +99,21 @@ func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, rpc *RpcUser, RpcUserHost, url,
 				seelog.Error("sp un catch error;", url, ";", err)
 			}
 		}()
-		sp(g, c, ext, auth)
+		spName := c.Param("sp") + ext
+		wb := NewParam(c)
+		code := SpExec(spName, g, wb, auth)
+		if code == 200 {
+			c.JSON(200, wb.Out)
+		} else {
+			seelog.Error("数据存储过程错误:"+spName, ";", code)
+			c.AbortWithStatus(code)
+		}
 	})
 }
 
-func RegisterReload(url string,eng *gin.Engine){
+func RegisterReload(url string, eng *gin.Engine) {
 	eng.GET(url, func(i *gin.Context) {
 		spCache = make(map[string]*Sp)
-		i.String(200,"clear cache ok.")
+		i.String(200, "clear cache ok.")
 	})
 }

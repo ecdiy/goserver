@@ -14,9 +14,9 @@ const (
 	EnvDev      = "dev"
 )
 
-func EnvIsDev() bool {
-	return profile == EnvDev
-}
+var (
+	EnvIsDev = true
+)
 
 func init() {
 	logger, _ := seelog.LoggerFromConfigAsBytes([]byte(`
@@ -45,6 +45,7 @@ func init() {
 	if profile == "" {
 		profile = "dev"
 	}
+	EnvIsDev = profile == EnvDev
 }
 
 var profile string

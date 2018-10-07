@@ -14,7 +14,7 @@ const (
 
 var (
 	spCache = make(map[string]*Sp)
-	spReloadFun=make(map[string] func(c *Param) (bool, int64))
+	spReloadFun=make(map[string] func(c *Param)  *UserBase)
 	UaH5    *regexp.Regexp
 )
 

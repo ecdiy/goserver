@@ -13,7 +13,7 @@ type Sp struct {
 	Sql, Name, SessionName string
 	Params                 []*SpParam
 	Result                 []*SpResult
-	Auth                   func(c *Param) (bool, int64)
+	Auth                   func(c *Param) *UserBase
 }
 
 type SpResult struct {
@@ -59,8 +59,8 @@ func (sp *Sp) GinParam(ctx *Param, p *SpParam) (interface{}, int) {
 	} else {
 		_, CallAuth := ctx.Context.Get("CallAuth")
 		if !CallAuth && sp.Auth != nil {
-			auth, _ := sp.Auth(ctx)
-			if !auth {
+			auth := sp.Auth(ctx)
+			if !auth.Result {
 				seelog.Error("Gin获取参数值出错：SpName=", sp.Name, ";ParamName=", p.ParamName)
 				return "", 401
 			}

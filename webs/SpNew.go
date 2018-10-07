@@ -7,7 +7,7 @@ import (
 	"utils/gpa"
 )
 
-func spInitCache(g *gpa.Gpa, auth func(param *Param) (bool, int64), spPrefix string) {
+func spInitCache(g *gpa.Gpa, auth func(param *Param)  *UserBase, spPrefix string) {
 	spReloadFun[spPrefix] = auth
 	list, err := g.ListArrayString(SqlSpAll)
 	if err != nil {
@@ -29,7 +29,7 @@ func spInitCache(g *gpa.Gpa, auth func(param *Param) (bool, int64), spPrefix str
 	}
 }
 
-func NewSp(val []string, auth func(c *Param) (bool, int64)) (*Sp, bool) {
+func NewSp(val []string, auth func(c *Param) *UserBase) (*Sp, bool) {
 	sp := &Sp{Name: val[0], Auth: auth}
 	if len(val) < 3 || len(strings.TrimSpace(val[2])) == 0 {
 		seelog.Warn("没有返回值的参数申明")
@@ -90,7 +90,7 @@ func NewSp(val []string, auth func(c *Param) (bool, int64)) (*Sp, bool) {
 	return sp, true
 }
 
-func NewSpByName(g *gpa.Gpa, spName string, auth func(c *Param) (bool, int64)) (*Sp, bool) {
+func NewSpByName(g *gpa.Gpa, spName string, auth func(c *Param) *UserBase) (*Sp, bool) {
 	info, e := g.ListString(SqlSpInfo, spName)
 	if e != nil || len(info) != 3 {
 		seelog.Warn("存储过程不存在:", spName, e)
