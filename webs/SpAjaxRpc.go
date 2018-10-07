@@ -94,35 +94,34 @@ func rpcUser(RpcUserHost string, fun func(client RpcUserClient, ctx context.Cont
 // "/sp/:sp"   "Ajax"
 // "/spa/:sp"  "Admin"
 func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, rpc *RpcUser, RpcUserHost, url, ext, tokenName string) {
-	auth := func(gCtx *gin.Context) (bool, int64) {
-		gCtx.Set("CallAuth", 1)
-		wb := NewParam(gCtx)
-		tokenVal := wb.String(tokenName)
+	auth := func(param *Param) (bool, int64) {
+		param.Context.Set("CallAuth", 1)
+		tokenVal := param.String(tokenName)
 		if len(tokenVal) > 1 {
 			auth := false
 			var ub *UserBase
 			if len(RpcUserHost) > 1 {
 				rpcUser(RpcUserHost, func(client RpcUserClient, ctx context.Context) {
-					ub, _ = client.Verify(ctx, &Token{Token: tokenVal, Ua: wb.Ua})
+					ub, _ = client.Verify(ctx, &Token{Token: tokenVal, Ua: param.Ua})
 				})
 			} else {
-				ub, _ = rpc.Verify(nil, &Token{Token: tokenVal, Ua: wb.Ua})
+				ub, _ = rpc.Verify(nil, &Token{Token: tokenVal, Ua: param.Ua})
 			}
 			if ub.Result {
-				gCtx.Set("UserId", ub.UserId)
-				gCtx.Set("Username", ub.Username)
+				param.Context.Set("UserId", ub.UserId)
+				param.Context.Set("Username", ub.Username)
 				if len(ub.AppendJson) > 1 {
 					var data map[string]interface{}
 					je := json.Unmarshal([]byte(ub.AppendJson), &data)
 					if je == nil {
 						for k, v := range data {
-							gCtx.Set(k, v)
+							param.Context	.Set(k, v)
 						}
 					}
 				}
 				auth = true
 			} else {
-				seelog.Warn("auth fail.tv=", tokenVal, ";ua=", wb.Ua)
+				seelog.Warn("auth fail.tv=", tokenVal, ";ua=", param.Ua)
 				auth = false
 			}
 			return auth, ub.UserId

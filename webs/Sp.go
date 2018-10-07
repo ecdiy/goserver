@@ -1,7 +1,6 @@
 package webs
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/cihub/seelog"
 	"utils/gpa"
 	"strings"
@@ -14,7 +13,7 @@ type Sp struct {
 	Sql, Name, SessionName string
 	Params                 []*SpParam
 	Result                 []*SpResult
-	Auth                   func(c *gin.Context) (bool, int64)
+	Auth                   func(c *Param) (bool, int64)
 }
 
 type SpResult struct {
@@ -42,7 +41,7 @@ func (sp *Sp) InParam(ctx *Param, p *SpParam) (interface{}, int) {
 func (sp *Sp) GkParam(ctx *Param, p *SpParam) (interface{}, int) {
 	_, CallAuth := ctx.Context.Get("CallAuth")
 	if !CallAuth && sp.Auth != nil {
-		sp.Auth(ctx.Context)
+		sp.Auth(ctx)
 	}
 	v, b := ctx.Context.Get(p.ParamName)
 	if b {
@@ -60,7 +59,7 @@ func (sp *Sp) GinParam(ctx *Param, p *SpParam) (interface{}, int) {
 	} else {
 		_, CallAuth := ctx.Context.Get("CallAuth")
 		if !CallAuth && sp.Auth != nil {
-			auth, _ := sp.Auth(ctx.Context)
+			auth, _ := sp.Auth(ctx)
 			if !auth {
 				seelog.Error("Gin获取参数值出错：SpName=", sp.Name, ";ParamName=", p.ParamName)
 				return "", 401

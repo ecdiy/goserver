@@ -97,7 +97,7 @@ func (p *WebTemplate) GetTplName() string {
 	return url[1:]
 }
 
-func WebTplWithSp(loginUrl string, tpl *WebTemplate, ctx *gin.Context, g *gpa.Gpa, auth func(c *gin.Context) (bool, int64)) {
+func WebTplWithSp(loginUrl string, tpl *WebTemplate, ctx *gin.Context, g *gpa.Gpa, auth func(c *Param) (bool, int64)) {
 	if strings.Index(ctx.Request.URL.Path, ".") > 0 {
 		seelog.Warn("404:", ctx.Request.URL.Path)
 		ctx.AbortWithStatus(404)
