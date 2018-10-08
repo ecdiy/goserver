@@ -43,6 +43,10 @@ func (p *Param) AllParameter() string {
 }
 
 func (p *Param) String(n string) string {
+	v, vb := p.Param[n]
+	if vb {
+		return fmt.Sprint(v)
+	}
 	vx := p.Context.GetHeader(n)
 	if vx != "" {
 		return vx
@@ -51,22 +55,17 @@ func (p *Param) String(n string) string {
 	if e == nil && len(sut) > 0 {
 		return sut
 	}
-	v, vb := p.Param[n]
-	if vb {
-		return fmt.Sprint(v)
-	} else {
-		v2 := p.Context.Param(n)
+	v2 := p.Context.Param(n)
+	if v2 == "" {
+		v2 = p.Context.PostForm(n)
 		if v2 == "" {
-			v2 = p.Context.PostForm(n)
+			v2 = p.Context.Query(n)
 			if v2 == "" {
-				v2 = p.Context.Query(n)
-				if v2 == "" {
-					v2, _ = p.Context.GetQuery(n)
-				}
+				v2, _ = p.Context.GetQuery(n)
 			}
 		}
-		return v2
 	}
+	return v2
 }
 
 func (p *Param) Int64(n string) int64 {
