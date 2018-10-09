@@ -9,6 +9,7 @@ import (
 func GetIp() string {
 	return GetIpByExcludeName("VirtualBox")
 }
+
 func GetIpByExcludeName(ext ...string) string {
 	ifs, e := net.Interfaces()
 	if e != nil {

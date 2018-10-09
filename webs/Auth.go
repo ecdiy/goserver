@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"context"
 	"strconv"
-	"utils/gpa"
 )
 
 type RpcUser struct {
 	Sql string
-	Gpa *gpa.Gpa
 }
 
 func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
@@ -20,7 +18,7 @@ func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
 			ub.UserId = v
 			setUb(ub)
 		} else {
-			m, b, ee := s.Gpa.QueryMapStringString(s.Sql, in.Token, in.Ua)
+			m, b, ee := Gpa.QueryMapStringString(s.Sql, in.Token, in.Ua)
 			if ee == nil && b {
 				uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
 				TokenMap[in.Token] = uId

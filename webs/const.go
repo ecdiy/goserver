@@ -3,19 +3,25 @@ package webs
 import (
 	"regexp"
 	"github.com/cihub/seelog"
+	"github.com/gin-gonic/gin"
+	"utils/gpa"
+	"utils"
+	"strings"
 )
 
 const (
 	DefaultPageSize = 20
-
 	SqlSpAll  = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE'"
 	SqlSpInfo = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE' and name=?"
 )
 
 var (
-	spCache = make(map[string]*Sp)
-	spReloadFun=make(map[string] func(c *Param)  *UserBase)
-	UaH5    *regexp.Regexp
+	Gin         = gin.New()
+	Gpa         *gpa.Gpa
+
+	spCache     = make(map[string]*Sp)
+	spReloadFun = make(map[string]func(c *Param) *UserBase)
+	UaH5        *regexp.Regexp
 )
 
 func init() {
@@ -24,4 +30,22 @@ func init() {
 	if e != nil {
 		seelog.Error("h5 ua error.", e)
 	}
+}
+
+func Init(db string, models ...interface{}) {
+	if utils.EnvIsDev {
+		ip := utils.GetIp()
+		utils.EnvParamSet("ImgHost", "http://"+ip)
+	}
+
+	if strings.Index(db, ":") < 0 {
+		utils.EnvParamSet("DbDsn", "root:root@tcp(127.0.0.1:3306)/" + db+
+			"?timeout=30s&charset=utf8mb4&parseTime=true")
+	} else {
+		utils.EnvParamSet("DbDsn", db)
+	}
+	dsn := utils.EnvParam("DbDsn")
+	Gpa = gpa.Init(utils.EnvParam("DbDriver"), dsn, models...)
+	seelog.Info(dsn)
+
 }

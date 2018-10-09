@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/cihub/seelog"
 	"context"
-	"utils/gpa"
 	"utils"
 	"net"
 )
@@ -45,11 +44,11 @@ func rpcUser(RpcUserHost string, fun func(client RpcUserClient, ctx context.Cont
 
 // "/sp/:sp"   "Ajax"
 // "/spa/:sp"  "Admin"
-func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, auth func(param *Param) *UserBase, url, ext string) {
+func RegisterSpAjax(auth func(param *Param) *UserBase, url, ext string) {
 	if !gin.IsDebugging() {
-		spInitCache(g, auth, ext)
+		spInitCache(Gpa, auth, ext)
 	}
-	eng.POST(url, func(c *gin.Context) {
+	Gin.POST(url, func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
 				seelog.Error("sp un catch error;", url, ";", err)
@@ -57,7 +56,7 @@ func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, auth func(param *Param) *UserBa
 		}()
 		spName := c.Param("sp") + ext
 		wb := NewParam(c)
-		code := SpExec(spName, g, wb, auth)
+		code := SpExec(spName, Gpa, wb, auth)
 		if code == 200 {
 			c.JSON(200, wb.Out)
 		} else {
@@ -67,9 +66,10 @@ func RegisterSpAjax(g *gpa.Gpa, eng *gin.Engine, auth func(param *Param) *UserBa
 	})
 }
 
-func RegisterReload(url string, eng *gin.Engine) {
-	eng.GET(url, func(i *gin.Context) {
+func RegisterReload(url string ) {
+	Gin.GET(url, func(i *gin.Context) {
 		spCache = make(map[string]*Sp)
 		i.String(200, "clear cache ok.")
 	})
 }
+

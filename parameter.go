@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"github.com/gin-gonic/gin"
 )
 
 //--所有常量
@@ -46,6 +47,12 @@ func init() {
 		profile = "dev"
 	}
 	EnvIsDev = profile == EnvDev
+
+	if EnvIsDev {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 }
 
 var profile string
