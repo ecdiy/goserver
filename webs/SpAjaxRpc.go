@@ -7,6 +7,7 @@ import (
 	"context"
 	"utils"
 	"net"
+	"fmt"
 )
 
 var (
@@ -29,7 +30,7 @@ func RpcRegister(addr string, regFunc ... func(server *grpc.Server)) {
 		seelog.Info("grpc bind: " + rh)
 		s.Serve(lis)
 	} else {
-		panic("启动微服务失败")
+		panic("启动微服务失败:" + fmt.Sprintln(err) + ";Input Addr=" + addr + ";RpcHost=" + rh)
 	}
 }
 
@@ -66,10 +67,9 @@ func RegisterSpAjax(auth func(param *Param) *UserBase, url, ext string) {
 	})
 }
 
-func RegisterReload(url string ) {
+func RegisterReload(url string) {
 	Gin.GET(url, func(i *gin.Context) {
 		spCache = make(map[string]*Sp)
 		i.String(200, "clear cache ok.")
 	})
 }
-

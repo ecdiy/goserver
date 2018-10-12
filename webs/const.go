@@ -11,13 +11,13 @@ import (
 
 const (
 	DefaultPageSize = 20
-	SqlSpAll  = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE'"
-	SqlSpInfo = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE' and name=?"
+	SqlSpAll        = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE'"
+	SqlSpInfo       = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE' and name=?"
 )
 
 var (
-	Gin         = gin.New()
-	Gpa         *gpa.Gpa
+	Gin = gin.New()
+	Gpa *gpa.Gpa
 
 	spCache     = make(map[string]*Sp)
 	spReloadFun = make(map[string]func(c *Param) *UserBase)
@@ -45,7 +45,11 @@ func Init(db string, models ...interface{}) {
 		utils.EnvParamSet("DbDsn", db)
 	}
 	dsn := utils.EnvParam("DbDsn")
-	Gpa = gpa.Init(utils.EnvParam("DbDriver"), dsn, models...)
+	dv := utils.EnvParam("DbDriver")
+	if dv == "" {
+		dv = "mysql"
+	}
+	Gpa = gpa.Init(dv, dsn, models...)
 	seelog.Info(dsn)
 
 }

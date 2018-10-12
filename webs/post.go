@@ -21,11 +21,11 @@ func PostRpc(rpc *RpcUser, tokenName, url string, fun func(ub *UserBase, param *
 		c.JSON(200, wb.Out)
 	})
 }
-func PostHost(RpcUserHost, tokenName, url string, fun func(ub *UserBase, param *Param)) {
+func PostHost(RpcHost, tokenName, url string, fun func(ub *UserBase, param *Param)) {
 	Gin.POST(url, func(c *gin.Context) {
 		var ub *UserBase
 		wb := NewParam(c)
-		rpcUser(RpcUserHost, func(client RpcUserClient, ctx context.Context) {
+		rpcUser(RpcHost, func(client RpcUserClient, ctx context.Context) {
 			ub, _ = client.Verify(ctx, &Token{Token: wb.String(tokenName), Ua: wb.Ua})
 		})
 		fun(ub, wb)

@@ -30,6 +30,7 @@ type ParamValFunc func(ctx *Param, p *SpParam) (interface{}, int)
 func (sp *Sp) UaParam(wb *Param, p *SpParam) (interface{}, int) {
 	return wb.Ua, 200
 }
+
 func (sp *Sp) InParam(ctx *Param, p *SpParam) (interface{}, int) {
 	v := ctx.String(p.ParamName)
 	if v == "" {
@@ -76,8 +77,8 @@ func (sp *Sp) GinParam(ctx *Param, p *SpParam) (interface{}, int) {
 		return "", 401
 	}
 }
-
 //--
+
 func (sp *Sp) GetParams(wb *Param) ([]interface{}, int) {
 	var params []interface{}
 	for _, p := range sp.Params {
