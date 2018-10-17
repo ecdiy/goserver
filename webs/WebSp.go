@@ -18,6 +18,11 @@ type SpWeb struct {
 }
 
 func (ws *SpWeb) Handle(engine *gin.Engine, url, reload string) {
+	if ws.SpParamDoMap == nil {
+		ws.SpParamDoMap = make(map[string]ParamValFunc)
+	}
+	ws.SpParamDoMap["in"] = InParam
+	ws.SpParamDoMap["ua"] = UaParam
 	if !gin.IsDebugging() {
 		list, err := ws.Gpa.ListArrayString(SqlSpAll)
 		if err != nil {
@@ -194,17 +199,6 @@ func (ws *SpWeb) GetParam(ParamName, pType string, sp *Sp) (*SpParam, error) {
 			p.ValFunc = v
 			return p, nil
 		}
-	}
-	if strings.Index(ParamName, "gin") == 0 {
-		p.ParamName = p.ParamName[3:]
-		p.ValFunc = sp.GinParam
-		return p, nil
-	}
-	if strings.Index(ParamName, "gk") == 0 {
-		p.ParamName = p.ParamName[2:]
-		p.ValFunc = sp.GkParam
-		seelog.Info("Type=", pType, ";default=", p.DefaultVal)
-		return p, nil
 	}
 	seelog.Error("合法参数以(in,gin,ua,gk开头)未知参数格式，", ParamName)
 	return p, errors.New("未知参数格式")

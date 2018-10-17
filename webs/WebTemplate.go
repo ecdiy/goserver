@@ -5,7 +5,6 @@ import (
 	"strings"
 	"github.com/gin-gonic/gin"
 	"utils/gpa"
-	"strconv"
 	"github.com/gin-contrib/multitemplate"
 	"path/filepath"
 	"io/ioutil"
@@ -112,24 +111,24 @@ func WebTplWithSp(loginUrl string, tpl *WebTemplate, ctx *gin.Context, g *gpa.Gp
 		}
 	}
 	spName += "Page"
-	code := SpExec(spName, g, tpl. Param, auth)
-	if code == 200 || code == 404 {
-		if code == 404 {
-			seelog.Warn("Not Find SpName:", spName)
-		}
-		defer func() {
-			if err := recover(); err != nil {
-				seelog.Error("template error;template=", tplName+"-"+tpl.Ua,
-					"\nData=", tpl.Out, "\n\n", err)
-			}
-		}()
-		ctx.HTML(200, tplName+"-"+tpl.Ua, tpl.Out)
-	} else {
-		if code == 401 {
-			ctx.Redirect(302, loginUrl)
-		} else {
-			seelog.Error("code=", code, ",spName=", spName, ",tplName=", tplName)
-			ctx.HTML(200, strconv.Itoa(code)+"-"+tpl.Ua, tpl)
-		}
-	}
+	//code := SpExec(spName, g, tpl. Param, auth)
+	//if code == 200 || code == 404 {
+	//	if code == 404 {
+	//		seelog.Warn("Not Find SpName:", spName)
+	//	}
+	//	defer func() {
+	//		if err := recover(); err != nil {
+	//			seelog.Error("template error;template=", tplName+"-"+tpl.Ua,
+	//				"\nData=", tpl.Out, "\n\n", err)
+	//		}
+	//	}()
+	//	ctx.HTML(200, tplName+"-"+tpl.Ua, tpl.Out)
+	//} else {
+	//	if code == 401 {
+	//		ctx.Redirect(302, loginUrl)
+	//	} else {
+	//		seelog.Error("code=", code, ",spName=", spName, ",tplName=", tplName)
+	//		ctx.HTML(200, strconv.Itoa(code)+"-"+tpl.Ua, tpl)
+	//	}
+	//}
 }
