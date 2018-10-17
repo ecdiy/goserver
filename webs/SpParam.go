@@ -3,6 +3,7 @@ package webs
 import (
 	"github.com/cihub/seelog"
 	"utils/http"
+	"utils/xml"
 )
 
 //--
@@ -18,51 +19,12 @@ func InParam(ctx *Param, p *SpParam) (interface{}, int) {
 	return v, 200
 }
 
-func (sp *Sp) GkParam(ctx *Param, p *SpParam) (interface{}, int) {
-	_, CallAuth := ctx.Context.Get("CallAuth")
-	if !CallAuth && sp.Auth != nil {
-		sp.Auth(ctx)
-	}
-	v, b := ctx.Context.Get(p.ParamName)
-	if b {
-		return v, 200
-	} else {
-		seelog.Error("ctx.Get not find.", p.ParamName)
-		return p.DefaultVal, 200
-	}
-}
-
-func (sp *Sp) GinParam(ctx *Param, p *SpParam) (interface{}, int) {
-	v, b := ctx.Context.Get(p.ParamName)
-	if b {
-		return v, 200
-	} else {
-		_, CallAuth := ctx.Context.Get("CallAuth")
-		if !CallAuth && sp.Auth != nil {
-			auth := sp.Auth(ctx)
-			if !auth.Result {
-				seelog.Error("Gin获取参数值出错：SpName=", sp.Name, ";ParamName=", p.ParamName)
-				return "", 401
-			}
-			v, b := ctx.Context.Get(p.ParamName)
-			if b {
-				return v, 200
-			} else {
-				seelog.Error("获取Gin参数错误:", p.ParamName)
-				return "", 401
-			}
-		}
-		seelog.Error("ctx.Get not find.", p.ParamName)
-		return "", 401
-	}
-}
-
 /*--微信获取用户Id
 1. db appId,secret.
 2. http get openId
 3. query openId to userId.
 */
-func WxParam(ctx *Param, p *SpParam) (interface{}, int) {
+func (ws *SpWeb) WxParam(ctx *Param, p *SpParam) (interface{}, int) {
 	wb := NewParam(ctx.Context)
 	res := make(map[string]interface{})
 	c := SpCall("wx", wb, res, nil, true)
@@ -80,4 +42,24 @@ func WxParam(ctx *Param, p *SpParam) (interface{}, int) {
 	return 0, 401
 }
 
-//--
+func (ws *SpWeb) GinRpcParam(ele *xml.Element) {
+
+}
+
+func (ws *SpWeb) GinDbParam(ele *xml.Element) {
+	ver := &RpcUser{Sql: ele.MustAttr("Sql"), Gpa: ws.Gpa}
+	tkName := ele.MustAttr("TokenName")
+	ws.SpParamDoMap[ele.MustAttr("Prefix")] = func(wb *Param, p *SpParam) (interface{}, int) {
+		v, b := wb.Context.Get(p.ParamName)
+		if b {
+			return v, 200
+		}
+		ver.Verify(nil, &Token{Token: wb.String(tkName), Ua: wb.Ua})
+		v2, b2 := wb.Context.Get(p.ParamName)
+		if b2 {
+			return v2, 200
+		}
+		seelog.Error("ctx.Get not find.", p.ParamName)
+		return 0, 401
+	}
+}

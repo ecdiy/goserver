@@ -9,9 +9,10 @@ import (
 
 type RpcUser struct {
 	Sql string
+	Gpa *gpa.Gpa
 }
 
-func (s *RpcUser) Verify(Gpa *gpa.Gpa, c context.Context, in *Token) (*UserBase, error) {
+func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
 	ub := &UserBase{}
 	if len(in.Token) > 1 {
 		v, b := TokenMap[in.Token]
@@ -19,7 +20,7 @@ func (s *RpcUser) Verify(Gpa *gpa.Gpa, c context.Context, in *Token) (*UserBase,
 			ub.UserId = v
 			setUb(ub)
 		} else {
-			m, b, ee := Gpa.QueryMapStringString(s.Sql, in.Token, in.Ua)
+			m, b, ee := s.Gpa.QueryMapStringString(s.Sql, in.Token, in.Ua)
 			if ee == nil && b {
 				uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
 				TokenMap[in.Token] = uId
@@ -48,12 +49,12 @@ func setUb(ub *UserBase) {
 	}
 }
 
-func GetAuthByRpc(Gpa *gpa.Gpa,rpc *RpcUser, tokenName string) func(param *Param) *UserBase {
+func GetAuthByRpc(rpc *RpcUser, tokenName string) func(param *Param) *UserBase {
 	return func(param *Param) *UserBase {
 		param.Context.Set("CallAuth", 1)
 		tokenVal := param.String(tokenName)
 		if len(tokenVal) > 1 {
-			ub, _ := rpc.Verify(Gpa  ,nil, &Token{Token: tokenVal, Ua: param.Ua})
+			ub, _ := rpc.Verify(nil, &Token{Token: tokenVal, Ua: param.Ua})
 			ubx(ub, param)
 			return ub
 		} else {
@@ -61,6 +62,7 @@ func GetAuthByRpc(Gpa *gpa.Gpa,rpc *RpcUser, tokenName string) func(param *Param
 		}
 	}
 }
+
 func ubx(ub *UserBase, param *Param) {
 	if ub.Result {
 		param.Context.Set("UserId", ub.UserId)
@@ -76,6 +78,7 @@ func ubx(ub *UserBase, param *Param) {
 		}
 	}
 }
+
 func GetAuthFunByHost(RpcUserHost, tokenName string) func(param *Param) *UserBase {
 	return func(param *Param) *UserBase {
 		param.Context.Set("CallAuth", 1)

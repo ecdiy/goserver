@@ -3,7 +3,6 @@ package webs
 import (
 	"github.com/gin-gonic/gin"
 	"context"
-	"utils/gpa"
 )
 
 func Post(Gin *gin.Engine, url string, fun func(param *Param)) {
@@ -14,15 +13,15 @@ func Post(Gin *gin.Engine, url string, fun func(param *Param)) {
 	})
 }
 
-func PostRpc(Gin *gin.Engine,Gpa *gpa.Gpa , rpc *RpcUser, tokenName, url string, fun func(ub *UserBase, param *Param)) {
+func PostRpc(Gin *gin.Engine, rpc *RpcUser, tokenName, url string, fun func(ub *UserBase, param *Param)) {
 	Gin.POST(url, func(c *gin.Context) {
 		wb := NewParam(c)
-		ub, _ := rpc.Verify(Gpa,nil, &Token{Token: wb.String(tokenName), Ua: wb.Ua})
+		ub, _ := rpc.Verify(nil, &Token{Token: wb.String(tokenName), Ua: wb.Ua})
 		fun(ub, wb)
 		c.JSON(200, wb.Out)
 	})
 }
-func PostHost(Gin *gin.Engine,RpcHost, tokenName, url string, fun func(ub *UserBase, param *Param)) {
+func PostHost(Gin *gin.Engine, RpcHost, tokenName, url string, fun func(ub *UserBase, param *Param)) {
 	Gin.POST(url, func(c *gin.Context) {
 		var ub *UserBase
 		wb := NewParam(c)
@@ -33,7 +32,7 @@ func PostHost(Gin *gin.Engine,RpcHost, tokenName, url string, fun func(ub *UserB
 		c.JSON(200, wb.Out)
 	})
 }
-func AuthHost(Gin *gin.Engine,RpcUserHost, tokenName, url string, fun func(ub *UserBase, param *Param)) {
+func AuthHost(Gin *gin.Engine, RpcUserHost, tokenName, url string, fun func(ub *UserBase, param *Param)) {
 	Gin.POST(url, func(c *gin.Context) {
 		rpcUser(RpcUserHost, func(client RpcUserClient, ctx context.Context) {
 			wb := NewParam(c)
@@ -48,10 +47,10 @@ func AuthHost(Gin *gin.Engine,RpcUserHost, tokenName, url string, fun func(ub *U
 	})
 }
 
-func AuthRpc(Gin *gin.Engine,Gpa *gpa.Gpa,rpc *RpcUser, tokenName, url string, fun func(ub *UserBase, param *Param)) {
+func AuthRpc(Gin *gin.Engine, rpc *RpcUser, tokenName, url string, fun func(ub *UserBase, param *Param)) {
 	Gin.POST(url, func(c *gin.Context) {
 		wb := NewParam(c)
-		ub, _ := rpc.Verify(Gpa,nil, &Token{Token: wb.String(tokenName), Ua: wb.Ua})
+		ub, _ := rpc.Verify(nil, &Token{Token: wb.String(tokenName), Ua: wb.Ua})
 		if ub.Result {
 			fun(ub, wb)
 			c.JSON(200, wb.Out)
@@ -88,6 +87,3 @@ func AuthRpc(Gin *gin.Engine,Gpa *gpa.Gpa,rpc *RpcUser, tokenName, url string, f
 //		c.JSON(http.StatusOK, res)
 //	})
 //}
-
-// "/sp/:sp"   "Ajax"
-// "/spa/:sp"  "Admin"
