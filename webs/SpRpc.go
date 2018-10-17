@@ -2,7 +2,6 @@ package webs
 
 import (
 	"google.golang.org/grpc"
-	"github.com/gin-gonic/gin"
 	"github.com/cihub/seelog"
 	"context"
 	"utils"
@@ -41,35 +40,4 @@ func rpcUser(RpcUserHost string, fun func(client RpcUserClient, ctx context.Cont
 		client := NewRpcUserClient(conn)
 		fun(client, context.Background())
 	}
-}
-
-// "/sp/:sp"   "Ajax"
-// "/spa/:sp"  "Admin"
-func RegisterSpAjax(auth func(param *Param) *UserBase, url, ext string) {
-	if !gin.IsDebugging() {
-		spInitCache(Gpa, auth, ext)
-	}
-	Gin.POST(url, func(c *gin.Context) {
-		defer func() {
-			if err := recover(); err != nil {
-				seelog.Error("sp un catch error;", url, ";", err)
-			}
-		}()
-		spName := c.Param("sp") + ext
-		wb := NewParam(c)
-		code := SpExec(spName, Gpa, wb, auth)
-		if code == 200 {
-			c.JSON(200, wb.Out)
-		} else {
-			seelog.Error("数据存储过程错误:"+spName, ";", code)
-			c.AbortWithStatus(code)
-		}
-	})
-}
-
-func RegisterReload(url string) {
-	Gin.GET(url, func(i *gin.Context) {
-		spCache = make(map[string]*Sp)
-		i.String(200, "clear cache ok.")
-	})
 }

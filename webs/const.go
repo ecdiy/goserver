@@ -4,9 +4,6 @@ import (
 	"regexp"
 	"github.com/cihub/seelog"
 	"github.com/gin-gonic/gin"
-	"utils/gpa"
-	"utils"
-	"strings"
 )
 
 const (
@@ -16,10 +13,6 @@ const (
 )
 
 var (
-	Gin = gin.New()
-	Gpa *gpa.Gpa
-
-	spCache     = make(map[string]*Sp)
 	spReloadFun = make(map[string]func(c *Param) *UserBase)
 	UaH5        *regexp.Regexp
 )
@@ -32,24 +25,16 @@ func init() {
 	}
 }
 
-func Init(db string, models ...interface{}) {
-	if utils.EnvIsDev {
-		ip := utils.GetIp()
-		utils.EnvParamSet("ImgHost", "http://"+ip)
+
+func GetUa(ctx *gin.Context) string {
+
+	ua :=  ctx.Request.UserAgent()
+	if len(ua) == 0 {
+		return "web"
+	}
+	if UaH5.MatchString(ua) {
+		return "h5"
 	}
 
-	if strings.Index(db, ":") < 0 {
-		utils.EnvParamSet("DbDsn", "root:root@tcp(127.0.0.1:3306)/" + db+
-			"?timeout=30s&charset=utf8mb4&parseTime=true")
-	} else {
-		utils.EnvParamSet("DbDsn", db)
-	}
-	dsn := utils.EnvParam("DbDsn")
-	dv := utils.EnvParam("DbDriver")
-	if dv == "" {
-		dv = "mysql"
-	}
-	Gpa = gpa.Init(dv, dsn, models...)
-	seelog.Info(dsn)
-
+	return "web"
 }

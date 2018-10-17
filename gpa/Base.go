@@ -20,22 +20,6 @@ type Gpa struct {
 	Conn        *sql.DB
 }
 
-func Init(Driver, Dsn string, models ...interface{}) *Gpa {
-	impl := &Gpa{driver: Driver, dsn: Dsn}
-	var err error
-	impl.Conn, err = sql.Open(impl.driver, impl.dsn)
-	if err != nil {
-		panic("数据库连接错误:driver=" + impl.driver + ";" + impl.dsn)
-	} else {
-		impl.Conn.SetMaxOpenConns(5)
-		//	dao.Conn.SetMaxIdleConns(0)
-		impl.Conn.Ping()
-	}
-	for _, d := range models {
-		impl.setMethodImpl(d)
-	}
-	return impl
-}
 
 //func InitGpa(dbName string, models ... interface{}) *Gpa {
 //	return Init(base.Param(base.KeyDbDriverName),

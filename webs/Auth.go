@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"context"
 	"strconv"
+	"utils/gpa"
 )
 
 type RpcUser struct {
 	Sql string
 }
 
-func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
+func (s *RpcUser) Verify(Gpa *gpa.Gpa, c context.Context, in *Token) (*UserBase, error) {
 	ub := &UserBase{}
 	if len(in.Token) > 1 {
 		v, b := TokenMap[in.Token]
@@ -47,12 +48,12 @@ func setUb(ub *UserBase) {
 	}
 }
 
-func GetAuthByRpc(rpc *RpcUser, tokenName string) func(param *Param) *UserBase {
+func GetAuthByRpc(Gpa *gpa.Gpa,rpc *RpcUser, tokenName string) func(param *Param) *UserBase {
 	return func(param *Param) *UserBase {
 		param.Context.Set("CallAuth", 1)
 		tokenVal := param.String(tokenName)
 		if len(tokenVal) > 1 {
-			ub, _ := rpc.Verify(nil, &Token{Token: tokenVal, Ua: param.Ua})
+			ub, _ := rpc.Verify(Gpa  ,nil, &Token{Token: tokenVal, Ua: param.Ua})
 			ubx(ub, param)
 			return ub
 		} else {
