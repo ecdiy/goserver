@@ -8,23 +8,21 @@ import (
 	"utils"
 	"regexp"
 	"errors"
+	"utils/xml"
 )
 
 type SpWeb struct {
 	Gpa          *gpa.Gpa
-	SpSuffix     string                  //存储过程后缀
 	SpParamDoMap map[string]ParamValFunc //存储过程参数处理规制
 	SpCache      map[string]*Sp
+	Engine       *gin.Engine
 }
 
-func (ws *SpWeb) Handle(engine *gin.Engine, url, reload string) {
-	if ws.SpParamDoMap == nil {
-		ws.SpParamDoMap = make(map[string]ParamValFunc)
-	}
-
+func (ws *SpWeb) Handle(ele *xml.Element, data map[string]interface{}) {
+	ws.SpParamDoMap = make(map[string]ParamValFunc)
 	ws.SpParamDoMap["in"] = ParamIn
 	ws.SpParamDoMap["ua"] = ParamUa
-
+	spSuffix := ele.MustAttr("SpSuffix")
 	if !gin.IsDebugging() {
 		list, err := ws.Gpa.ListArrayString(SqlSpAll)
 		if err != nil {
@@ -33,7 +31,7 @@ func (ws *SpWeb) Handle(engine *gin.Engine, url, reload string) {
 			if list != nil {
 				sps := ""
 				for _, val := range list {
-					if strings.LastIndex(val[0], ws.SpSuffix) == len(val[0])-len(ws.SpSuffix) {
+					if strings.LastIndex(val[0], spSuffix) == len(val[0])-len(spSuffix) {
 						sp, b := ws.NewSp(val)
 						if b {
 							ws.SpCache [sp.Name] = sp
@@ -45,13 +43,13 @@ func (ws *SpWeb) Handle(engine *gin.Engine, url, reload string) {
 			}
 		}
 	}
-
-	engine.POST(url, func(ctx *gin.Context) {
+	url := ele.MustAttr("Url")
+	ws.Engine.POST(url, func(ctx *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
 				seelog.Error("sp un catch error;", url, ";", err)
 			}
-			spName := ctx.Param("sp") + ws.SpSuffix
+			spName := ctx.Param("sp") + spSuffix
 			wb := NewParam(ctx)
 			code := ws.SpExec(spName, wb)
 			if code == 200 {
@@ -62,9 +60,9 @@ func (ws *SpWeb) Handle(engine *gin.Engine, url, reload string) {
 			}
 		}()
 	})
-
-	if reload != "" {
-		engine.GET(reload, func(i *gin.Context) {
+	reloadUrl, rExt := ele.AttrValue("ReloadUrl")
+	if rExt {
+		ws.Engine.GET(reloadUrl, func(i *gin.Context) {
 			ws.SpCache = make(map[string]*Sp)
 			i.String(200, "clear cache ok.")
 		})
@@ -144,6 +142,7 @@ func (ws *SpWeb) NewSpByName(spName string) (*Sp, bool) {
 func (ws *SpWeb) SpExec(spName string, param *Param) int {
 	defer func() {
 		if err := recover(); err != nil {
+			seelog.Error("SP do fail: spName=", spName, ";param=", param)
 			delete(ws.SpCache, spName)
 		}
 	}()

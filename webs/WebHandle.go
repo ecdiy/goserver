@@ -32,6 +32,7 @@ func PostHost(Gin *gin.Engine, RpcHost, tokenName, url string, fun func(ub *User
 		c.JSON(200, wb.Out)
 	})
 }
+
 func AuthHost(Gin *gin.Engine, RpcUserHost, tokenName, url string, fun func(ub *UserBase, param *Param)) {
 	Gin.POST(url, func(c *gin.Context) {
 		rpcUser(RpcUserHost, func(client RpcUserClient, ctx context.Context) {
@@ -60,24 +61,6 @@ func AuthRpc(Gin *gin.Engine, rpc *RpcUser, tokenName, url string, fun func(ub *
 	})
 }
 
-//
-//func Auth(Gin *gin.Engine, url string, fun func(userId int64, param *Param, res map[string]interface{}), verify func(c *gin.Context) (bool, int64)) {
-//	Gin.POST(url, func(c *gin.Context) {
-//		auth, userId := verify(c)
-//		if auth {
-//			param := NewParam(c)
-//
-//			param.Auth = c.Keys
-//			res := make(map[string]interface{})
-//			fun(userId, param, res)
-//			res["now"] = time.Now().Format("2006-01-02T15:04:05Z")
-//			c.JSON(200, res)
-//
-//		} else {
-//			c.AbortWithStatus(401)
-//		}
-//	})
-//}
 
 //func GinGetAcao(Gin *gin.Engine, relativePath string, hand HandlerResult) {
 //	Gin.GET(relativePath, func(c *gin.Context) {

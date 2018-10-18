@@ -4,10 +4,9 @@
         <profile>dev</profile>
     </Parameter>
 
-    <Gpa DbDsn="root:root@tcp(127.0.0.1:3306)/dinner?timeout=30s&amp;charset=utf8mb4&amp;parseTime=true"/>
+    <Gpa DbDsn="root:root@tcp(127.0.0.1:3306)/wk-site?timeout=30s&amp;charset=utf8mb4&amp;parseTime=true"/>
 
-    <Web Port=":4000"/>
-
+    <Web Port=":7000"/>
 
     <Sp WebRef="Web" GpaRef="Gpa">
         <ParamGin Prefix="gin" TokenName="token" RpcHost="127.0.0.1:7200"/>
@@ -23,6 +22,10 @@
 
         <Handle SpSuffix="Ajax" ReloadUrl="/spReload" Url="/sp/:sp"/>
 
+        <Template SpSuffix="Page" TemplatesDir="ui/views/wk-site/" LayoutDir="ui/views/layout/" Pages="/**/*,/*" LoginUrl="/user/login">
+            <index-web>ui/view/modules/topicList.html</index-web>
+            <index-h5>ui/view/modules/topicList-h5.html</index-h5>
+        </Template>
     </Sp>
 
 </Root>

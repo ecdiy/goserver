@@ -27,7 +27,7 @@ func (app *Module) Gpa(ele *xml.Element) {
 }
 
 func (app *Module) Rpc(ele *xml.Element) {
-	Sql := ele.MustAttr("RpcHost")
+	Sql := ele.MustAttr("Sql")
 	rpc := &webs.RpcUser{Sql: Sql, Gpa: getGpa(ele)}
 	RpcHost := ele.MustAttr("RpcHost")
 	putFunRun(func() {
