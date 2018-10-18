@@ -5,7 +5,7 @@ import (
 	"github.com/cihub/seelog"
 	"github.com/gin-gonic/gin"
 )
-
+//	c.Header("Access-Control-Allow-Origin", "*")
 const (
 	DefaultPageSize = 20
 	SqlSpAll        = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE'"
