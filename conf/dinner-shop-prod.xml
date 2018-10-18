@@ -1,0 +1,19 @@
+<Root>
+
+    <Parameter>
+        <profile>prod</profile>
+    </Parameter>
+
+    <Gpa DbDsn="root:root@tcp(127.0.0.1:3306)/dinner?timeout=30s&amp;charset=utf8mb4&amp;parseTime=true"/>
+
+    <Web/>
+
+    <RpcSp Sql="select UserId from Token where Token=? and Ua=?" RpcHost="127.0.0.1:4200" TokenName="token"
+           Url="/sp/:sp" Ext="Ajax"/>
+
+    <RpcHost RpcHost="127.0.0.1:4200" TokenName="token" Url="/spa/:sp" Ext="Admin"/>
+
+    <SpReload Url="/spReload"/>
+
+    <WebRun Port=":4000" WebRef="Web"/>
+</Root>
