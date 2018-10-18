@@ -43,6 +43,10 @@ func init() {
 			}
 		}
 	}
+	baseDev()
+}
+
+func baseDev() {
 	if profile == "" {
 		profile = "dev"
 	}
@@ -83,9 +87,14 @@ func EnvParamInt(key string, defaultVal int) int {
 }
 
 func EnvParamSet(key, val string) {
-	_, b := params[key]
-	if !b {
-		params[key] = val
+	if key == "profile" {
+		profile = val
+		baseDev()
+	} else {
+		_, b := params[key]
+		if !b {
+			params[key] = val
+		}
 	}
 }
 

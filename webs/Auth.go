@@ -5,6 +5,16 @@ import (
 	"context"
 	"strconv"
 	"utils/gpa"
+	"google.golang.org/grpc"
+	"utils"
+	"net"
+	"github.com/cihub/seelog"
+	"fmt"
+)
+
+var (
+	TokenMap = make(map[string]int64)
+	UserMap  = make(map[int64]map[string]string)
 )
 
 type RpcUser struct {
@@ -49,19 +59,19 @@ func setUb(ub *UserBase) {
 	}
 }
 
-func GetAuthByRpc(rpc *RpcUser, tokenName string) func(param *Param) *UserBase {
-	return func(param *Param) *UserBase {
-		param.Context.Set("CallAuth", 1)
-		tokenVal := param.String(tokenName)
-		if len(tokenVal) > 1 {
-			ub, _ := rpc.Verify(nil, &Token{Token: tokenVal, Ua: param.Ua})
-			ubx(ub, param)
-			return ub
-		} else {
-			return &UserBase{Result: false}
-		}
-	}
-}
+//func GetAuthByRpc(rpc *RpcUser, tokenName string) func(param *Param) *UserBase {
+//	return func(param *Param) *UserBase {
+//		param.Context.Set("CallAuth", 1)
+//		tokenVal := param.String(tokenName)
+//		if len(tokenVal) > 1 {
+//			ub, _ := rpc.Verify(nil, &Token{Token: tokenVal, Ua: param.Ua})
+//			ubx(ub, param)
+//			return ub
+//		} else {
+//			return &UserBase{Result: false}
+//		}
+//	}
+//}
 
 func ubx(ub *UserBase, param *Param) {
 	if ub.Result {
@@ -79,19 +89,47 @@ func ubx(ub *UserBase, param *Param) {
 	}
 }
 
-func GetAuthFunByHost(RpcUserHost, tokenName string) func(param *Param) *UserBase {
-	return func(param *Param) *UserBase {
-		param.Context.Set("CallAuth", 1)
-		tokenVal := param.String(tokenName)
-		if len(tokenVal) > 1 {
-			var ub *UserBase
-			rpcUser(RpcUserHost, func(client RpcUserClient, ctx context.Context) {
-				ub, _ = client.Verify(ctx, &Token{Token: tokenVal, Ua: param.Ua})
-			})
-			ubx(ub, param)
-			return ub
-		} else {
-			return &UserBase{Result: false}
+//func GetAuthFunByHost(RpcUserHost, tokenName string) func(param *Param) *UserBase {
+//	return func(param *Param) *UserBase {
+//		param.Context.Set("CallAuth", 1)
+//		tokenVal := param.String(tokenName)
+//		if len(tokenVal) > 1 {
+//			var ub *UserBase
+//			rpcUser(RpcUserHost, func(client RpcUserClient, ctx context.Context) {
+//				ub, _ = client.Verify(ctx, &Token{Token: tokenVal, Ua: param.Ua})
+//			})
+//			ubx(ub, param)
+//			return ub
+//		} else {
+//			return &UserBase{Result: false}
+//		}
+//	}
+//}
+
+func RpcRegister(addr string, regFunc ... func(server *grpc.Server)) {
+	s := grpc.NewServer()
+	rh := utils.EnvParam("RpcHost")
+	if rh == "" {
+		rh = addr
+	}
+	lis, err := net.Listen("tcp", rh)
+	if err == nil {
+		for _, v := range regFunc {
+			v(s)
 		}
+		//regFunc(s)
+		seelog.Info("grpc bind: " + rh)
+		s.Serve(lis)
+	} else {
+		panic("启动微服务失败:" + fmt.Sprintln(err) + ";Input Addr=" + addr + ";RpcHost=" + rh)
+	}
+}
+
+func rpcUser(RpcUserHost string, fun func(client RpcUserClient, ctx context.Context)) {
+	conn, err := grpc.DialContext(context.Background(), RpcUserHost, grpc.WithInsecure())
+	if err == nil {
+		defer conn.Close()
+		client := NewRpcUserClient(conn)
+		fun(client, context.Background())
 	}
 }

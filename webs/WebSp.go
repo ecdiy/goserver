@@ -21,8 +21,10 @@ func (ws *SpWeb) Handle(engine *gin.Engine, url, reload string) {
 	if ws.SpParamDoMap == nil {
 		ws.SpParamDoMap = make(map[string]ParamValFunc)
 	}
-	ws.SpParamDoMap["in"] = InParam
-	ws.SpParamDoMap["ua"] = UaParam
+
+	ws.SpParamDoMap["in"] = ParamIn
+	ws.SpParamDoMap["ua"] = ParamUa
+
 	if !gin.IsDebugging() {
 		list, err := ws.Gpa.ListArrayString(SqlSpAll)
 		if err != nil {
@@ -43,6 +45,7 @@ func (ws *SpWeb) Handle(engine *gin.Engine, url, reload string) {
 			}
 		}
 	}
+
 	engine.POST(url, func(ctx *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
