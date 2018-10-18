@@ -9,8 +9,8 @@ import (
 )
 
 var app = reflect.ValueOf(new(Module))
-var data = make(map[string]interface{})
-var initAfterFun []func()
+var data = make(map[string]interface{}) //xml 对象保存
+var initAfterFun []func()               //xml 分析完后的回调函数
 
 func main() {
 	defer func() {

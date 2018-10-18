@@ -12,8 +12,8 @@ import (
 
 type SpWeb struct {
 	Gpa          *gpa.Gpa
-	SpSuffix     string //存储过程后缀
-	SpParamDoMap map[string]ParamValFunc
+	SpSuffix     string                  //存储过程后缀
+	SpParamDoMap map[string]ParamValFunc //存储过程参数处理规制
 	SpCache      map[string]*Sp
 }
 

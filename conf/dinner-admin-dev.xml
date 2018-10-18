@@ -13,20 +13,16 @@
     <!-- ReloadUrl 清空内存缓存 设置成 "" 为不能用URL访问的方法请求内存缓存 -->
     <WebSp SpSuffix="Ajax" ReloadUrl="/spReload" Url="/sp/:sp" WebRef="Web" GpaRef="Gpa">
         <ParamGin Prefix="gin" TokenName="token" RpcRef="Rpc"/>
+        <ParamWk Prefix="wk" TokenName="token" RpcRef="Rpc"/>
+
         <!--
         1. RpcRef="Rpc"
         2. RpcHost="127.0.0.1:4200"
         3. Sql="select UserId from Token where Token=? and Ua=?"
         三种方式任选一种,未发现时返回 code=401. ParamGin 区别，未匹配时返回默认值0 ,code=200
          -->
-        <ParamWx Prefix="wx"/>
+        <ParamWx Prefix="wx" Sql="SELECT MpAppId,MpSecret from Shop where Id=?" SqlParam="ShopId"/>
+
     </WebSp>
-
-    <!--<RpcSp  TokenName="token"-->
-    <!--Url="/sp/:sp" Ext="Ajax"/>-->
-
-    <!--<RpcHost RpcHost="127.0.0.1:4200" TokenName="token" Url="/spa/:sp" Ext="Admin"/>-->
-
-    <!--<SpReload Url="/spReload"/>-->
 
 </Root>
