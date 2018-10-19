@@ -24,8 +24,7 @@ func main() {
 		seelog.Error("没有指定配置文件")
 		return
 	}
-	xmlFile := "./conf/" + os.Args[1] + ".xml"
-	dom, err := xml.LoadByFile(xmlFile)
+	dom, err := xml.LoadByFile(os.Args[1])
 	if err == nil {
 		InvokeByXml(dom)
 		if len(initAfterFun) > 0 {
@@ -34,30 +33,8 @@ func main() {
 			}
 		}
 	} else {
-		seelog.Error("读取配置文件出错:", xmlFile, ",", err)
+		seelog.Error("读取配置文件出错:", os.Args[1], ",", err)
 		return
-	}
-}
-
-func putFunRun(fun func()) {
-	if len(initAfterFun) > 0 {
-		go fun()
-	} else {
-		initAfterFun = append(initAfterFun, fun)
-	}
-}
-
-func put(ele *xml.Element, v interface{}) {
-	id, idb := ele.AttrValue("Id")
-	if !idb {
-		id = ele.Name()
-	}
-	_, de := data[id]
-	if de {
-		panic("Id重复" + id)
-	} else {
-		data[id] = v
-		seelog.Info("~~~map object:", id)
 	}
 }
 
