@@ -57,15 +57,6 @@ func (ws *SpWeb) getTemplateRender(SpSuffix, loginUrl, TplName string) func(ctx 
 		code := ws.SpExec(spName, wb)
 		ws.Engine.FuncMap["param"] = wb.String
 		if code == 200 || code == 404 {
-			if code == 404 {
-				seelog.Warn("Not Find SpName:", spName)
-			}
-			defer func() {
-				if err := recover(); err != nil {
-					seelog.Error("template error;template=", tplName+"-"+wb.Ua, "\nData=", wb.Out, "\n\n", err)
-				}
-			}()
-			//wb.Out["param"] = wb.String
 			ctx.HTML(200, tplName+"-"+wb.Ua, wb.Out)
 		} else {
 			if code == 401 {
