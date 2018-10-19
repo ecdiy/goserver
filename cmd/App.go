@@ -6,6 +6,8 @@ import (
 	"github.com/gpmgo/gopm/modules/log"
 	"reflect"
 	"utils/xml"
+	"strings"
+	"utils"
 )
 
 var app = reflect.ValueOf(new(Module))
@@ -23,6 +25,11 @@ func main() {
 	if len(os.Args) < 2 {
 		seelog.Error("没有指定配置文件")
 		return
+	}
+	if strings.Index(os.Args[1], "-dev.xml") > 0 {
+		utils.EnvParamSet("profile", utils.EnvDev)
+	} else {
+		utils.EnvParamSet("profile", utils.EnvProd)
 	}
 	dom, err := xml.LoadByFile(os.Args[1])
 	if err == nil {
