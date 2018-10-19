@@ -132,7 +132,7 @@ func (ws *SpWeb) ginWk(ele *xml.Element, data map[string]interface{}, unFindCode
 			rpcUser(RpcHost, func(client RpcUserClient, ctx context.Context) {
 				ub, _ = client.Verify(ctx, &Token{Token: wb.String(tkName), Ua: wb.Ua})
 			})
-			if ub.Result {
+			if ub != nil && ub.Result {
 				ubx(ub, wb)
 				v2, b2 := wb.Context.Get(p.ParamName)
 				if b2 {

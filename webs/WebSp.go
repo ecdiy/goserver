@@ -199,13 +199,15 @@ func (ws *SpWeb) GetParam(ParamName, pType string, sp *Sp) (*SpParam, error) {
 	} else {
 		p.DefaultVal = ""
 	}
+	paraHead := ""
 	for k, v := range ws.SpParamDoMap {
+		paraHead += k + ","
 		if strings.Index(ParamName, k) == 0 {
 			p.ParamName = p.ParamName[len(k):]
 			p.ValFunc = v
 			return p, nil
 		}
 	}
-	seelog.Error("合法参数以(in,gin,ua,gk开头)未知参数格式，", ParamName)
+	seelog.Error("合法参数以(", paraHead, "开头)未知参数格式，", ParamName)
 	return p, errors.New("未知参数格式")
 }

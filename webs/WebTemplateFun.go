@@ -24,8 +24,11 @@ var FunConstantMaps = template.FuncMap{
 		}
 		return ss
 	},
-	"unescaped": func(x string) template.HTML { return template.HTML(x) },
+	"unescaped": func(x string) template.HTML {
+		return template.HTML(x)
+	},
 	"add": func(v ... int) int {
+
 		vs := 0
 		for _, vv := range v {
 			vs += vv
