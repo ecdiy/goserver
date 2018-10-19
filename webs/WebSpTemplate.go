@@ -31,6 +31,11 @@ func (ws *SpWeb) Template(ele *xml.Element, data map[string]interface{}) {
 
 func (ws *SpWeb) getTemplateRender(SpSuffix, loginUrl, TplName string) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				seelog.Error("模板处理失败", err)
+			}
+		}()
 		if strings.Index(ctx.Request.URL.Path, ".") > 0 {
 			seelog.Warn("404:", ctx.Request.URL.Path)
 			ctx.AbortWithStatus(404)
@@ -50,6 +55,7 @@ func (ws *SpWeb) getTemplateRender(SpSuffix, loginUrl, TplName string) func(ctx 
 		spName += SpSuffix
 		wb := NewParam(ctx)
 		code := ws.SpExec(spName, wb)
+		ws.Engine.FuncMap["param"] = wb.String
 		if code == 200 || code == 404 {
 			if code == 404 {
 				seelog.Warn("Not Find SpName:", spName)
@@ -59,6 +65,7 @@ func (ws *SpWeb) getTemplateRender(SpSuffix, loginUrl, TplName string) func(ctx 
 					seelog.Error("template error;template=", tplName+"-"+wb.Ua, "\nData=", wb.Out, "\n\n", err)
 				}
 			}()
+			//wb.Out["param"] = wb.String
 			ctx.HTML(200, tplName+"-"+wb.Ua, wb.Out)
 		} else {
 			if code == 401 {
