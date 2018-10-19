@@ -70,9 +70,6 @@ func (ws *SpWeb) getTemplateRender(SpSuffix, loginUrl, TplName string) func(ctx 
 }
 
 func (ws *SpWeb) GetTplName(ctx *gin.Context) string {
-	//if len(p.TplName) > 1 {
-	//	return p.TplName
-	//}
 	url := ctx.Request.URL.Path
 	if len(url) == 1 {
 		url = "/index"
