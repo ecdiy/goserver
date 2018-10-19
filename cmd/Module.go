@@ -6,9 +6,22 @@ import (
 	"utils/xml"
 	"utils"
 	"utils/gpa"
+	"github.com/cihub/seelog"
 )
 
 type Module struct {
+}
+
+func (app *Module) Include(ele *xml.Element) {
+	f := getFile(ele.Value)
+	seelog.Info("include file:", f)
+	dom, err := xml.LoadByFile(f)
+	if err == nil {
+		InvokeByXml(dom)
+	} else {
+		seelog.Error(err)
+		panic("配置文件出错:" + f)
+	}
 }
 
 func (app *Module) Parameter(ele *xml.Element) {

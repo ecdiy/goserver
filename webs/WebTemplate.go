@@ -21,7 +21,7 @@ func WebTplRenderCreate(templatesDir, layoutDir string, extends map[string][]str
 	r := multitemplate.NewRenderer()
 	webMs, _ := filepath.Glob(layoutDir + "/web/*" + ext)
 	h5Ms, _ := filepath.Glob(layoutDir + "/h5/*" + ext)
-	seelog.Info("web modules:", webMs)
+	seelog.Info("web modules:", layoutDir, webMs, h5Ms)
 	for _, p := range pages {
 		pp, err := filepath.Glob(templatesDir + p + ext)
 		if err != nil {

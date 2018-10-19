@@ -6,6 +6,8 @@ import (
 	"utils/gpa"
 	"reflect"
 	"utils/webs"
+	"strings"
+	"os"
 )
 
 func putFunRun(fun func()) {
@@ -61,4 +63,16 @@ func post(ele *xml.Element, fun func(param *webs.Param)) {
 		fun(wb)
 		c.JSON(200, wb.Out)
 	})
+}
+
+func getFile(file string) string {
+	dir := os.Args[1]
+	fg := []string{"/", "\\"}
+	for _, flg := range fg {
+		lst := strings.LastIndex(dir, flg)
+		if lst > 0 {
+			return dir[0:lst+1] + file
+		}
+	}
+	return file
 }

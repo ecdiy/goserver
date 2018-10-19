@@ -10,20 +10,36 @@ import (
 
 func (ws *SpWeb) Template(ele *xml.Element, data map[string]interface{}) {
 	extends := make(map[string][]string)
-	ns := ele.AllNodes()
-	for _, n := range ns {
-		extends[n.Name()] = strings.Split(n.Value, ",")
+	ns := ele.Node("extends")
+	if ns != nil {
+		for _, n := range ns.AllNodes() {
+			extends[n.MustAttr("TplName")] = strings.Split(n.Value, ",")
+		}
 	}
 	loginUrl := ele.MustAttr("LoginUrl")
 	SpSuffix := ele.MustAttr("SpSuffix")
 	ws.Engine.HTMLRender = WebTplRenderCreate(ele.MustAttr("TemplatesDir"), ele.MustAttr("LayoutDir"), extends, strings.Split(ele.MustAttr("Pages"), ",")...)
-	rendFun := func(ctx *gin.Context) {
+	mp := ele.Node("map")
+	if mp != nil {
+		its := mp.AllNodes()
+		for _, it := range its {
+			ws.Engine.GET(it.MustAttr("Url"), ws.getTemplateRender(SpSuffix, loginUrl, it.MustAttr("TplName")))
+		}
+	}
+	ws.Engine.NoRoute(ws.getTemplateRender(SpSuffix, loginUrl, ""))
+}
+
+func (ws *SpWeb) getTemplateRender(SpSuffix, loginUrl, TplName string) func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
 		if strings.Index(ctx.Request.URL.Path, ".") > 0 {
 			seelog.Warn("404:", ctx.Request.URL.Path)
 			ctx.AbortWithStatus(404)
 			return
 		}
-		tplName := ws.GetTplName(ctx)
+		tplName := TplName
+		if len(TplName) == 0 {
+			tplName = ws.GetTplName(ctx)
+		}
 		ns := strings.Split(tplName, "/")
 		spName := ""
 		for _, n := range ns {
@@ -53,7 +69,6 @@ func (ws *SpWeb) Template(ele *xml.Element, data map[string]interface{}) {
 			}
 		}
 	}
-	ws.Engine.NoRoute(rendFun)
 }
 
 func (ws *SpWeb) GetTplName(ctx *gin.Context) string {

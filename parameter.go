@@ -74,6 +74,14 @@ func EnvParam(key string) string {
 	return ""
 }
 
+func FmtVal(v string) string {
+	if len(v) > 2 && v[0:2] == "${" {
+		kn := v[2 : len(v)-1]
+		return EnvParam(kn)
+	}
+	return v
+}
+
 func EnvParamInt(key string, defaultVal int) int {
 	v := EnvParam(key)
 	if v != "" {

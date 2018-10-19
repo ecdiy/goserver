@@ -8,6 +8,12 @@ import (
 
 func (app *Module) Web(ele *xml.Element) {
 	web := gin.New()
+	ns := ele.AllNodes()
+	for _, n := range ns {
+		if n.Name() == "Static" {
+			web.Static(n.MustAttr("Url"), n.MustAttr("Path"))
+		}
+	}
 	put(ele, web)
 	putFunRun(func() {
 		port, _ := ele.AttrValue("Port")
