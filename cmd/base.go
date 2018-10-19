@@ -10,12 +10,13 @@ import (
 )
 
 func getGpa(ele *xml.Element) *gpa.Gpa {
-	ref, _ := ele.AttrValue("GpaRef")
+	ref := ele.Attr("GpaRef", "Gpa")
 	web := data[ref].(*gpa.Gpa)
 	return web
 }
+
 func getGin(ele *xml.Element) *gin.Engine {
-	ref, _ := ele.AttrValue("WebRef")
+	ref := ele.Attr("WebRef", "Web")
 	web := data[ref].(*gin.Engine)
 	return web
 }

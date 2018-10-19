@@ -15,6 +15,7 @@ import (
 	"context"
 	"utils/http"
 	"strings"
+	"fmt"
 )
 
 //--
@@ -35,12 +36,15 @@ func ParamIn(ctx *Param, p *SpParam) (interface{}, int) {
 2. http get openId
 3. query openId to userId.
 */
-func (ws *SpWeb) ParamWx(ele *xml.Element, data map[string]interface{}) {
+func (ws *SpWeb) ParamWx(ele *xml.Element, data map[string]interface{}) { //TODO
 	prefix := ele.MustAttr("Prefix")
-	sql, sqlExt := ele.AttrValue("Sql")
-	if sqlExt {
-		SqlParam := ele.MustAttr("SqlParam")
-		params := strings.Split(SqlParam, ",")
+	sqlEle := ele.Node("Sql")
+	saveEle := ele.Node("SaveSql")
+	saveSql := saveEle.Value
+	saveParams := strings.Split(saveEle.MustAttr("Param"), ",")
+	if sqlEle != nil {
+		sql := sqlEle.Value
+		params := strings.Split(sqlEle.MustAttr("Param"), ",")
 		ws.SpParamDoMap[prefix] = func(wb *Param, p *SpParam) (interface{}, int) {
 			v, vc := wxv(prefix, wb, p)
 			if vc != 0 {
@@ -52,7 +56,11 @@ func (ws *SpWeb) ParamWx(ele *xml.Element, data map[string]interface{}) {
 			}
 			wx, fd, _ := ws.Gpa.QueryMapStringString(sql, param...)
 			if fd {
-				return wxDo(prefix, wx["MpAppId"], wx["MpSecret"], wb, p)
+				v, vb := wx[p.ParamName]
+				if vb && len(v) > 0 {
+					return v, 200
+				}
+				return ws.wxDo(saveParams, saveSql, prefix, wx["MpAppId"], wx["MpSecret"], wb, p)
 			} else {
 				seelog.Error("没有匹配上AppId,Secret,param=", param)
 			}
@@ -66,7 +74,7 @@ func (ws *SpWeb) ParamWx(ele *xml.Element, data map[string]interface{}) {
 			if vc != 0 {
 				return v, vc
 			}
-			return wxDo(prefix, MpAppId, MpSecret, wb, p)
+			return ws.wxDo(saveParams, saveSql, prefix, MpAppId, MpSecret, wb, p)
 		}
 	}
 }
@@ -84,18 +92,28 @@ func wxv(prefix string, wb *Param, p *SpParam) (interface{}, int) {
 }
 
 // https://api.weixin.qq.com/sns/jscode2session?appid=wx1d88c080ac473555&secret=0d19956a54b1ce949902f5f7d7523658&js_code=0011AwBI1DMSX600BeEI1FDNBI11AwB6&grant_type=authorization_code
-func wxDo(prefix, MpAppId, MpSecret string, wb *Param, p *SpParam) (interface{}, int) {
+func (ws *SpWeb) wxDo(params []string, saveOpenIdSql, prefix, MpAppId, MpSecret string, wb *Param, p *SpParam) (interface{}, int) {
+	jsCode := wb.String("js_code")
 	url := "https://api.weixin.qq.com/sns/jscode2session?appid=" + MpAppId +
-		"&secret=" + MpSecret +
-		"&js_code=" + wb.String("js_code") + "&grant_type=authorization_code"
+		"&secret=" + MpSecret + "&js_code=" + jsCode + "&grant_type=authorization_code"
 	h := &http.Http{}
 	m, e := h.GetMap(url)
 	if e == nil {
 		wb.Context.Set(prefix, m)
-	}
-	v, vb := m[p.ParamName]
-	if vb {
-		return v, 200
+		errCode := fmt.Sprintln(m["errcode"])
+		if errCode == "0" {
+			var param []interface{}
+			for _, p := range params {
+				param = append(param, wb.String(p))
+			}
+			param = append(param, m["openid"])
+			param = append(param, m["session_key"])
+			ws.Gpa.Exec(saveOpenIdSql, param)
+			v, vb := m[p.ParamName]
+			if vb {
+				return v, 200
+			}
+		}
 	}
 	return 401, 0
 }

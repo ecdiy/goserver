@@ -8,7 +8,6 @@
 
     <Web Port=":4000"/>
 
-
     <Sp WebRef="Web" GpaRef="Gpa">
         <ParamGin Prefix="gin" TokenName="token" RpcHost="127.0.0.1:7200"/>
         <ParamWk Prefix="wk" TokenName="token" RpcHost="127.0.0.1:7200"/>
@@ -18,7 +17,15 @@
         3. Sql="select UserId from Token where Token=? and Ua=?"
         三种方式任选一种,未发现时返回 code=401. ParamGin 区别，未匹配时返回默认值0 ,code=200
          -->
-        <ParamWx Prefix="wx" Sql="SELECT MpAppId,MpSecret from Shop where Id=?" SqlParam="ShopId"/>
+        <ParamWx Prefix="wx">
+            <Sql Param="ShopId,js_code,ShopId">SELECT MpAppId,MpSecret,a.OpenId openid from Shop s
+                LEFT JOIN (select OpenId,ShopId from MpOpenId where ShopId=? and `Code`=?) as a on a.ShopId=s.Id
+                where s.Id=?
+            </Sql>
+            <SaveSql Param="js_code,ShopId">replace INTO `MpOpenId`(`CreateAt`, `Code`,
+                `ShopId`,`OpenId`,`SessionKey`) VALUES (now(),?,?,?,?)
+            </SaveSql>
+        </ParamWx>
         <!-- ReloadUrl 清空内存缓存 设置成 "" 为不能用URL访问的方法请求内存缓存 -->
 
         <Handle SpSuffix="Ajax" ReloadUrl="/spReload" Url="/sp/:sp"/>

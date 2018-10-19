@@ -363,6 +363,14 @@ func (t *Element) MustAttr(name string) string {
 	}
 }
 
+func (t *Element) Attr(name, defaultVal string) string {
+	v, ok := t.AttrValue(name)
+	if ok {
+		return v
+	} else {
+		return defaultVal
+	}
+}
 func (t *Element) AttrValue(name string) (string, bool) {
 	if t._root().isSync {
 		t._root().lc.RLock()
