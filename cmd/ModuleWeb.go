@@ -15,9 +15,9 @@ func (app *Module) Web(ele *xml.Element) {
 	})
 }
 
-
 func (app *Module) Sp(ele *xml.Element) {
 	sp := &webs.SpWeb{Gpa: getGpa(ele), Engine: getGin(ele)}
+	sp.Init()
 	doSubElement(ele, sp)
 	put(ele, sp)
 }

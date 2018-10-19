@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"utils/gpa"
 	"reflect"
-	"github.com/cihub/seelog"
 	"utils/webs"
 )
 
@@ -30,7 +29,6 @@ func doSubElement(ele *xml.Element, obj interface{}) {
 			inputs[0] = reflect.ValueOf(e)
 			inputs[1] = reflect.ValueOf(data)
 			m := spv.MethodByName(e.Name())
-			seelog.Warn("sp register :" + e.Name())
 			m.Call(inputs)
 		}
 	}

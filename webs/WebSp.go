@@ -18,10 +18,14 @@ type SpWeb struct {
 	Engine       *gin.Engine
 }
 
-func (ws *SpWeb) Handle(ele *xml.Element, data map[string]interface{}) {
+func (ws *SpWeb) Init() {
+	ws.SpCache = make(map[string]*Sp)
 	ws.SpParamDoMap = make(map[string]ParamValFunc)
 	ws.SpParamDoMap["in"] = ParamIn
 	ws.SpParamDoMap["ua"] = ParamUa
+}
+
+func (ws *SpWeb) Handle(ele *xml.Element, data map[string]interface{}) {
 	spSuffix := ele.MustAttr("SpSuffix")
 	if !gin.IsDebugging() {
 		list, err := ws.Gpa.ListArrayString(SqlSpAll)

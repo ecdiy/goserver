@@ -17,6 +17,7 @@ func main() {
 		seelog.Flush()
 		if err := recover(); err != nil {
 			seelog.Error("sp un catch error;", err)
+			panic(err)
 		}
 	}()
 	if len(os.Args) < 2 {
