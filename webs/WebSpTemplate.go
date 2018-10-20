@@ -56,23 +56,16 @@ func (ws *SpWeb) getTemplateRender(data map[string]interface{}, SpSuffix, loginU
 		wb := NewParam(ctx)
 		code := ws.SpExec(spName, wb)
 
-		wb.Out["gin"] = func(n string) interface{} {
-			v, vb := ctx.Get(n)
-			if vb {
-				return v
-			} else {
-				return ""
-			}
-		}
-		wb.Out["param"] = wb.String
-		wb.Out["call"] = func(name string, param ... interface{}) interface{} {
-			obj, wbe := data[name]
-			if wbe {
-				return obj.(BaseFun)(wb, param...)
-			} else {
-				return ""
-			}
-		}
+		//wb.Out["gin"] = func(n string) interface{} {
+		//	v, vb := ctx.Get(n)
+		//	if vb {
+		//		return v
+		//	} else {
+		//		return ""
+		//	}
+		//}
+		wb.Out["gin"] = wb
+
 
 		if code == 200 || code == 404 {
 			ctx.HTML(200, tplName+"-"+wb.Ua, wb.Out)

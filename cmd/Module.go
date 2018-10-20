@@ -2,7 +2,6 @@ package main
 
 import (
 	"utils/webs"
-	"google.golang.org/grpc"
 	"utils/xml"
 	"utils"
 	"utils/gpa"
@@ -39,18 +38,8 @@ func (app *Module) Gpa(ele *xml.Element) {
 	}
 }
 
-func (app *Module) Rpc(ele *xml.Element) {
-	Sql := ele.MustAttr("Sql")
-	rpc := &webs.RpcUser{Sql: Sql, Gpa: getGpa(ele)}
-	RpcHost := ele.MustAttr("RpcHost")
-	putFunRun(func() {
-		webs.RpcRegister(RpcHost, func(s *grpc.Server) {
-			webs.RegisterRpcUserServer(s, rpc)
-		})
-	})
-	put(ele, rpc)
-}
-
-func (app *Module) Fun(ele *xml.Element) {
-	put(ele, webs.NewBaseFun(ele, getGpa(ele)))
+func (app *Module) Verify(ele *xml.Element) {
+	vb := webs.NewVerify(ele, getGpa(ele), putFunRun)
+	put(ele, vb)
+	webs.RegisterBaseFun(ele.Attr("TplFunName", "verify"), vb)
 }

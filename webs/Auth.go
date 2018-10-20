@@ -11,6 +11,7 @@ import (
 	"github.com/cihub/seelog"
 	"fmt"
 	"utils/xml"
+	"strings"
 )
 
 var (
@@ -60,22 +61,6 @@ func setUb(ub *UserBase) {
 	}
 }
 
-func ubx(ub *UserBase, param *Param) {
-	if ub.Result {
-		param.Context.Set("UserId", ub.UserId)
-		param.Context.Set("Username", ub.Username)
-		if len(ub.AppendJson) > 1 {
-			var data map[string]interface{}
-			je := json.Unmarshal([]byte(ub.AppendJson), &data)
-			if je == nil {
-				for k, v := range data {
-					param.Context.Set(k, v)
-				}
-			}
-		}
-	}
-}
-
 func RpcRegister(addr string, regFunc ... func(server *grpc.Server)) {
 	s := grpc.NewServer()
 	rh := utils.EnvParam("RpcHost")
@@ -104,12 +89,33 @@ func rpcUser(RpcUserHost string, fun func(client RpcUserClient, ctx context.Cont
 	}
 }
 
-func NewBaseFun(ele *xml.Element, Gpa *gpa.Gpa) BaseFun {
-	RpcHost, rhb := ele.AttrValue("RpcHost")
+func NewVerify(ele *xml.Element, Gpa *gpa.Gpa, putFunRun func(fun func())) BaseFun {
+	sql, sqlExt := ele.AttrValue("Sql")
+	if !sqlExt {
+		sql = ele.Value
+		if len(strings.TrimSpace(sql)) > 10 {
+			sqlExt = true
+		}
+	}
+	RpcHost, rhExt := ele.AttrValue("RpcHost")
 	tkName := ele.MustAttr("TokenName")
+	ResultFlagName := ele.Attr("ResultFlagName", "Login")
 	var ver *RpcUser
-	if !rhb {
-		ver = &RpcUser{Sql: ele.MustAttr("Sql"), Gpa: Gpa}
+	if sqlExt {
+		ver = &RpcUser{Sql: sql, Gpa: Gpa}
+		if rhExt {
+			putFunRun(func() {
+				RpcRegister(RpcHost, func(s *grpc.Server) {
+					RegisterRpcUserServer(s, ver)
+				})
+			})
+		} else {
+			seelog.Warn("没有设置RpcHost,无须启动绑定Rpc")
+		}
+	} else {
+		if !rhExt {
+			panic("参数设置错误[Sql,Sql+RpcHost,RpcHost]三种方式")
+		}
 	}
 	return func(wb *Param, ps ... interface{}) interface{} {
 		_, ext := wb.Context.Get(VerifyCallFlag)
@@ -123,14 +129,27 @@ func NewBaseFun(ele *xml.Element, Gpa *gpa.Gpa) BaseFun {
 		}
 		wb.Context.Set(VerifyCallFlag, true)
 		var ub *UserBase
-		if rhb {
+		if sqlExt {
+			ub, _ = ver.Verify(nil, &Token{Token: wb.String(tkName), Ua: wb.Ua})
+		} else {
 			rpcUser(RpcHost, func(client RpcUserClient, ctx context.Context) {
 				ub, _ = client.Verify(ctx, &Token{Token: wb.String(tkName), Ua: wb.Ua})
 			})
-		} else {
-			ub, _ = ver.Verify(nil, &Token{Token: wb.String(tkName), Ua: wb.Ua})
 		}
-		ubx(ub, wb)
+		if ub.Result {
+			wb.Context.Set("UserId", ub.UserId)
+			wb.Context.Set("Username", ub.Username)
+			if len(ub.AppendJson) > 1 {
+				var data map[string]interface{}
+				je := json.Unmarshal([]byte(ub.AppendJson), &data)
+				if je == nil {
+					for k, v := range data {
+						wb.Context.Set(k, v)
+					}
+				}
+			}
+		}
+		wb.Context.Set(ResultFlagName, ub.Result)
 		return ub
 	}
 }

@@ -9,12 +9,21 @@ import (
 )
 
 var FunConstantMaps = template.FuncMap{
+
 	"set": func(m map[string]interface{}, n string, v interface{}) string {
 		m[n] = v
 		return ""
 	},
 	"get": func(m map[string]interface{}, n string) interface{} {
 		return m[n]
+	},
+	"ginGet": func(m *Param, n string) (interface{}) {
+		v, b := m.Context.Get(n)
+		if b {
+			return v
+		} else {
+			return ""
+		}
 	},
 	"concat": func(s ...string) string {
 		ss := ""
@@ -27,7 +36,6 @@ var FunConstantMaps = template.FuncMap{
 		return template.HTML(x)
 	},
 	"add": func(v ... int) int {
-
 		vs := 0
 		for _, vv := range v {
 			vs += vv
@@ -94,4 +102,15 @@ var FunConstantMaps = template.FuncMap{
 		h += `</ul></div>`
 		return template.HTML(h)
 	},
+}
+
+func RegisterBaseFun(fn string, bf BaseFun) {
+	FunConstantMaps["verify"] = func(param *Param, show bool, params ... interface{}) interface{} {
+		res := bf(param, params...)
+		if show {
+			return res
+		} else {
+			return ""
+		}
+	}
 }
