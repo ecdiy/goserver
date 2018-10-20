@@ -101,7 +101,7 @@ func NewVerify(ele *xml.Element, Gpa *gpa.Gpa, putFunRun func(fun func())) BaseF
 			if vb {
 				return v.(*UserBase)
 			}
-			seelog.Error("gin context not save UserBase")
+			seelog.Error("gin context not save UserBase.Verify fail?")
 			return nil
 		}
 		wb.Context.Set(VerifyCallFlag, true)
