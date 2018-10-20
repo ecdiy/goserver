@@ -20,12 +20,6 @@ type Gpa struct {
 	Conn        *sql.DB
 }
 
-
-//func InitGpa(dbName string, models ... interface{}) *Gpa {
-//	return Init(base.Param(base.KeyDbDriverName),
-//		base.Param(base.KeyDbUri)+"/"+dbName+"?timeout=30s&charset=utf8mb4&parseTime=true", models ...)
-//}
-
 func getSqlByMethod(ft reflect.StructField) string {
 	name := ft.Name
 	if strings.Index(name, "FindBy") == 0 {
@@ -47,10 +41,10 @@ func getSqlByMethod(ft reflect.StructField) string {
 	return ""
 }
 
-func (impl *Gpa) setMethodImpl(di interface{}) {
+func (dao *Gpa) setMethodImpl(di interface{}) {
 	toe := reflect.TypeOf(di).Elem()
 	voe := reflect.ValueOf(di).Elem()
-	implVO := reflect.ValueOf(&impl).Elem()
+	implVO := reflect.ValueOf(&dao).Elem()
 	for i := 0; i < voe.NumField(); i++ {
 		ft := toe.Field(i)
 		runSql := strings.TrimSpace(string(ft.Tag))
@@ -109,7 +103,7 @@ func (impl *Gpa) setMethodImpl(di interface{}) {
 						}
 					}()
 					v := vti(in)
-					return impl.QueryObject(runSql, ft.Type.Out(0), v...)
+					return dao.QueryObject(runSql, ft.Type.Out(0), v...)
 				}))
 			} else {
 				if strings.Index(runSql, "select * ") == 0 {
@@ -125,7 +119,7 @@ func (impl *Gpa) setMethodImpl(di interface{}) {
 						}
 					}()
 					v := vti(in)
-					return impl.QueryObjectArray(runSql, ft.Type.Out(0), v...)
+					return dao.QueryObjectArray(runSql, ft.Type.Out(0), v...)
 				}))
 			}
 		} else {
@@ -145,7 +139,7 @@ func (impl *Gpa) setMethodImpl(di interface{}) {
 					params := make([]reflect.Value, len(in)+1)
 					defer func() {
 						if err := recover(); err != nil {
-							seelog.Error(impl.Conn == nil, ";", impl.dsn, ";\n\tmethodName=", methodName,
+							seelog.Error(dao.Conn == nil, ";", dao.dsn, ";\n\tmethodName=", methodName,
 								";runSql=", runSql, ",", vti(in),
 								"\n\t", err)
 							seelog.Flush()

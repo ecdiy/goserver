@@ -25,17 +25,14 @@ func Init(Driver, Dsn string, models ...interface{}) *Gpa {
 }
 
 func InitGpa(db string, models ...interface{}) *Gpa {
-	if utils.EnvIsDev {
-		ip := utils.GetIp()
-		utils.EnvParamSet("ImgHost", "http://"+ip)
-	}
-	if strings.Index(db, ":") < 0 {
-		utils.EnvParamSet("DbDsn", "root:root@tcp(127.0.0.1:3306)/" + db+
-			"?timeout=30s&charset=utf8mb4&parseTime=true")
-	} else {
-		utils.EnvParamSet("DbDsn", db)
-	}
 	dsn := utils.EnvParam("DbDsn")
+	if len(dsn) == 0 {
+		if strings.Index(db, ":") < 0 {
+			dsn = "root:root@tcp(127.0.0.1:3306)/" + db + "?timeout=30s&charset=utf8mb4&parseTime=true"
+		} else {
+			dsn = db
+		}
+	}
 	dv := utils.EnvParam("DbDriver")
 	if dv == "" {
 		dv = "mysql"

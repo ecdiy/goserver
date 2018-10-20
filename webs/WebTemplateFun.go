@@ -9,7 +9,6 @@ import (
 )
 
 var FunConstantMaps = template.FuncMap{
-	"param": func(name string) string { return "" }, //占位
 	"set": func(m map[string]interface{}, n string, v interface{}) string {
 		m[n] = v
 		return ""

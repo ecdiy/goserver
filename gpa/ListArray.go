@@ -5,8 +5,8 @@ import (
 	"github.com/cihub/seelog"
 )
 
-func (me *Gpa) ListArrayString(sqlString string, param ...interface{}) ([][]string, error) {
-	rows, err := me.Conn.Query(sqlString, param...)
+func (dao *Gpa) ListArrayString(sqlString string, param ...interface{}) ([][]string, error) {
+	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if cols, ec := rows.Columns(); ec == nil {
@@ -17,7 +17,7 @@ func (me *Gpa) ListArrayString(sqlString string, param ...interface{}) ([][]stri
 			return result, nil
 		}
 	} else {
-		seelog.Error("数据库查询出错:", me.dsn, err)
+		seelog.Error("数据库查询出错:", dao.dsn, err)
 		return nil, err
 	}
 	return nil, nil

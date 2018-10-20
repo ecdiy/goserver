@@ -6,6 +6,7 @@ import (
 	"strings"
 	"github.com/cihub/seelog"
 	"strconv"
+	"reflect"
 )
 
 func (ws *SpWeb) Template(ele *xml.Element, data map[string]interface{}) {
@@ -23,13 +24,13 @@ func (ws *SpWeb) Template(ele *xml.Element, data map[string]interface{}) {
 	if mp != nil {
 		its := mp.AllNodes()
 		for _, it := range its {
-			ws.Engine.GET(it.MustAttr("Url"), ws.getTemplateRender(SpSuffix, loginUrl, it.MustAttr("TplName")))
+			ws.Engine.GET(it.MustAttr("Url"), ws.getTemplateRender(data, SpSuffix, loginUrl, it.MustAttr("TplName")))
 		}
 	}
-	ws.Engine.NoRoute(ws.getTemplateRender(SpSuffix, loginUrl, ""))
+	ws.Engine.NoRoute(ws.getTemplateRender(data, SpSuffix, loginUrl, ""))
 }
 
-func (ws *SpWeb) getTemplateRender(SpSuffix, loginUrl, TplName string) func(ctx *gin.Context) {
+func (ws *SpWeb) getTemplateRender(data map[string]interface{}, SpSuffix, loginUrl, TplName string) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -55,7 +56,30 @@ func (ws *SpWeb) getTemplateRender(SpSuffix, loginUrl, TplName string) func(ctx 
 		spName += SpSuffix
 		wb := NewParam(ctx)
 		code := ws.SpExec(spName, wb)
-		ws.Engine.FuncMap["param"] = wb.String
+
+		wb.Out["gin"] = func(n string) interface{} {
+			v, vb := ctx.Get(n)
+			if vb {
+				return v
+			} else {
+				return ""
+			}
+		}
+		wb.Out["param"] = wb.String
+		wb.Out["call"] = func(name, mName string, param ... interface{}) interface{} {
+			obj := data[name]
+			inputs := make([]reflect.Value, len(param)+1)
+			inputs[0] = reflect.ValueOf(ctx)
+			if len(param) > 0 {
+				for n := 1; n < len(param); n++ {
+					inputs[n] = reflect.ValueOf(param[n-1])
+				}
+			}
+			spv := reflect.ValueOf(obj)
+			m := spv.MethodByName(mName)
+			return m.Call(inputs)
+		}
+
 		if code == 200 || code == 404 {
 			ctx.HTML(200, tplName+"-"+wb.Ua, wb.Out)
 		} else {

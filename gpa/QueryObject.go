@@ -15,9 +15,9 @@ import (
 用sql.NullString==> value方式能解决nil问题
 */
 
-func (me *Gpa) QueryObjectArray(runSql string, resultType reflect.Type, param ...interface{}) []reflect.Value {
+func (dao *Gpa) QueryObjectArray(runSql string, resultType reflect.Type, param ...interface{}) []reflect.Value {
 
-	rows, _ := me.Conn.Query(runSql, param...)
+	rows, _ := dao.Conn.Query(runSql, param...)
 	defer rows.Close()
 	var res [][]interface{}
 	cols, _ := rows.Columns()
@@ -41,8 +41,8 @@ func (me *Gpa) QueryObjectArray(runSql string, resultType reflect.Type, param ..
 	return []reflect.Value{slice, nilVf}
 }
 
-func (me *Gpa) QueryObject(runSql string, resultType reflect.Type, param ...interface{}) []reflect.Value {
-	rows, err := me.Conn.Query(runSql, param...)
+func (dao *Gpa) QueryObject(runSql string, resultType reflect.Type, param ...interface{}) []reflect.Value {
+	rows, err := dao.Conn.Query(runSql, param...)
 	defer rows.Close()
 	rv := reflect.New(resultType).Elem()
 	if err == nil {

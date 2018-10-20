@@ -5,8 +5,8 @@ import (
 	"github.com/cihub/seelog"
 )
 
-func (me *Gpa) ListInt64(sqlString string, param ...interface{}) ([]int64, error) {
-	rows, err := me.Conn.Query(sqlString, param...)
+func (dao *Gpa) ListInt64(sqlString string, param ...interface{}) ([]int64, error) {
+	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if cols, ec := rows.Columns(); ec == nil {
@@ -51,8 +51,8 @@ func (me *Gpa) ListInt64(sqlString string, param ...interface{}) ([]int64, error
 	return nil, nil
 }
 
-func (me *Gpa) ListString(sqlString string, param ...interface{}) ([]string, error) {
-	rows, err := me.Conn.Query(sqlString, param...)
+func (dao *Gpa) ListString(sqlString string, param ...interface{}) ([]string, error) {
+	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if cols, ec := rows.Columns(); ec == nil {

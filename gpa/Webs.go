@@ -19,7 +19,7 @@ func ginMap(c *gin.Context) (map[string]interface{}, error) {
 	return nil, b
 }
 
-func (me *Gpa) MapInsert(table string, data map[string]interface{}, userId int64) (int64, error) {
+func (dao *Gpa) MapInsert(table string, data map[string]interface{}, userId int64) (int64, error) {
 	var vs []interface{}
 	sql := "insert into " + table + "("
 	s2 := ""
@@ -33,15 +33,15 @@ func (me *Gpa) MapInsert(table string, data map[string]interface{}, userId int64
 	}
 	vs = append(vs, userId)
 	sql = sql + "UserId,CreateAt)values(" + s2 + "?,now())"
-	return me.Insert(sql, vs...)
+	return dao.Insert(sql, vs...)
 }
 
-func (me *Gpa) WebInsert(c *gin.Context, verify func(c *gin.Context) (bool, int64)) {
+func (dao *Gpa) WebInsert(c *gin.Context, verify func(c *gin.Context) (bool, int64)) {
 	auth, uId := verify(c)
 	if auth {
 		data, ed := ginMap(c)
 		if ed == nil {
-			id, e := me.MapInsert(data["table"].(string), data, uId)
+			id, e := dao.MapInsert(data["table"].(string), data, uId)
 			if e == nil {
 				data["Id"] = id
 			}
@@ -54,12 +54,12 @@ func (me *Gpa) WebInsert(c *gin.Context, verify func(c *gin.Context) (bool, int6
 	}
 }
 
-func (me *Gpa) WebDeleteById(c *gin.Context, verify func(c *gin.Context) (bool, int64)) {
+func (dao *Gpa) WebDeleteById(c *gin.Context, verify func(c *gin.Context) (bool, int64)) {
 	auth, uId := verify(c)
 	if auth {
 		m, _ := ginMap(c)
 		sql := "delete from " + m["table"].(string) + " where Id=? and UserId=?"
-		row, e := me.Exec(sql, m["Id"], uId)
+		row, e := dao.Exec(sql, m["Id"], uId)
 		if e == nil {
 			m["rowsAffected"] = row
 			c.JSON(200, m)
@@ -69,7 +69,7 @@ func (me *Gpa) WebDeleteById(c *gin.Context, verify func(c *gin.Context) (bool, 
 	}
 }
 
-func (me *Gpa) MapUpdate(data map[string]interface{}, userId int64) (int64, error) {
+func (dao *Gpa) MapUpdate(data map[string]interface{}, userId int64) (int64, error) {
 	sql := "update " + data["table"].(string) + " set "
 	var vs []interface{}
 	for k, v := range data {
@@ -82,19 +82,19 @@ func (me *Gpa) MapUpdate(data map[string]interface{}, userId int64) (int64, erro
 	sql = sql[0:len(sql)-1] + ",ModifyAt=now() where Id=? and UserId=?"
 	vs = append(vs, data["Id"])
 	vs = append(vs, userId)
-	row, ee := me.Exec(sql, vs...)
+	row, ee := dao.Exec(sql, vs...)
 	if ee != nil {
 		seelog.Error("WebUpdateById.执行SQL失败。", sql, vs, ee)
 	}
 	return row, ee
 }
 
-func (me *Gpa) WebUpdateById(c *gin.Context, verify func(c *gin.Context) (bool, int64)) {
+func (dao *Gpa) WebUpdateById(c *gin.Context, verify func(c *gin.Context) (bool, int64)) {
 	auth, uId := verify(c)
 	if auth {
 		data, ed := ginMap(c)
 		if ed == nil {
-			row, ee := me.MapUpdate(data, uId)
+			row, ee := dao.MapUpdate(data, uId)
 			if ee != nil {
 				c.AbortWithStatus(500)
 			} else {

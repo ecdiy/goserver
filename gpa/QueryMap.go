@@ -5,8 +5,8 @@ import (
 	"github.com/cihub/seelog"
 )
 
-func (g *Gpa) QueryMapStringString(sqlString string, param ...interface{}) (map[string]string, bool, error) {
-	rows, err := g.Conn.Query(sqlString, param...)
+func (dao *Gpa) QueryMapStringString(sqlString string, param ...interface{}) (map[string]string, bool, error) {
+	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
 		if cols, ec := rows.Columns(); ec == nil {

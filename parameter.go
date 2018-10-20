@@ -44,6 +44,10 @@ func init() {
 		}
 	}
 	baseDev()
+	if EnvIsDev {
+		ip := GetIp()
+		EnvParamSet("ImgHost", "http://"+ip)
+	}
 }
 
 func baseDev() {
