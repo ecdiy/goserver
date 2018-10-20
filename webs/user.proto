@@ -14,6 +14,5 @@ message Token {
 message UserBase {
     bool Result = 1;
     int64 UserId = 2;
-    string Username = 3;
-    string AppendJson = 4;
+    string AppendJson = 3;
 }

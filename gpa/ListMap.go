@@ -3,6 +3,11 @@ package gpa
 import "github.com/cihub/seelog"
 
 func (dao *Gpa) ListMapStringString(sql string, param ...interface{}) ([]map[string]string, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("Query fail.\n\t", sql , param, "\n", err)
+		}
+	}()
 	rows, err := dao.Conn.Query(sql, param...)
 	defer rows.Close()
 	if err == nil {
@@ -20,6 +25,11 @@ func (dao *Gpa) ListMapStringString(sql string, param ...interface{}) ([]map[str
 	return nil, nil
 }
 func (dao *Gpa) ListMapStringInterface(sql string, param ...interface{}) ([]map[string]interface{}, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("Query fail.\n\t", sql , param, "\n", err)
+		}
+	}()
 	rows, err := dao.Conn.Query(sql, param...)
 	defer rows.Close()
 	if err == nil {

@@ -6,6 +6,11 @@ import (
 )
 
 func (dao *Gpa) ListInt64(sqlString string, param ...interface{}) ([]int64, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("Query fail.\n\t", sqlString , param, "\n", err)
+		}
+	}()
 	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
@@ -52,6 +57,11 @@ func (dao *Gpa) ListInt64(sqlString string, param ...interface{}) ([]int64, erro
 }
 
 func (dao *Gpa) ListString(sqlString string, param ...interface{}) ([]string, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("Query fail.\n\t", sqlString , param, "\n", err)
+		}
+	}()
 	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {

@@ -6,6 +6,11 @@ import (
 )
 
 func (dao *Gpa) QueryInt64(sqlString string, param ...interface{}) (int64, bool, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("Query fail.\n\t", sqlString, param, "\n", err)
+		}
+	}()
 	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
@@ -21,6 +26,11 @@ func (dao *Gpa) QueryInt64(sqlString string, param ...interface{}) (int64, bool,
 	return 0, false, nil
 }
 func (dao *Gpa) QueryInt32(sqlString string, param ...interface{}) (int32, bool, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("Query fail.\n\t", sqlString, param, "\n", err)
+		}
+	}()
 	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
@@ -37,6 +47,11 @@ func (dao *Gpa) QueryInt32(sqlString string, param ...interface{}) (int32, bool,
 }
 
 func (dao *Gpa) QueryInt(sqlString string, param ...interface{}) (int, bool, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("Query fail.\n\t", sqlString, param, "\n", err)
+		}
+	}()
 	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {
@@ -53,6 +68,11 @@ func (dao *Gpa) QueryInt(sqlString string, param ...interface{}) (int, bool, err
 }
 
 func (dao *Gpa) QueryString(sqlString string, param ...interface{}) (string, bool, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("Query fail.\n\t", sqlString, param, "\n", err)
+		}
+	}()
 	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {

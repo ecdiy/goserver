@@ -14,11 +14,6 @@ import (
 	"strings"
 )
 
-var (
-	TokenMap = make(map[string]int64)
-	UserMap  = make(map[int64]map[string]string)
-)
-
 type RpcUser struct {
 	Sql string
 	Gpa *gpa.Gpa
@@ -27,38 +22,20 @@ type RpcUser struct {
 func (s *RpcUser) Verify(c context.Context, in *Token) (*UserBase, error) {
 	ub := &UserBase{}
 	if len(in.Token) > 1 {
-		v, b := TokenMap[in.Token]
-		if b {
-			ub.UserId = v
-			setUb(ub)
-		} else {
-			m, b, ee := s.Gpa.QueryMapStringString(s.Sql, in.Token, in.Ua)
-			if ee == nil && b {
-				uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
-				TokenMap[in.Token] = uId
-				ub.UserId = uId
-				setUb(ub)
-			} else {
-				ub.Result = false
+		m, b, ee := s.Gpa.QueryMapStringString(s.Sql, in.Token, in.Ua)
+		if ee == nil && b {
+			uId, _ := strconv.ParseInt(m["UserId"], 10, 0)
+			ub.UserId = uId
+			ub.Result = true
+			if len(m) > 1 {
+				be, _ := json.Marshal(m)
+				ub.AppendJson = string(be)
 			}
+		} else {
+			ub.Result = false
 		}
 	}
 	return ub, nil
-}
-
-func setUb(ub *UserBase) {
-	ub.Result = true
-	m, mb := UserMap[ub.UserId]
-	if mb {
-		un, unb := m["Username"]
-		if unb {
-			ub.Username = un
-		}
-		if len(m) > 2 {
-			be, _ := json.Marshal(m)
-			ub.AppendJson = string(be)
-		}
-	}
 }
 
 func RpcRegister(addr string, regFunc ... func(server *grpc.Server)) {
@@ -136,9 +113,7 @@ func NewVerify(ele *xml.Element, Gpa *gpa.Gpa, putFunRun func(fun func())) BaseF
 				ub, _ = client.Verify(ctx, &Token{Token: wb.String(tkName), Ua: wb.Ua})
 			})
 		}
-		if ub.Result {
-			wb.Context.Set("UserId", ub.UserId)
-			wb.Context.Set("Username", ub.Username)
+		if ub != nil && ub.Result {
 			if len(ub.AppendJson) > 1 {
 				var data map[string]interface{}
 				je := json.Unmarshal([]byte(ub.AppendJson), &data)
@@ -147,9 +122,11 @@ func NewVerify(ele *xml.Element, Gpa *gpa.Gpa, putFunRun func(fun func())) BaseF
 						wb.Context.Set(k, v)
 					}
 				}
+			} else {
+				wb.Context.Set("UserId", ub.UserId)
 			}
 		}
-		wb.Context.Set(ResultFlagName, ub.Result)
+		wb.Context.Set(ResultFlagName, ub != nil && ub.Result)
 		return ub
 	}
 }

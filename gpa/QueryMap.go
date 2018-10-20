@@ -6,6 +6,11 @@ import (
 )
 
 func (dao *Gpa) QueryMapStringString(sqlString string, param ...interface{}) (map[string]string, bool, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("QueryMapStringString fail.\n\t", sqlString, param, "\n", err)
+		}
+	}()
 	rows, err := dao.Conn.Query(sqlString, param...)
 	defer rows.Close()
 	if err == nil {

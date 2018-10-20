@@ -105,7 +105,7 @@ var FunConstantMaps = template.FuncMap{
 }
 
 func RegisterBaseFun(fn string, bf BaseFun) {
-	FunConstantMaps["verify"] = func(param *Param, show bool, params ... interface{}) interface{} {
+	FunConstantMaps[fn] = func(param *Param, show bool, params ... interface{}) interface{} {
 		res := bf(param, params...)
 		if show {
 			return res
