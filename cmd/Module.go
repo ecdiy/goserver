@@ -41,5 +41,9 @@ func (app *Module) Gpa(ele *xml.Element) {
 func (app *Module) Verify(ele *xml.Element) {
 	vb := webs.NewVerify(ele, getGpa(ele), putFunRun)
 	put(ele, vb)
-	webs.RegisterBaseFun(ele.Attr("TplFunName", "verify"), vb)
+	tfn, ext := ele.AttrValue("TplFunName")
+	if ext {
+		webs.RegisterBaseFun(tfn, vb)
+		seelog.Info("添加模版函数:", tfn)
+	}
 }

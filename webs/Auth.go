@@ -76,7 +76,7 @@ func NewVerify(ele *xml.Element, Gpa *gpa.Gpa, putFunRun func(fun func())) BaseF
 	}
 	RpcHost, rhExt := ele.AttrValue("RpcHost")
 	tkName := ele.MustAttr("TokenName")
-	ResultFlagName := ele.Attr("ResultFlagName", "Login")
+	ResultFlagName, ResultFlagNameExt := ele.AttrValue("ResultFlagName")
 	var ver *RpcUser
 	if sqlExt {
 		ver = &RpcUser{Sql: sql, Gpa: Gpa}
@@ -126,7 +126,9 @@ func NewVerify(ele *xml.Element, Gpa *gpa.Gpa, putFunRun func(fun func())) BaseF
 				wb.Context.Set("UserId", ub.UserId)
 			}
 		}
-		wb.Context.Set(ResultFlagName, ub != nil && ub.Result)
+		if ResultFlagNameExt {
+			wb.Context.Set(ResultFlagName, ub != nil && ub.Result)
+		}
 		return ub
 	}
 }
