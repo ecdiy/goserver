@@ -32,9 +32,9 @@ func (ws *SpWeb) Template(ele *xml.Element, data map[string]interface{}) {
 func (ws *SpWeb) getTemplateRender(data map[string]interface{}, SpSuffix, loginUrl, TplName string) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		defer func() {
-			if err := recover(); err != nil {
-				seelog.Error("模板处理失败", err)
-			}
+			//if err := recover(); err != nil {
+			//	seelog.Error("模板处理失败", err)
+			//}
 		}()
 		if strings.Index(ctx.Request.URL.Path, ".") > 0 {
 			seelog.Warn("404:", ctx.Request.URL.Path)

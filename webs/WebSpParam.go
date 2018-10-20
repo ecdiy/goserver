@@ -125,23 +125,19 @@ func (ws *SpWeb) ginWk(ele *xml.Element, data map[string]interface{}, unFindCode
 	Verify := data[VerifyId].(BaseFun)
 	prefix := ele.MustAttr("Prefix")
 	ws.SpParamDoMap[prefix] = func(wb *Param, p *SpParam) (interface{}, int) {
-		ub := Verify(wb)
-		if ub == nil {
-			if unFindCode == 401 {
-				return 0, 401
-			} else {
-				return p.DefaultVal, 200
-			}
+		v2, b2 := wb.Context.Get(p.ParamName)
+		if b2 {
+			return v2, 200
+		}
+		Verify(wb)
+		v2, b2 = wb.Context.Get(p.ParamName)
+		if b2 {
+			return v2, 200
+		}
+		if unFindCode == 401 {
+			return 0, 401
 		} else {
-			v2, b2 := wb.Context.Get(p.ParamName)
-			if b2 {
-				return v2, 200
-			}
-			if unFindCode == 401 {
-				return 0, 401
-			} else {
-				return p.DefaultVal, 200
-			}
+			return p.DefaultVal, 200
 		}
 	}
 }
