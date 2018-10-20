@@ -12,7 +12,6 @@ package webs
 import (
 	"github.com/cihub/seelog"
 	"utils/xml"
-	"context"
 	"utils/http"
 	"strings"
 	"fmt"
@@ -119,57 +118,30 @@ func (ws *SpWeb) wxDo(params []string, saveOpenIdSql, prefix, MpAppId, MpSecret 
 }
 
 func (ws *SpWeb) ginWk(ele *xml.Element, data map[string]interface{}, unFindCode int) {
-	tkName := ele.MustAttr("TokenName")
+	VerifyId, vb := ele.AttrValue("VerifyRef")
+	if !vb {
+		VerifyId = "Verify"
+	}
+	Verify := data[VerifyId].(BaseFun)
 	prefix := ele.MustAttr("Prefix")
-	RpcHost, rhb := ele.AttrValue("RpcHost")
-	if rhb {
-		ws.SpParamDoMap[prefix] = func(wb *Param, p *SpParam) (interface{}, int) {
-			v, b := wb.Context.Get(p.ParamName)
-			if b {
-				return v, 200
-			}
-			var ub *UserBase
-			rpcUser(RpcHost, func(client RpcUserClient, ctx context.Context) {
-				ub, _ = client.Verify(ctx, &Token{Token: wb.String(tkName), Ua: wb.Ua})
-			})
-			if ub != nil && ub.Result {
-				ubx(ub, wb)
-				v2, b2 := wb.Context.Get(p.ParamName)
-				if b2 {
-					return v2, 200
-				}
-			}
-			seelog.Error("ctx.Get not find.", p.ParamName)
+	ws.SpParamDoMap[prefix] = func(wb *Param, p *SpParam) (interface{}, int) {
+		ub := Verify(wb)
+		if ub == nil {
 			if unFindCode == 401 {
 				return 0, 401
 			} else {
 				return p.DefaultVal, 200
 			}
-		}
-		return
-	}
-	RpcRef, rr := ele.AttrValue("RpcRef")
-	var ver *RpcUser
-	if rr {
-		ver = data[RpcRef].(*RpcUser)
-	} else {
-		ver = &RpcUser{Sql: ele.MustAttr("Sql"), Gpa: ws.Gpa}
-	}
-	ws.SpParamDoMap[prefix] = func(wb *Param, p *SpParam) (interface{}, int) {
-		v, b := wb.Context.Get(p.ParamName)
-		if b {
-			return v, 200
-		}
-		ver.Verify(nil, &Token{Token: wb.String(tkName), Ua: wb.Ua})
-		v2, b2 := wb.Context.Get(p.ParamName)
-		if b2 {
-			return v2, 200
-		}
-		seelog.Error("ctx.Get not find.", p.ParamName)
-		if unFindCode == 401 {
-			return 0, 401
 		} else {
-			return p.DefaultVal, 200
+			v2, b2 := wb.Context.Get(p.ParamName)
+			if b2 {
+				return v2, 200
+			}
+			if unFindCode == 401 {
+				return 0, 401
+			} else {
+				return p.DefaultVal, 200
+			}
 		}
 	}
 }

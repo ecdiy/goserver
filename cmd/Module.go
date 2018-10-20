@@ -50,3 +50,7 @@ func (app *Module) Rpc(ele *xml.Element) {
 	})
 	put(ele, rpc)
 }
+
+func (app *Module) Fun(ele *xml.Element) {
+	put(ele, webs.NewBaseFun(ele, getGpa(ele)))
+}

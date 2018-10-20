@@ -6,7 +6,6 @@ import (
 	"strings"
 	"github.com/cihub/seelog"
 	"strconv"
-	"reflect"
 )
 
 func (ws *SpWeb) Template(ele *xml.Element, data map[string]interface{}) {
@@ -66,18 +65,13 @@ func (ws *SpWeb) getTemplateRender(data map[string]interface{}, SpSuffix, loginU
 			}
 		}
 		wb.Out["param"] = wb.String
-		wb.Out["call"] = func(name, mName string, param ... interface{}) interface{} {
-			obj := data[name]
-			inputs := make([]reflect.Value, len(param)+1)
-			inputs[0] = reflect.ValueOf(ctx)
-			if len(param) > 0 {
-				for n := 1; n < len(param); n++ {
-					inputs[n] = reflect.ValueOf(param[n-1])
-				}
+		wb.Out["call"] = func(name string, param ... interface{}) interface{} {
+			obj, wbe := data[name]
+			if wbe {
+				return obj.(BaseFun)(wb, param...)
+			} else {
+				return ""
 			}
-			spv := reflect.ValueOf(obj)
-			m := spv.MethodByName(mName)
-			return m.Call(inputs)
 		}
 
 		if code == 200 || code == 404 {

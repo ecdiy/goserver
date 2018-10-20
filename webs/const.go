@@ -5,12 +5,16 @@ import (
 	"github.com/cihub/seelog"
 	"github.com/gin-gonic/gin"
 )
+
 //	c.Header("Access-Control-Allow-Origin", "*")
 const (
+	VerifyCallFlag  = "VerifyCall"
 	DefaultPageSize = 20
 	SqlSpAll        = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE'"
 	SqlSpInfo       = "select name,CONVERT(param_list USING utf8) param_list,`comment` from mysql.proc c where db=DATABASE() and `type`='PROCEDURE' and name=?"
 )
+
+type BaseFun func(param *Param, ps ... interface{}) interface{}
 
 var (
 	spReloadFun = make(map[string]func(c *Param) *UserBase)
@@ -25,10 +29,9 @@ func init() {
 	}
 }
 
-
 func GetUa(ctx *gin.Context) string {
 
-	ua :=  ctx.Request.UserAgent()
+	ua := ctx.Request.UserAgent()
 	if len(ua) == 0 {
 		return "web"
 	}
