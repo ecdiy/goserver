@@ -1,11 +1,11 @@
 package webs
 
 import (
-	"utils/xml"
+	"goserver/xml"
 	"github.com/gin-gonic/gin"
 	"github.com/cihub/seelog"
 	"github.com/dchest/captcha"
-	"utils"
+	"goserver"
 	"strings"
 )
 

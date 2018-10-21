@@ -1,9 +1,9 @@
 package main
 
 import (
-	"utils/webs"
+	"goserver/webs"
 	"github.com/gin-gonic/gin"
-	"utils/xml"
+	"goserver/xml"
 )
 
 func (app *Module) Web(ele *xml.Element) {
@@ -26,4 +26,9 @@ func (app *Module) Sp(ele *xml.Element) {
 	sp.Init()
 	doSubElement(ele, sp)
 	put(ele, sp)
+}
+
+//文件上传
+func (app *Module) Upload(ele *xml.Element) {
+
 }

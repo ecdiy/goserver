@@ -11,8 +11,8 @@ package webs
 
 import (
 	"github.com/cihub/seelog"
-	"utils/xml"
-	"utils/http"
+	"goserver/xml"
+	"goserver/http"
 	"strings"
 	"fmt"
 )

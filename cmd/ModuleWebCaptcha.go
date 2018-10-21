@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/dchest/captcha"
-	"utils/xml"
-	"utils/webs"
+	"goserver/xml"
+	"goserver/webs"
 	"github.com/gin-gonic/gin"
 )
 

@@ -2,7 +2,7 @@ package webs
 
 import (
 	"github.com/cihub/seelog"
-	"utils/gpa"
+	"goserver/gpa"
 	"database/sql"
 )
 

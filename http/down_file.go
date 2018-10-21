@@ -11,7 +11,7 @@ import (
 	"archive/zip"
 	"encoding/hex"
 	"crypto/md5"
-	"utils"
+	"goserver"
 	"strings"
 )
 

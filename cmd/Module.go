@@ -1,10 +1,10 @@
 package main
 
 import (
-	"utils/webs"
-	"utils/xml"
-	"utils"
-	"utils/gpa"
+	"goserver/webs"
+	"goserver/xml"
+	"goserver"
+	"goserver/gpa"
 	"github.com/cihub/seelog"
 )
 

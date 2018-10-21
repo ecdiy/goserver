@@ -8,40 +8,33 @@ import (
 	"os"
 	"github.com/gpmgo/gopm/modules/log"
 	"io"
-	"love/ws"
 	"github.com/cihub/seelog"
-	"google.golang.org/grpc"
-	"context"
 	"utils/webs"
 	"utils"
 )
 
-func UpInit(RpcUserHost, DirUpload, url, TokenName string, doFile func(ctx *gin.Context, userId int64, out map[string]interface{}), ImgMaxWidth ... int) {
+func UpInit(bf webs.BaseFun, engine *gin.Engine, DirUpload, url string, doFile func(ctx *gin.Context, userId int64, out map[string]interface{}), ImgMaxWidth ... int) {
 	tmpDir := DirUpload + "/temp/"
 	os.MkdirAll(tmpDir, 0777)
 	seelog.Info("tmpDir=", tmpDir)
-	ws.WebGin.POST(url, func(ctx *gin.Context) {
-		conn, err := grpc.DialContext(context.Background(), RpcUserHost, grpc.WithInsecure())
-		if err == nil {
-			defer conn.Close()
-			client := webs.NewRpcUserClient(conn)
-			wb := webs.NewParam(ctx)
-			ub, _ := client.Verify(context.Background(), &webs.Token{Token: wb.String(TokenName), Ua: wb.Ua})
-			if ub.Result {
-				out := make(map[string]interface{})
-				mf, _ := ctx.MultipartForm()
-				for k, _ := range mf.File {
-					res := doUploadFileMd5(DirUpload, ctx, k, ImgMaxWidth...)
-					if res != nil {
-						break
-					}
+	engine.POST(url, func(ctx *gin.Context) {
+		wb := webs.NewParam(ctx)
+		ub := bf(wb).(*webs.UserBase)
+		//	ub, _ := client.Verify(context.Background(), &webs.Token{Token: wb.String(TokenName), Ua: wb.Ua})
+		if ub != nil && ub.Result {
+			out := make(map[string]interface{})
+			mf, _ := ctx.MultipartForm()
+			for k, _ := range mf.File {
+				res := doUploadFileMd5(DirUpload, ctx, k, ImgMaxWidth...)
+				if res != nil {
+					break
 				}
-				doFile(ctx, ub.UserId, out)
-				ctx.JSON(200, out)
-			} else {
-				seelog.Error("upload file auth fail.")
-				ctx.Status(401)
 			}
+			doFile(ctx, ub.UserId, out)
+			ctx.JSON(200, out)
+		} else {
+			seelog.Error("upload file auth fail.")
+			ctx.Status(401)
 		}
 	})
 }

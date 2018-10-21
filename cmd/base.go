@@ -1,11 +1,11 @@
 package main
 
 import (
-	"utils/xml"
+	"goserver/xml"
 	"github.com/gin-gonic/gin"
-	"utils/gpa"
+	"goserver/gpa"
 	"reflect"
-	"utils/webs"
+	"goserver/webs"
 	"strings"
 	"os"
 )

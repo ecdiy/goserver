@@ -5,9 +5,9 @@ import (
 	"github.com/cihub/seelog"
 	"github.com/gpmgo/gopm/modules/log"
 	"reflect"
-	"utils/xml"
+	"goserver/xml"
 	"strings"
-	"utils"
+	"goserver"
 )
 
 var app = reflect.ValueOf(new(Module))

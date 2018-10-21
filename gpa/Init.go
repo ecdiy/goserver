@@ -2,7 +2,7 @@ package gpa
 
 import (
 	"database/sql"
-	"utils"
+	"goserver"
 	"strings"
 	"github.com/cihub/seelog"
 )
