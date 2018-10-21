@@ -11,8 +11,7 @@ package webs
 
 import (
 	"github.com/cihub/seelog"
-	"goserver/xml"
-	"goserver/http"
+	"goserver/utils"
 	"strings"
 	"fmt"
 )
@@ -35,7 +34,7 @@ func ParamIn(ctx *Param, p *SpParam) (interface{}, int) {
 2. http get openId
 3. query openId to userId.
 */
-func (ws *SpWeb) ParamWx(ele *xml.Element, data map[string]interface{}) { //TODO
+func (ws *SpWeb) ParamWx(ele *utils.Element, data map[string]interface{}) { //TODO
 	prefix := ele.MustAttr("Prefix")
 	sqlEle := ele.Node("Sql")
 	saveEle := ele.Node("SaveSql")
@@ -95,7 +94,7 @@ func (ws *SpWeb) wxDo(params []string, saveOpenIdSql, prefix, MpAppId, MpSecret 
 	jsCode := wb.String("js_code")
 	url := "https://api.weixin.qq.com/sns/jscode2session?appid=" + MpAppId +
 		"&secret=" + MpSecret + "&js_code=" + jsCode + "&grant_type=authorization_code"
-	h := &http.Http{}
+	h := &utils.Http{}
 	m, e := h.GetMap(url)
 	if e == nil {
 		wb.Context.Set(prefix, m)
@@ -117,7 +116,7 @@ func (ws *SpWeb) wxDo(params []string, saveOpenIdSql, prefix, MpAppId, MpSecret 
 	return 401, 0
 }
 
-func (ws *SpWeb) ginWk(ele *xml.Element, data map[string]interface{}, unFindCode int) {
+func (ws *SpWeb) ginWk(ele *utils.Element, data map[string]interface{}, unFindCode int) {
 	VerifyId, vb := ele.AttrValue("VerifyRef")
 	if !vb {
 		VerifyId = "Verify"
@@ -142,10 +141,10 @@ func (ws *SpWeb) ginWk(ele *xml.Element, data map[string]interface{}, unFindCode
 	}
 }
 
-func (ws *SpWeb) ParamGin(ele *xml.Element, data map[string]interface{}) {
+func (ws *SpWeb) ParamGin(ele *utils.Element, data map[string]interface{}) {
 	ws.ginWk(ele, data, 401)
 }
 
-func (ws *SpWeb) ParamWk(ele *xml.Element, data map[string]interface{}) {
+func (ws *SpWeb) ParamWk(ele *utils.Element, data map[string]interface{}) {
 	ws.ginWk(ele, data, 200)
 }

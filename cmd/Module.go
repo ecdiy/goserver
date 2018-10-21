@@ -2,8 +2,7 @@ package main
 
 import (
 	"goserver/webs"
-	"goserver/xml"
-	"goserver"
+	"goserver/utils"
 	"goserver/gpa"
 	"github.com/cihub/seelog"
 )
@@ -11,10 +10,10 @@ import (
 type Module struct {
 }
 
-func (app *Module) Include(ele *xml.Element) {
+func (app *Module) Include(ele *utils.Element) {
 	f := getFile(ele.Value)
 	seelog.Info("include file:", f)
-	dom, err := xml.LoadByFile(f)
+	dom, err := utils.LoadByFile(f)
 	if err == nil {
 		InvokeByXml(dom)
 	} else {
@@ -23,14 +22,14 @@ func (app *Module) Include(ele *xml.Element) {
 	}
 }
 
-func (app *Module) Parameter(ele *xml.Element) {
+func (app *Module) Parameter(ele *utils.Element) {
 	ps := ele.AllNodes()
 	for _, p := range ps {
 		utils.EnvParamSet(p.Name(), p.Value)
 	}
 }
 
-func (app *Module) Gpa(ele *xml.Element) {
+func (app *Module) Gpa(ele *utils.Element) {
 	dsn, b := ele.AttrValue("DbDsn")
 	if b && len(dsn) > 0 {
 		db := gpa.InitGpa(dsn)
@@ -38,7 +37,7 @@ func (app *Module) Gpa(ele *xml.Element) {
 	}
 }
 
-func (app *Module) Verify(ele *xml.Element) {
+func (app *Module) Verify(ele *utils.Element) {
 	vb := webs.NewVerify(ele, getGpa(ele), putFunRun)
 	put(ele, vb)
 	tfn, ext := ele.AttrValue("TplFunName")

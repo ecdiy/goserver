@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goserver/xml"
+	"goserver/utils"
 	"github.com/gin-gonic/gin"
 	"goserver/gpa"
 	"reflect"
@@ -18,7 +18,7 @@ func putFunRun(fun func()) {
 	}
 }
 
-func put(ele *xml.Element, v interface{}) {
+func put(ele *utils.Element, v interface{}) {
 	id, idb := ele.AttrValue("Id")
 	if !idb {
 		id = ele.Name()
@@ -31,19 +31,19 @@ func put(ele *xml.Element, v interface{}) {
 	}
 }
 
-func getGpa(ele *xml.Element) *gpa.Gpa {
+func getGpa(ele *utils.Element) *gpa.Gpa {
 	ref := ele.Attr("GpaRef", "Gpa")
 	web := data[ref].(*gpa.Gpa)
 	return web
 }
 
-func getGin(ele *xml.Element) *gin.Engine {
+func getGin(ele *utils.Element) *gin.Engine {
 	ref := ele.Attr("WebRef", "Web")
 	web := data[ref].(*gin.Engine)
 	return web
 }
 
-func doSubElement(ele *xml.Element, obj interface{}) {
+func doSubElement(ele *utils.Element, obj interface{}) {
 	ns := ele.AllNodes()
 	if len(ns) > 0 {
 		spv := reflect.ValueOf(obj)
@@ -57,7 +57,7 @@ func doSubElement(ele *xml.Element, obj interface{}) {
 	}
 }
 
-func post(ele *xml.Element, fun func(param *webs.Param)) {
+func post(ele *utils.Element, fun func(param *webs.Param)) {
 	getGin(ele).POST(ele.MustAttr("Url"), func(c *gin.Context) {
 		wb := webs.NewParam(c)
 		fun(wb)

@@ -1,7 +1,7 @@
 /**
  *donnie4w@gmail.com
  */
-package xml
+package utils
 
 import (
 	"encoding/xml"
@@ -12,7 +12,6 @@ import (
 	"strings"
 	"sync"
 	"io/ioutil"
-	"goserver"
 )
 
 type E interface {
@@ -73,7 +72,7 @@ func LoadByStream(r io.Reader) (current *Element, err error) {
 				ar := new(Attr)
 				ar.space = space(a.Name.Space)
 				ar.name = a.Name.Local
-				ar.Value = utils.FmtVal(a.Value)
+				ar.Value = FmtVal(a.Value)
 				el.Attrs = append(el.Attrs, ar)
 				el.attrmap[ar.name] = ar.Value
 			}
@@ -93,7 +92,7 @@ func LoadByStream(r io.Reader) (current *Element, err error) {
 			}
 		case xml.CharData:
 			if token != nil && current != nil {
-				current.Value = utils.FmtVal(string([]byte(token.Copy())))
+				current.Value = FmtVal(string([]byte(token.Copy())))
 			}
 		case xml.Comment:
 			//			fmt.Println("xml===>1", string(token.Copy()))
@@ -383,7 +382,7 @@ func (t *Element) AttrValue(name string) (string, bool) {
 	}
 	v, ok := t.attrmap[name]
 	if ok {
-		return utils.FmtVal(v), true
+		return FmtVal(v), true
 	} else {
 		return "", false
 	}

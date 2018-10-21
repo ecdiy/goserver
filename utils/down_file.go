@@ -1,4 +1,4 @@
-package http
+package utils
 
 import (
 	"net/http"
@@ -11,7 +11,6 @@ import (
 	"archive/zip"
 	"encoding/hex"
 	"crypto/md5"
-	"goserver"
 	"strings"
 )
 
@@ -33,7 +32,7 @@ func (th *Http) DownFile(url, dir, defaultExt string, force bool) string {
 	if dInd > 0 {
 		ext = url[dInd:]
 	}
-	lf, uri := utils.FmtImgDir(dir, md5str)
+	lf, uri := FmtImgDir(dir, md5str)
 	localFile := lf+ext
 	if !force {
 		_, e := os.Stat(localFile)

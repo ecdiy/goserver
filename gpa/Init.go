@@ -2,9 +2,9 @@ package gpa
 
 import (
 	"database/sql"
-	"goserver"
 	"strings"
 	"github.com/cihub/seelog"
+	"goserver/utils"
 )
 
 func Init(Driver, Dsn string, models ...interface{}) *Gpa {

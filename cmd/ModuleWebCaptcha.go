@@ -2,12 +2,12 @@ package main
 
 import (
 	"github.com/dchest/captcha"
-	"goserver/xml"
+	"goserver/utils"
 	"goserver/webs"
 	"github.com/gin-gonic/gin"
 )
 
-func (app *Module) WebCaptcha(ele *xml.Element) {
+func (app *Module) WebCaptcha(ele *utils.Element) {
 	getGin(ele).GET(ele.MustAttr("Url"), func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Cache-Control", "no-Cache, no-store, must-revalidate")
@@ -19,7 +19,7 @@ func (app *Module) WebCaptcha(ele *xml.Element) {
 	})
 }
 
-func (app *Module) WebCaptchaNew(ele *xml.Element) {
+func (app *Module) WebCaptchaNew(ele *utils.Element) {
 	post(ele, func(param *webs.Param) {
 		param.OK(captcha.New())
 	})

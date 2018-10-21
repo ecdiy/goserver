@@ -2,13 +2,13 @@ package webs
 
 import (
 	"github.com/gin-gonic/gin"
-	"goserver/xml"
+	"goserver/utils"
 	"strings"
 	"github.com/cihub/seelog"
 	"strconv"
 )
 
-func (ws *SpWeb) Template(ele *xml.Element, data map[string]interface{}) {
+func (ws *SpWeb) Template(ele *utils.Element, data map[string]interface{}) {
 	extends := make(map[string][]string)
 	ns := ele.Node("extends")
 	if ns != nil {

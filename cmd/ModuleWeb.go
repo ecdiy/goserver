@@ -3,10 +3,10 @@ package main
 import (
 	"goserver/webs"
 	"github.com/gin-gonic/gin"
-	"goserver/xml"
+	"goserver/utils"
 )
 
-func (app *Module) Web(ele *xml.Element) {
+func (app *Module) Web(ele *utils.Element) {
 	web := gin.New()
 	ns := ele.AllNodes()
 	for _, n := range ns {
@@ -21,7 +21,7 @@ func (app *Module) Web(ele *xml.Element) {
 	})
 }
 
-func (app *Module) Sp(ele *xml.Element) {
+func (app *Module) Sp(ele *utils.Element) {
 	sp := &webs.SpWeb{Gpa: getGpa(ele), Engine: getGin(ele)}
 	sp.Init()
 	doSubElement(ele, sp)
@@ -29,6 +29,6 @@ func (app *Module) Sp(ele *xml.Element) {
 }
 
 //文件上传
-func (app *Module) Upload(ele *xml.Element) {
+func (app *Module) Upload(ele *utils.Element) {
 
 }

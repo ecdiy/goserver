@@ -6,11 +6,10 @@ import (
 	"strconv"
 	"goserver/gpa"
 	"google.golang.org/grpc"
-	"goserver"
 	"net"
 	"github.com/cihub/seelog"
 	"fmt"
-	"goserver/xml"
+	"goserver/utils"
 	"strings"
 )
 
@@ -66,7 +65,7 @@ func rpcUser(RpcUserHost string, fun func(client RpcUserClient, ctx context.Cont
 	}
 }
 
-func NewVerify(ele *xml.Element, Gpa *gpa.Gpa, putFunRun func(fun func())) BaseFun {
+func NewVerify(ele *utils.Element, Gpa *gpa.Gpa, putFunRun func(fun func())) BaseFun {
 	sql, sqlExt := ele.AttrValue("Sql")
 	if !sqlExt {
 		sql = ele.Value

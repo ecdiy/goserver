@@ -5,10 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"fmt"
 	"strconv"
-	"goserver"
 	"io/ioutil"
 	"github.com/cihub/seelog"
 	"strings"
+	"goserver/utils"
 )
 
 type Param struct {

@@ -1,15 +1,14 @@
 package webs
 
 import (
-	"goserver/xml"
 	"github.com/gin-gonic/gin"
 	"github.com/cihub/seelog"
 	"github.com/dchest/captcha"
-	"goserver"
 	"strings"
+	"goserver/utils"
 )
 
-func (ws *SpWeb) HandleCaptcha(ele *xml.Element, data map[string]interface{}) {
+func (ws *SpWeb) HandleCaptcha(ele *utils.Element, data map[string]interface{}) {
 	url := ele.MustAttr("Url")
 	spName := ele.MustAttr("Sp")
 	ws.Engine.POST(url, func(ctx *gin.Context) {
@@ -34,7 +33,7 @@ func (ws *SpWeb) HandleCaptcha(ele *xml.Element, data map[string]interface{}) {
 	})
 }
 
-func (ws *SpWeb) Handle(ele *xml.Element, data map[string]interface{}) {
+func (ws *SpWeb) Handle(ele *utils.Element, data map[string]interface{}) {
 	spSuffix := ele.MustAttr("SpSuffix")
 	if !gin.IsDebugging() {
 		list, err := ws.Gpa.ListArrayString(SqlSpAll)

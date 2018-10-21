@@ -5,9 +5,8 @@ import (
 	"github.com/cihub/seelog"
 	"github.com/gpmgo/gopm/modules/log"
 	"reflect"
-	"goserver/xml"
+	"goserver/utils"
 	"strings"
-	"goserver"
 )
 
 var app = reflect.ValueOf(new(Module))
@@ -31,7 +30,7 @@ func main() {
 	} else {
 		utils.EnvParamSet("profile", utils.EnvProd)
 	}
-	dom, err := xml.LoadByFile(os.Args[1])
+	dom, err := utils.LoadByFile(os.Args[1])
 	if err == nil {
 		InvokeByXml(dom)
 		if len(initAfterFun) > 0 {
@@ -45,7 +44,7 @@ func main() {
 	}
 }
 
-func InvokeByXml(ecXml *xml.Element) {
+func InvokeByXml(ecXml *utils.Element) {
 	ns := ""
 	defer func() {
 		seelog.Info("analysis element:", ns, "\n\tdata:", data)
