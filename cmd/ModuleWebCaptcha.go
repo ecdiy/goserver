@@ -1,12 +1,15 @@
 package main
 
 import (
-	"github.com/dchest/captcha"
 	"goserver/utils"
+	"github.com/dchest/captcha"
 	"goserver/webs"
 	"github.com/gin-gonic/gin"
 )
 
+/**
+认证码
+ */
 func (app *Module) WebCaptcha(ele *utils.Element) {
 	getGin(ele).GET(ele.MustAttr("Url"), func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")

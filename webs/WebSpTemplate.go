@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func (ws *SpWeb) Template(ele *utils.Element, data map[string]interface{}) {
+func (ws *WebSp) Template(ele *utils.Element, data map[string]interface{}) {
 	extends := make(map[string][]string)
 	ns := ele.Node("extends")
 	if ns != nil {
@@ -29,7 +29,7 @@ func (ws *SpWeb) Template(ele *utils.Element, data map[string]interface{}) {
 	ws.Engine.NoRoute(ws.getTemplateRender(data, SpSuffix, loginUrl, ""))
 }
 
-func (ws *SpWeb) getTemplateRender(data map[string]interface{}, SpSuffix, loginUrl, TplName string) func(ctx *gin.Context) {
+func (ws *WebSp) getTemplateRender(data map[string]interface{}, SpSuffix, loginUrl, TplName string) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		defer func() {
 			//if err := recover(); err != nil {
@@ -71,7 +71,7 @@ func (ws *SpWeb) getTemplateRender(data map[string]interface{}, SpSuffix, loginU
 	}
 }
 
-func (ws *SpWeb) GetTplName(ctx *gin.Context) string {
+func (ws *WebSp) GetTplName(ctx *gin.Context) string {
 	url := ctx.Request.URL.Path
 	if len(url) == 1 {
 		url = "/index"

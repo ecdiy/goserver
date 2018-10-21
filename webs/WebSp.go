@@ -10,21 +10,21 @@ import (
 	"goserver/utils"
 )
 
-type SpWeb struct {
+type WebSp struct {
 	Gpa          *gpa.Gpa
 	SpParamDoMap map[string]ParamValFunc //存储过程参数处理规制
 	SpCache      map[string]*Sp
 	Engine       *gin.Engine
 }
 
-func (ws *SpWeb) Init() {
+func (ws *WebSp) Init() {
 	ws.SpCache = make(map[string]*Sp)
 	ws.SpParamDoMap = make(map[string]ParamValFunc)
 	ws.SpParamDoMap["in"] = ParamIn
 	ws.SpParamDoMap["ua"] = ParamUa
 }
 
-func (ws *SpWeb) NewSp(val []string) (*Sp, bool) {
+func (ws *WebSp) NewSp(val []string) (*Sp, bool) {
 	sp := &Sp{Name: val[0]}
 	if len(val) < 3 || len(strings.TrimSpace(val[2])) == 0 {
 		seelog.Warn("没有返回值的参数申明")
@@ -85,7 +85,7 @@ func (ws *SpWeb) NewSp(val []string) (*Sp, bool) {
 	return sp, true
 }
 
-func (ws *SpWeb) NewSpByName(spName string) (*Sp, bool) {
+func (ws *WebSp) NewSpByName(spName string) (*Sp, bool) {
 	info, e := ws.Gpa.ListString(SqlSpInfo, spName)
 	if e != nil || len(info) != 3 {
 		seelog.Warn("存储过程不存在:", spName, e)
@@ -94,7 +94,7 @@ func (ws *SpWeb) NewSpByName(spName string) (*Sp, bool) {
 	return ws.NewSp(info)
 }
 
-func (ws *SpWeb) SpExec(spName string, param *Param) int {
+func (ws *WebSp) SpExec(spName string, param *Param) int {
 	defer func() {
 		if err := recover(); err != nil {
 			seelog.Error("SP do fail: spName=", spName, ";param=", param)
@@ -131,7 +131,7 @@ func (ws *SpWeb) SpExec(spName string, param *Param) int {
 	}
 }
 
-func (ws *SpWeb) GetParams(wb *Param, sp *Sp) ([]interface{}, int) {
+func (ws *WebSp) GetParams(wb *Param, sp *Sp) ([]interface{}, int) {
 	var params []interface{}
 	for _, p := range sp.Params {
 		vf, code := p.ValFunc(wb, p)
@@ -143,7 +143,7 @@ func (ws *SpWeb) GetParams(wb *Param, sp *Sp) ([]interface{}, int) {
 	return params, 200
 }
 
-func (ws *SpWeb) GetParam(ParamName, pType string, sp *Sp) (*SpParam, error) {
+func (ws *WebSp) GetParam(ParamName, pType string, sp *Sp) (*SpParam, error) {
 	p := &SpParam{ParamName: ParamName}
 	if pType == "bigint" || pType == "int" {
 		p.DefaultVal = "0"

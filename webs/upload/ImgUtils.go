@@ -13,8 +13,6 @@ import (
 	"strings"
 )
 
-
-
 func Md5Byte(bs []byte) string {
 	md5Ctx := md5.New()
 	md5Ctx.Write(bs)

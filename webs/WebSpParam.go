@@ -34,7 +34,7 @@ func ParamIn(ctx *Param, p *SpParam) (interface{}, int) {
 2. http get openId
 3. query openId to userId.
 */
-func (ws *SpWeb) ParamWx(ele *utils.Element, data map[string]interface{}) { //TODO
+func (ws *WebSp) ParamWx(ele *utils.Element, data map[string]interface{}) { //TODO
 	prefix := ele.MustAttr("Prefix")
 	sqlEle := ele.Node("Sql")
 	saveEle := ele.Node("SaveSql")
@@ -90,7 +90,7 @@ func wxv(prefix string, wb *Param, p *SpParam) (interface{}, int) {
 }
 
 // https://api.weixin.qq.com/sns/jscode2session?appid=wx1d88c080ac473555&secret=0d19956a54b1ce949902f5f7d7523658&js_code=0011AwBI1DMSX600BeEI1FDNBI11AwB6&grant_type=authorization_code
-func (ws *SpWeb) wxDo(params []string, saveOpenIdSql, prefix, MpAppId, MpSecret string, wb *Param, p *SpParam) (interface{}, int) {
+func (ws *WebSp) wxDo(params []string, saveOpenIdSql, prefix, MpAppId, MpSecret string, wb *Param, p *SpParam) (interface{}, int) {
 	jsCode := wb.String("js_code")
 	url := "https://api.weixin.qq.com/sns/jscode2session?appid=" + MpAppId +
 		"&secret=" + MpSecret + "&js_code=" + jsCode + "&grant_type=authorization_code"
@@ -116,7 +116,7 @@ func (ws *SpWeb) wxDo(params []string, saveOpenIdSql, prefix, MpAppId, MpSecret 
 	return 401, 0
 }
 
-func (ws *SpWeb) ginWk(ele *utils.Element, data map[string]interface{}, unFindCode int) {
+func (ws *WebSp) ginWk(ele *utils.Element, data map[string]interface{}, unFindCode int) {
 	VerifyId, vb := ele.AttrValue("VerifyRef")
 	if !vb {
 		VerifyId = "Verify"
@@ -141,10 +141,10 @@ func (ws *SpWeb) ginWk(ele *utils.Element, data map[string]interface{}, unFindCo
 	}
 }
 
-func (ws *SpWeb) ParamGin(ele *utils.Element, data map[string]interface{}) {
+func (ws *WebSp) ParamGin(ele *utils.Element, data map[string]interface{}) {
 	ws.ginWk(ele, data, 401)
 }
 
-func (ws *SpWeb) ParamWk(ele *utils.Element, data map[string]interface{}) {
+func (ws *WebSp) ParamWk(ele *utils.Element, data map[string]interface{}) {
 	ws.ginWk(ele, data, 200)
 }

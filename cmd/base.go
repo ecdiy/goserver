@@ -31,6 +31,14 @@ func put(ele *utils.Element, v interface{}) {
 	}
 }
 
+func getVerify(ele *utils.Element) webs.BaseFun {
+	VerifyId, vb := ele.AttrValue("VerifyRef")
+	if !vb {
+		VerifyId = "Verify"
+	}
+	return data[VerifyId].(webs.BaseFun)
+}
+
 func getGpa(ele *utils.Element) *gpa.Gpa {
 	ref := ele.Attr("GpaRef", "Gpa")
 	web := data[ref].(*gpa.Gpa)
