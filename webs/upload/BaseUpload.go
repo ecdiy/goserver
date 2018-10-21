@@ -29,10 +29,10 @@ func Upload(engine *gin.Engine, sp *webs.WebSp, bf webs.BaseFun, ele *utils.Elem
 			ImgWidth = append(ImgWidth, wi)
 		}
 	}
-	seelog.Info("tmpDir=", tmpDir)
 	UrlPrefix := ele.MustAttr("UrlPrefix")
 	MainWidth, _ := strconv.Atoi(ele.Attr("MainWidth", "0"))
 
+	seelog.Info("注册文件上传:tmpDir=", tmpDir, ";UrlPrefix=", UrlPrefix)
 	engine.POST(url, func(ctx *gin.Context) {
 		wb := webs.NewParam(ctx)
 		ub := bf(wb).(*webs.UserBase)
@@ -96,10 +96,12 @@ func doUploadFileMd5(MainWidth int, tmpDir, UrlPrefix, DirUpload string, c *webs
 				uri = uri + ext8
 				if MainWidth == 0 || MainWidth == w || len(ImgWidth) == 1 {
 					c.Param[key+"Url"] = UrlPrefix + uri + ext
+					c.Param["location"] = UrlPrefix + uri + ext //for TinyMce
 				}
 			}
 		} else {
 			c.Param[key+"Url"] = UrlPrefix + uri + ext
+			c.Param["location"] = UrlPrefix + uri + ext //for TinyMce
 		}
 	}
 }

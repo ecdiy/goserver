@@ -117,6 +117,8 @@ func NewParam(c *gin.Context) *Param {
 				//	web.Context.Set("param", web.Param)
 			}
 		}
+	} else {
+		web.Param = make(map[string]interface{})
 	}
 	web.Ua = web.String("Ua")
 	if web.Ua == "" {
