@@ -92,7 +92,10 @@ func LoadByStream(r io.Reader) (current *Element, err error) {
 			}
 		case xml.CharData:
 			if token != nil && current != nil {
-				current.Value = FmtVal(string([]byte(token.Copy())))
+				v := strings.TrimSpace(string([]byte(token.Copy())))
+				if len(current.Value) == 0 && len(v) > 0 {
+					current.Value = FmtVal(v)
+				}
 			}
 		case xml.Comment:
 			//			fmt.Println("xml===>1", string(token.Copy()))

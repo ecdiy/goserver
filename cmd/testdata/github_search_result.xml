@@ -1,0 +1,14 @@
+<Fmt>
+    <!--
+     用SpitString成数组，数组元素包含ItemInclude
+     -->
+    <Spit SpitString="repo-list-item d-flex flex-column flex-md-row flex-justify-start py-4 public source"
+          ItemInclude="col-12 col-md-8 pr-md-3">
+        <Regexp><![CDATA[data-hydro-click-hmac="[^"]*" href="([^"]*)">([^<]*)</a>]]></Regexp>
+        <Sql>
+            <Check Param="-2">select count(*) from Project where Github=?</Check>
+            <Insert Param="-2,-1">INSERT INTO `Project`(`Github`,`Name`,`CreateAt`,`CatId`)VALUES(?,?,now(),'0')
+            </Insert>
+        </Sql>
+    </Spit>
+</Fmt>
