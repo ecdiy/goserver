@@ -16,73 +16,97 @@ type fmtData struct {
 }
 
 func (fd *fmtData) Spit(ele *utils.Element, html string) {
-	regTxt := strings.TrimSpace(ele.Node("Regexp").Value)
-	if len(regTxt) < 1 {
-		seelog.Error("没有设置正则表达式", ele.ToString())
-		return
-	}
+
 	Spit, SpitExt := ele.AttrValue("SpitString")
 	if SpitExt {
 		fd.items = strings.Split(html, Spit)
 	}
 	if fd.items != nil {
 		ItemInclude, ItemIncludeExt := ele.AttrValue("ItemInclude")
-		re := regexp.MustCompile(regTxt)
 		for _, it := range fd.items {
 			if ItemIncludeExt {
 				if strings.Index(it, ItemInclude) < 0 {
 					continue
 				}
 			}
-			gs := re.FindAllStringSubmatch(it, -1)
-			if len(gs) >= 1 {
-				fd.save(ele, gs[0])
+			val := fd.getParam(it, ele.Node("Param"))
+			if len(val) > 1 {
+				fd.save(ele, val)
 			}
 		}
 	}
 	seelog.Info("items count:", len(fd.items))
 }
 
-func (fd *fmtData) save(ele *utils.Element, bd []string) {
+func (fd *fmtData) getParam(html string, param *utils.Element) map[string]string {
+	res := make(map[string]string)
+	ns := param.AllNodes()
+	for _, n := range ns {
+		regTxt := strings.TrimSpace(n.Value)
+		if len(regTxt) < 1 {
+			seelog.Error("没有设置正则表达式", n.ToString())
+			return res
+		}
+		re := regexp.MustCompile(regTxt)
+		gs := re.FindAllStringSubmatch(html, -1)
+		if len(gs) >= 1 {
+			Name := n.MustAttr("Name")
+			Index := n.MustAttr("Index")
+			ns := strings.Split(Name, ",")
+			is := strings.Split(Index, ",")
+			if len(ns) == len(is) && len(gs[0]) > len(ns) {
+				for i := 0; i < len(ns); i++ {
+					ni, _ := strconv.Atoi(is[i])
+					if ni < 0 {
+						ni = len(gs[0]) + ni
+					}
+					if len(gs[0]) > ni && ni > 0 {
+						res[ns[i]] = gs[0][ni]
+					}
+				}
+			}
+		}
+	}
+	return res
+}
+
+func (fd *fmtData) save(ele *utils.Element, val map[string]string) {
 	SqlEle := ele.Node("Sql")
 	if SqlEle != nil {
 		Check := SqlEle.Node("Check")
 		Insert := SqlEle.Node("Insert")
 		Update := SqlEle.Node("Update")
-		ip, ext := fd.sqlParam(bd, Check.MustAttr("Param"))
+		ip, ext := fd.sqlParam(val, Check.MustAttr("Param"))
 		if !ext {
 			return
 		}
 		c, cExt, _ := fd.dao.QueryInt(Check.Value, ip...)
 		if cExt && c >= 1 {
 			if Update != nil {
-				bp, ext := fd.sqlParam(bd, Update.MustAttr("Param"))
+				bp, ext := fd.sqlParam(val, Update.MustAttr("Param"))
 				if ext {
 					fd.dao.Exec(Update.Value, bp...)
 				}
 			}
 		} else {
 			if Insert != nil {
-				ip, ext := fd.sqlParam(bd, Insert.MustAttr("Param"))
+				ip, ext := fd.sqlParam(val, Insert.MustAttr("Param"))
 				if ext {
 					fd.dao.Exec(Insert.Value, ip...)
 				}
 			}
 		}
 	}
-	seelog.Info(";", bd)
+	seelog.Info(";", val)
 }
 
-func (fd *fmtData) sqlParam(param []string, nd string) ([]interface{}, bool) {
+func (fd *fmtData) sqlParam(val map[string]string, nd string) ([]interface{}, bool) {
 	var p []interface{}
 	ns := strings.Split(nd, ",")
 	for _, n := range ns {
-		ni, _ := strconv.Atoi(n)
-		if ni < 0 {
-			ni = len(param) + ni
-		}
-		if len(param) > ni && ni >= 0 {
-			p = append(p, param[ni])
+		v, ve := val[n]
+		if ve {
+			p = append(p, v)
 		} else {
 			return p, false
 		}
