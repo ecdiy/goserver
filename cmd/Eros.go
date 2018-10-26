@@ -18,19 +18,7 @@ var (
 	Apps       = []string{"mo"}
 )
 
-
 func (app *Module) Eros(ele *utils.Element) {
-
-	utils.ParamInit(utils.EnvDev, `
-Apps=D:\dev\mo\apps
-Prefix=http://`+ utils.GetIp()+ `
-`)
-
-	utils.ParamInit(utils.EnvProd, `
-Apps=/love/mo/apps
-Prefix=http://app.kushow.me
-`)
-
 	AppsDir = utils.EnvParam("Apps")
 	Prefix = utils.EnvParam("Prefix")
 	seelog.Info("Apps", Apps)
@@ -39,8 +27,6 @@ Prefix=http://app.kushow.me
 	Web.GET("/app/check", appCheck)
 	Web.GET("/app/reload", appReload)
 	initApp()
-
-	Web.Run(":3001")
 }
 
 func initApp() string {
