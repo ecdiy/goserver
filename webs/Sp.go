@@ -47,6 +47,8 @@ func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface
 		} else if r.Type == "object" || r.Type == "o" {
 			if rows.Next() {
 				data[sp.Result[node].Name] = gpa.RowToMap(rows, cols)
+			} else {
+				data[sp.Result[node].Name] = make(map[string]string)
 			}
 		} else {
 			seelog.Warn("未知类型:", r.Type)
