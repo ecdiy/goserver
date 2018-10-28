@@ -66,68 +66,82 @@ func rpcUser(RpcUserHost string, fun func(client RpcUserClient, ctx context.Cont
 }
 
 func NewVerify(ele *utils.Element, Gpa *gpa.Gpa, putFunRun func(fun func())) BaseFun {
-	sql, sqlExt := ele.AttrValue("Sql")
-	if !sqlExt {
-		sql = ele.Value
-		if len(strings.TrimSpace(sql)) > 10 {
-			sqlExt = true
+	v := &Verify{
+		tkName: ele.MustAttr("TokenName"),
+	}
+	v.ResultFlagName, v.ResultFlagNameExt = ele.AttrValue("ResultFlagName")
+	v.sql, v.sqlExt = ele.AttrValue("Sql")
+	if !v.sqlExt {
+		v.sql = ele.Value
+		if len(strings.TrimSpace(v.sql)) > 10 {
+			v.sqlExt = true
 		}
 	}
-	RpcHost, rhExt := ele.AttrValue("RpcHost")
-	tkName := ele.MustAttr("TokenName")
-	ResultFlagName, ResultFlagNameExt := ele.AttrValue("ResultFlagName")
-	var ver *RpcUser
-	if sqlExt {
-		ver = &RpcUser{Sql: sql, Gpa: Gpa}
-		if rhExt {
+	v.RpcHost, v.rhExt = ele.AttrValue("RpcHost")
+	if v.sqlExt {
+		v.ver = &RpcUser{Sql: v.sql, Gpa: Gpa}
+		if v.rhExt {
 			putFunRun(func() {
-				RpcRegister(RpcHost, func(s *grpc.Server) {
-					RegisterRpcUserServer(s, ver)
+				RpcRegister(v.RpcHost, func(s *grpc.Server) {
+					RegisterRpcUserServer(s, v.ver)
 				})
 			})
 		} else {
 			seelog.Warn("没有设置RpcHost,无须启动绑定Rpc")
 		}
 	} else {
-		if !rhExt {
+		if !v.rhExt {
 			panic("参数设置错误[Sql,Sql+RpcHost,RpcHost]三种方式")
 		}
 	}
-	return func(wb *Param, ps ... interface{}) interface{} {
-		_, ext := wb.Context.Get(VerifyCallFlag)
-		if ext {
-			v, vb := wb.Context.Get("Verify")
-			if vb {
-				return v.(*UserBase)
-			}
-			seelog.Error("gin context not save UserBase.Verify fail?")
-			return nil
+	return v.DoAuth
+}
+
+type Verify struct {
+	tkName, RpcHost, ResultFlagName, sql string
+	sqlExt, rhExt, ResultFlagNameExt     bool
+	ver                                  *RpcUser
+}
+
+func (v *Verify) DoAuth(wb *Param, ps ... interface{}) interface{} {
+	_, ext := wb.Context.Get(VerifyCallFlag)
+	if ext {
+		v, vb := wb.Context.Get("Verify")
+		if vb {
+			return v.(*UserBase)
 		}
-		wb.Context.Set(VerifyCallFlag, true)
-		var ub *UserBase
-		if sqlExt {
-			ub, _ = ver.Verify(nil, &Token{Token: wb.String(tkName), Ua: wb.Ua})
-		} else {
-			rpcUser(RpcHost, func(client RpcUserClient, ctx context.Context) {
-				ub, _ = client.Verify(ctx, &Token{Token: wb.String(tkName), Ua: wb.Ua})
-			})
-		}
-		if ub != nil && ub.Result {
-			if len(ub.AppendJson) > 1 {
-				var data map[string]interface{}
-				je := json.Unmarshal([]byte(ub.AppendJson), &data)
-				if je == nil {
-					for k, v := range data {
-						wb.Context.Set(k, v)
-					}
-				}
-			} else {
-				wb.Context.Set("UserId", ub.UserId)
-			}
-		}
-		if ResultFlagNameExt {
-			wb.Context.Set(ResultFlagName, ub != nil && ub.Result)
-		}
-		return ub
+		seelog.Error("gin context not save UserBase.Verify fail?")
+		return nil
 	}
+	wb.Context.Set(VerifyCallFlag, true)
+	var ub *UserBase
+	tk := &Token{Token: wb.String(v.tkName), Ua: wb.Ua}
+	if v.sqlExt {
+		ub, _ = v.ver.Verify(nil, tk)
+	} else {
+		rpcUser(v.RpcHost, func(client RpcUserClient, ctx context.Context) {
+			ub, _ = client.Verify(ctx, tk)
+		})
+	}
+	if ub != nil && ub.Result {
+		if len(ub.AppendJson) > 1 {
+			var data map[string]interface{}
+			je := json.Unmarshal([]byte(ub.AppendJson), &data)
+			if je == nil {
+				for k, v := range data {
+					wb.Context.Set(k, v)
+				}
+			}
+		} else {
+			wb.Context.Set("UserId", ub.UserId)
+		}
+	} else {
+		if utils.EnvIsDev {
+			seelog.Warn("认证失败，token-name=", v.tkName, ":", tk.Token, ";", tk.Ua)
+		}
+	}
+	if v.ResultFlagNameExt {
+		wb.Context.Set(v.ResultFlagName, ub != nil && ub.Result)
+	}
+	return ub
 }
