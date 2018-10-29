@@ -97,7 +97,7 @@ func (ws *WebSp) NewSpByName(spName string) (*Sp, bool) {
 func (ws *WebSp) SpExec(spName string, param *Param) int {
 	defer func() {
 		if err := recover(); err != nil {
-			seelog.Error("SP do fail: spName=", spName, ";param=", param)
+			seelog.Error("SP do fail: spName=", spName, ";\n\tparam=", param, "\n\t", err)
 			delete(ws.SpCache, spName)
 		}
 	}()
@@ -121,7 +121,7 @@ func (ws *WebSp) SpExec(spName string, param *Param) int {
 	if code == 200 {
 		e := sp.Run(param.Out, ws.Gpa.Conn, params...)
 		if e != nil {
-			seelog.Error("exec SP失败:", sp.Name)
+			seelog.Error("exec SP失败:", sp.Name, "\n\t", e)
 			delete(ws.SpCache, sp.Name)
 			return 500
 		}
