@@ -24,8 +24,14 @@ func (app *Module) Md(ele *utils.Element) {
 			context.JSON(200, "")
 		}
 	}
-	getGin(ele).GET(ele.MustAttr("JsonUrl"), fun)
-	getGin(ele).POST(ele.MustAttr("JsonUrl"), fun)
+	gj, gje := ele.AttrValue("GetJsonUrl")
+	if gje {
+		getGin(ele).GET(gj, fun)
+	}
+	pj, pje := ele.AttrValue("PostJsonUrl")
+	if pje {
+		getGin(ele).POST(pj, fun)
+	}
 }
 
 func Md2Html(bs []byte) string {
