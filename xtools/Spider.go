@@ -1,22 +1,21 @@
-package main
+package xtools
 
 import (
-	"goserver/utils"
 	"reflect"
 	"strings"
 	"github.com/cihub/seelog"
 	"regexp"
 	"goserver/gpa"
 	"strconv"
+	"goserver/utils"
 )
 
-type fmtData struct {
+type FmtData struct {
 	items []string
-	dao   *gpa.Gpa
+	Dao   *gpa.Gpa
 }
 
-func (fd *fmtData) Spit(ele *utils.Element, html string) {
-
+func (fd *FmtData) Spit(ele *utils.Element, html string) {
 	Spit, SpitExt := ele.AttrValue("SpitString")
 	if SpitExt {
 		fd.items = strings.Split(html, Spit)
@@ -35,10 +34,14 @@ func (fd *fmtData) Spit(ele *utils.Element, html string) {
 			}
 		}
 	}
+	if len(fd.items) == 1 {
+		//seelog.Warn("?spider error?")
+		//ioutil.WriteFile("", []byte(html), 066)
+	}
 	seelog.Info("items count:", len(fd.items))
 }
 
-func (fd *fmtData) getParam(html string, param *utils.Element) map[string]string {
+func (fd *FmtData) getParam(html string, param *utils.Element) map[string]string {
 	res := make(map[string]string)
 	ns := param.AllNodes()
 	for _, n := range ns {
@@ -70,7 +73,7 @@ func (fd *fmtData) getParam(html string, param *utils.Element) map[string]string
 	return res
 }
 
-func (fd *fmtData) save(ele *utils.Element, val map[string]string) {
+func (fd *FmtData) save(ele *utils.Element, val map[string]string) {
 	SqlEle := ele.Node("Sql")
 	if SqlEle != nil {
 		Check := SqlEle.Node("Check")
@@ -80,19 +83,19 @@ func (fd *fmtData) save(ele *utils.Element, val map[string]string) {
 		if !ext {
 			return
 		}
-		c, cExt, _ := fd.dao.QueryInt(Check.Value, ip...)
+		c, cExt, _ := fd.Dao.QueryInt(Check.Value, ip...)
 		if cExt && c >= 1 {
 			if Update != nil {
 				bp, ext := fd.sqlParam(val, Update.MustAttr("Param"))
 				if ext {
-					fd.dao.Exec(Update.Value, bp...)
+					fd.Dao.Exec(Update.Value, bp...)
 				}
 			}
 		} else {
 			if Insert != nil {
 				ip, ext := fd.sqlParam(val, Insert.MustAttr("Param"))
 				if ext {
-					fd.dao.Exec(Insert.Value, ip...)
+					fd.Dao.Exec(Insert.Value, ip...)
 				}
 			}
 		}
@@ -100,7 +103,7 @@ func (fd *fmtData) save(ele *utils.Element, val map[string]string) {
 	seelog.Info(";", val)
 }
 
-func (fd *fmtData) sqlParam(val map[string]string, nd string) ([]interface{}, bool) {
+func (fd *FmtData) sqlParam(val map[string]string, nd string) ([]interface{}, bool) {
 	var p []interface{}
 	ns := strings.Split(nd, ",")
 	for _, n := range ns {
@@ -114,7 +117,7 @@ func (fd *fmtData) sqlParam(val map[string]string, nd string) ([]interface{}, bo
 	return p, true
 }
 
-func (fd *fmtData) call(ele *utils.Element, html string) {
+func (fd *FmtData) Call(ele *utils.Element, html string) {
 	var rfd = reflect.ValueOf(fd)
 	for _, n := range ele.AllNodes() {
 		inputs := make([]reflect.Value, 2)

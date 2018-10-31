@@ -14,14 +14,6 @@ import (
 	"strings"
 )
 
-//func (th *Http) Get(Url string) (string, int, error) {
-//	return th.http("GET", Url)
-//}
-//
-//func (th *Http) Post(Url string) (string, int, error) {
-//	return th.http("POST", Url)
-//}
-
 func (th *Http) DownFile(url, dir, defaultExt string, force bool) string {
 	md5Ctx := md5.New()
 	md5Ctx.Write([]byte(url))
@@ -33,16 +25,20 @@ func (th *Http) DownFile(url, dir, defaultExt string, force bool) string {
 		ext = url[dInd:]
 	}
 	lf, uri := FmtImgDir(dir, md5str)
-	localFile := lf+ext
+	localFile := lf + ext
 	if !force {
-		_, e := os.Stat(localFile)
-		if os.IsExist(e) {
-			return uri+ext
+		ff, e := os.Stat(localFile)
+		if e == nil && ff.Size() > 0 {
+			return uri + ext
+		} else {
+			if e != nil {
+				seelog.Error("Down file fail:", url, "\n\t", e)
+			}
 		}
 	}
 	bs, _, _ := th.GetBody("GET", url)
 	ioutil.WriteFile(localFile, bs, 0644)
-	return uri+ext
+	return uri + ext
 }
 
 func (th *Http) GetResponse(method, Url string) (*http.Response, error) {
@@ -176,14 +172,6 @@ func (th *Http) Json(method, Url string) (map[string]interface{}, error) {
 //	return s
 //}
 
-//-------------
-
-//func HttpGetPost(url, referer string) (*http.Request, error) {
-//	return httpReq("POST", url, referer)
-//}
-//func HttpGetReq(url, referer string) (*http.Request, error) {
-//	return httpReq("GET", url, referer)
-//}
 //func httpReq(method, url, referer string) (*http.Request, error) {
 //	req, err := http.NewRequest(method, url, nil)
 //	if err != nil {
