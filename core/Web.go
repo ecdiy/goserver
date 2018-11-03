@@ -5,6 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"goserver/utils"
 	"goserver/webs/upload"
+	"strings"
+	"fmt"
 )
 
 func (app *Module) Web(ele *utils.Element) {
@@ -43,9 +45,31 @@ TmpDir,MainWidth,ImgWidth（多个用,分隔） 可选
  */
 func (app *Module) Upload(ele *utils.Element) {
 	sp, spExt := ele.AttrValue("SpRef")
-	if spExt {
-		upload.Upload(getGin(ele), data[sp].(*webs.WebSp), getVerify(ele), ele)
+	var nameFun func(c *webs.Param, tmpFileName string) (string, error)
+
+	NameRule, nrExt := ele.AttrValue("NameRule")
+	if nrExt {
+		if strings.Index(NameRule, "UserId") == 0 {
+			nameFun = func(c *webs.Param, tmpFileName string) (string, error) {
+				UserId, _ := c.Context.Get("UserId")
+				xId := fmt.Sprint(UserId)
+				return xId, nil
+			}
+		}
+		if strings.Index(NameRule, "Md5") == 0 {
+			nameFun = func(c *webs.Param, tmpFileName string) (string, error) {
+				return upload.Md5File(tmpFileName)
+			}
+		}
 	} else {
-		upload.Upload(getGin(ele), nil, getVerify(ele), ele)
+		nameFun = func(c *webs.Param, tmpFileName string) (string, error) {
+			return upload.Md5File(tmpFileName)
+		}
+	}
+
+	if spExt {
+		upload.Upload(nameFun, getGin(ele), data[sp].(*webs.WebSp), getVerify(ele), ele)
+	} else {
+		upload.Upload(nameFun, getGin(ele), nil, getVerify(ele), ele)
 	}
 }

@@ -58,7 +58,7 @@ func ImgResize(sourceFile, outFile string, newWidth int) (int, int) {
 		seelog.Error(err)
 	}
 	defer out.Close()
-	if strings.LastIndex(strings.ToLower(sourceFile), ".png") > 0 {
+	if strings.LastIndex(strings.ToLower(outFile), ".png") > 0 {
 		png.Encode(out, dst)
 	} else {
 		jpeg.Encode(out, dst, nil)
