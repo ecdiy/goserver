@@ -44,11 +44,35 @@ func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface
 				list = append(list, gpa.RowToMap(rows, cols))
 			}
 			data[sp.Result[node].Name] = list
-		} else if r.Type == "object" || r.Type == "o" {
+		} else if r.Type == "object" || r.Type == "o" || r.Type == "map" {
 			if rows.Next() {
 				data[sp.Result[node].Name] = gpa.RowToMap(rows, cols)
 			} else {
 				data[sp.Result[node].Name] = make(map[string]string)
+			}
+		} else if r.Type == "int" {
+			if rows.Next() {
+				if rows.Next() {
+					var r sql.NullInt64
+					rows.Scan(&r)
+					data[sp.Result[node].Name] = r.Int64
+				} else {
+					data[sp.Result[node].Name] = 0
+				}
+			} else {
+				data[sp.Result[node].Name] = 0
+			}
+		} else if r.Type == "string" || r.Type == "s" {
+			if rows.Next() {
+				if rows.Next() {
+					var r sql.NullString
+					rows.Scan(&r)
+					data[sp.Result[node].Name] = r.String
+				} else {
+					data[sp.Result[node].Name] = 0
+				}
+			} else {
+				data[sp.Result[node].Name] = 0
 			}
 		} else {
 			seelog.Warn("未知类型:", r.Type)
