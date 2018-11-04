@@ -52,25 +52,17 @@ func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface
 			}
 		} else if r.Type == "int" {
 			if rows.Next() {
-				if rows.Next() {
-					var r sql.NullInt64
-					rows.Scan(&r)
-					data[sp.Result[node].Name] = r.Int64
-				} else {
-					data[sp.Result[node].Name] = 0
-				}
+				var r sql.NullInt64
+				rows.Scan(&r)
+				data[sp.Result[node].Name] = r.Int64
 			} else {
 				data[sp.Result[node].Name] = 0
 			}
 		} else if r.Type == "string" || r.Type == "s" {
 			if rows.Next() {
-				if rows.Next() {
-					var r sql.NullString
-					rows.Scan(&r)
-					data[sp.Result[node].Name] = r.String
-				} else {
-					data[sp.Result[node].Name] = 0
-				}
+				var r sql.NullString
+				rows.Scan(&r)
+				data[sp.Result[node].Name] = r.String
 			} else {
 				data[sp.Result[node].Name] = 0
 			}
