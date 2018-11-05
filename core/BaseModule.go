@@ -22,6 +22,10 @@ func (app *Module) Include(ele *utils.Element) {
 	}
 }
 
+func (app *Module) Map(ele *utils.Element) {
+	seelog.Info("TODO")
+}
+
 func (app *Module) Parameter(ele *utils.Element) {
 	ps := ele.AllNodes()
 	for _, p := range ps {

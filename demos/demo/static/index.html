@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js.cookie-2.2.0.min.js"></script>
+    <script src="axios.min.js"></script>
+    <script src="vue.min.js"></script>
+    <!-- import stylesheet -->
+    <link rel="stylesheet" href="//unpkg.com/iview/dist/styles/iview.css">
+    <!-- import iView -->
+    <script src="//unpkg.com/iview/dist/iview.min.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <div style="width: 500px; ">
+        <card style="margin : 20px">
+            <i-Button slot="title" @click="callSpHelloWorld">hello world</i-Button>
+            <a href="#" slot="extra" @click.prevent="()=>{modal.hello=true}">
+                查看SP
+            </a>
+            <pre>{{helloResult}}</pre>
+            <Modal v-model="modal.hello" title="查看SP">
+<pre>CREATE PROCEDURE `HelloWorldAjax`()
+COMMENT 'test:string'
+BEGIN
+	select 'Hello' Result;
+END</pre>
+            </Modal>
+        </card>
+
+        <card style="margin : 20px">
+            <span slot="title">带参数请求参数</span>
+            <a href="#" slot="extra" @click.prevent="()=>{modal.sp2=true}">
+                查看SP
+            </a>
+
+            <div>
+                <Input v-model="spParam" style="width: 100px"/>
+                <i-Button slot="title" @click="callParam">带参数请求参数</i-Button>
+                <div style="clear: both; ">
+                    <pre>{{sp2Result}}</pre>
+                </div>
+            </div>
+
+            <Modal style="margin : 20px" v-model="modal.sp2" title="查看SP">
+<pre>CREATE PROCEDURE `ParamAjax`(inParam text)
+    COMMENT 'param:map,list:list'
+BEGIN
+	select inParam Param;
+	select 1 A,2 B
+	union select 2 A ,3 B;
+    END</pre>
+            </Modal>
+        </card>
+
+        <card style="margin : 20px"><span slot="title">带用户Id</span>
+            <a href="#" slot="extra" @click.prevent="()=>{modal.getMail=true}">
+                查看SP
+            </a>
+
+            未登录报401,401时跳到登录页
+            <i-Button @click="callSpGetMailAjax">带用户Id</i-Button>
+            <pre>{{GetMailResult}}</pre>
+
+                <Modal v-model="modal.getMail" title="查看SP">
+<pre>CREATE   PROCEDURE `GetMailAjax`(ginUserId bigint)
+    COMMENT 'user:map'
+BEGIN
+	select Email,Username from GkUser where Id=ginUserId;
+END</pre>
+                </Modal>
+        </card>
+
+        <card style="margin : 20px">
+            <span slot="title">用户登录</span>
+            <a href="#" slot="extra" @click.prevent="()=>{modal.login=true}">
+                查看SP
+            </a>
+            <Input v-model="user" placeholder="用户名" style="width: 100px"/>
+            <Input v-model="pass" style="width: 100px"/>
+            <i-Button @click="callLogin">登录</i-Button>
+            <pre>{{loginResult}} </pre>
+        </card>
+    </div>
+
+
+</div>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                helloResult: {}, modal: {hello: false, sp2: false, getMail: false},
+                spParam: '', sp2Result: {},
+                GetMailResult: {},
+                user: 'test', pass: 'test',loginResult:{}
+            }
+        },
+        methods: {
+            callSpHelloWorld() {
+                let th = this;
+                axios.post('/sp/HelloWorld', {}).then(function (r) {
+                    th.helloResult = r.data;
+                })
+            },
+            callParam() {
+                let th = this;
+                axios.post('/sp/Param', {Param: this.spParam}).then(function (r) {
+                    th.sp2Result = r.data;
+                })
+            }
+            , callSpGetMailAjax() {
+                let th = this;
+                axios.post('/sp/GetMail', {}).then(function (r) {
+                    th.GetMailResult = r.data;
+                }).catch((err) => {
+                    th.GetMailResult = err.response
+                    console.log("~~", err.response)
+                })
+            },
+            callLogin() {
+                let th = this;
+                axios.post('/sp/UserLogin', {Username: this.user, Password: this.pass})
+                        .then(function (r) {
+                            th.loginResult=r.data
+                            if (r.data.status && r.data.status.code == 0) {
+                                Cookies.set("token",r.data.status.Token)
+                            }
+                        })
+            }
+        }
+    }).$mount('#app')
+</script>
+
+</body>
+</html>

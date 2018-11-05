@@ -26,10 +26,10 @@ func (ws *WebSp) Init() {
 
 func (ws *WebSp) NewSp(val []string) (*Sp, bool) {
 	sp := &Sp{Name: val[0]}
-	if len(val) < 3 || len(strings.TrimSpace(val[2])) == 0 {
-		seelog.Warn("没有返回值的参数申明")
-		return sp, false
-	}
+	//if len(val) < 3 || len(strings.TrimSpace(val[2])) == 0 {
+	//	seelog.Warn("没有返回值的参数申明")
+	//	return sp, false
+	//}
 	rowReg := regexp.MustCompile(`\r|\n`)
 	rows := rowReg.Split(val[2], -1)
 	if len(rows) < 1 {

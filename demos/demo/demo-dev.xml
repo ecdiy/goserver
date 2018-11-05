@@ -1,0 +1,29 @@
+<Root>
+
+    <!-- 数据库 -->
+    <Gpa DbDsn="root:root@tcp(127.0.0.1:3306)/goserver?timeout=30s&amp;charset=utf8mb4&amp;parseTime=true"/>
+
+    <Web Port=":8080">
+        <Static Url="/static" Path="./static"/>
+    </Web>
+
+    <!-- 验证功能 -->
+    <Verify Id="Verify" TplFunName="verify" GpaRef="Gpa" TokenName="token"
+            ResultFlagName="Login">
+        select t.UserId,u.Username from Token t left JOIN `GkUser` u on
+        t.UserId=u.Id where Token=? and Ua=?
+    </Verify>
+
+    <Sp WebRef="Web" GpaRef="Gpa">
+        <ParamGin Prefix="gin" VerifyRef="Verify"/>
+        <ParamWk Prefix="gk" VerifyRef="Verify"/>
+
+        <Handle SpSuffix="Ajax" ReloadUrl="/spReload" Url="/sp/:sp"/>
+
+        <HandleCaptcha Url="/api/Register" Sp="UserRegister"/>
+
+        <HandleCaptcha Url="/api/LoginCaptcha" Sp="UserLoginCaptcha"/>
+
+    </Sp>
+
+</Root>
