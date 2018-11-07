@@ -1,5 +1,33 @@
 <Root>
-    <Cron Spec="">
-        <Sql>select 1</Sql>
+    <!-- 数据库 -->
+    <Gpa DbDsn="root:root@tcp(127.0.0.1:3306)/goserver?timeout=30s&amp;charset=utf8mb4&amp;parseTime=true"/>
+
+    <Cron>
+        <Sql Spec="0 * * * * ?">select 1</Sql>
+        <Sql Spec="30 * * * * ?">select 30</Sql>
+        <Http GetUrl="https://github.com/search?l=&amp;p=1&amp;q=stars%3A%3E1000&amp;ref=advsearch&amp;type=Repositories&amp;utf8=%E2%9C%93">
+            <Fmt SpitString="repo-list-item d-flex flex-column flex-md-row flex-justify-start"
+                  ItemInclude="col-12 col-md-8 pr-md-3">
+                <Param>
+                    <Regexp Name="Url,Name" Index="-2,-1">
+                        <![CDATA[data-hydro-click-hmac="[^"]*" href="([^"]*)">([^<]*)</a>]]></Regexp>
+                    <Regexp Name="Star" Index="-1">
+                        <![CDATA[</svg>\s*([^<\s]*)\s*</a>]]></Regexp>
+                    <Regexp Name="Summary" Index="-1">
+                        <![CDATA[<p class="col-12 col-md-9 d-inline-block text-gray mb-2 pr-4">\s*([^\r\n]*)\s*</p>]]>
+                    </Regexp>
+                </Param>
+                <Sql>
+                    <Check Param="Url">select count(*) from Project where HomeUrl=?</Check>
+                    <Insert Param="Url,Name,Star,Summary">INSERT INTO `Project`(`HomeUrl`,`Name`,`CreateAt`,`CatId`,`Star`,Summary,Site)
+                        VALUES(?,?,now(),'0',?,?,'github')</Insert>
+                    <Update Param="Star,Summary,Url">update `Project` set `Star`=?,Summary=?,Site='github' where `HomeUrl`=?</Update>
+                </Sql>
+            </Fmt>
+        </Http>
     </Cron>
+
+    <Web Port=":8080">
+        <Static Url="/static" Path="./static"/>
+    </Web>
 </Root>
