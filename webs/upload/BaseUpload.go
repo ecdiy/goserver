@@ -104,10 +104,10 @@ func doUploadFileMd5(ToExt string, cover bool, nameFun func(c *webs.Param, tmpFi
 				if _, err := os.Stat(pre + ext8); os.IsNotExist(err) {
 					ImgResize(path, pre+ext8, w)
 				}
-				uri = uri + ext8
 				if MainWidth == 0 || MainWidth == w || len(ImgWidth) == 1 {
-					c.Param[key+"Url"] = UrlPrefix + uri + ext
-					c.Param["location"] = UrlPrefix + uri + ext //for TinyMce
+					ut := uri + ext8
+					c.Param[key+"Url"] = UrlPrefix + ut
+					c.Param["location"] = UrlPrefix + ut //for TinyMce
 				}
 			}
 		} else {
