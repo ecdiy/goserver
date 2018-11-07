@@ -52,7 +52,10 @@ func (job *Job) Http() {
 		html, e := http.Get(getUrl)
 		if e == nil {
 			fd := &xtools.FmtData{Dao: job.dao}
-			fd.Spit(job.job.Node("Fmt"), string(html))
+			fmt := job.job.Node("Fmt")
+			if fmt != nil {
+				fd.Spit(job.job.Node("Fmt"), string(html))
+			}
 		} else {
 			seelog.Error("HttpGet失败", getUrl)
 		}

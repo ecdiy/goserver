@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50721
 File Encoding         : 65001
 
-Date: 2018-11-05 23:09:13
+Date: 2018-11-07 13:30:05
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -39,6 +39,29 @@ CREATE TABLE `GkUser` (
 INSERT INTO `GkUser` VALUES ('11047', 'test', 'test', 'a', 'a', 'a', '2018-11-05 22:15:56', '0');
 
 -- ----------------------------
+-- Table structure for Project
+-- ----------------------------
+DROP TABLE IF EXISTS `Project`;
+CREATE TABLE `Project` (
+  `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `HomeUrl` varchar(255) DEFAULT NULL,
+  `Name` varchar(160) DEFAULT NULL,
+  `CreateAt` datetime DEFAULT NULL,
+  `CatId` bigint(20) DEFAULT NULL,
+  `Star` varchar(16) DEFAULT NULL,
+  `Site` varchar(64) DEFAULT NULL,
+  `Summary` mediumtext,
+  `ItemCount` int(11) NOT NULL DEFAULT '0' COMMENT '文档总数',
+  `UserId` bigint(20) DEFAULT '0',
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `HomeUrl` (`HomeUrl`)
+) ENGINE=InnoDB AUTO_INCREMENT=324 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of Project
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for Token
 -- ----------------------------
 DROP TABLE IF EXISTS `Token`;
@@ -54,7 +77,7 @@ CREATE TABLE `Token` (
 -- ----------------------------
 -- Records of Token
 -- ----------------------------
-INSERT INTO `Token` VALUES ('11047', 'web', '381f3e654474d9c9927b3b759df4165e', '2018-11-05 23:02:38');
+INSERT INTO `Token` VALUES ('11047', 'web', 'c537247730d380dd47ab49c8b766486d', '2018-11-06 12:48:58');
 
 -- ----------------------------
 -- Procedure structure for GetMailAjax
