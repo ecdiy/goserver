@@ -31,6 +31,7 @@ func (app *Module) Sp(ele *utils.Element) {
 	put(ele, sp)
 }
 
+
 //文件上传
 /**
 TmpDir,MainWidth,ImgWidth（多个用,分隔） 可选
@@ -43,6 +44,7 @@ TmpDir,MainWidth,ImgWidth（多个用,分隔） 可选
     <Upload SpRef="Sp" WebRef="Web" TmpDir="./upload/temp/" DirUpload="./upload/" ImgWidth="800" Sp="Upload" MainWidth="800" UrlPrefix="/upload"/>
 
  */
+
 func (app *Module) Upload(ele *utils.Element) {
 	sp, spExt := ele.AttrValue("SpRef")
 	var nameFun func(c *webs.Param, tmpFileName string) (string, error)
