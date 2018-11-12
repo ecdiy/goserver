@@ -1,10 +1,10 @@
 package core
 
 import (
-	"goserver/webs"
+	"github.com/ecdiy/goserver/webs"
 	"github.com/gin-gonic/gin"
-	"goserver/utils"
-	"goserver/webs/upload"
+	"github.com/ecdiy/goserver/utils"
+	"github.com/ecdiy/goserver/webs/upload"
 	"strings"
 	"fmt"
 )

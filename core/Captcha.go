@@ -1,9 +1,9 @@
 package core
 
 import (
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"github.com/dchest/captcha"
-	"goserver/webs"
+	"github.com/ecdiy/goserver/webs"
 	"github.com/gin-gonic/gin"
 )
 

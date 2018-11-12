@@ -1,11 +1,11 @@
 package core
 
 import (
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"github.com/gin-gonic/gin"
-	"goserver/gpa"
+	"github.com/ecdiy/goserver/gpa"
 	"reflect"
-	"goserver/webs"
+	"github.com/ecdiy/goserver/webs"
 	"strings"
 	"os"
 )

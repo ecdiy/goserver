@@ -5,7 +5,7 @@ import (
 	"github.com/cihub/seelog"
 	"github.com/dchest/captcha"
 	"strings"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 )
 
 func (ws *WebSp) HandleCaptcha(ele *utils.Element, data map[string]interface{}) {

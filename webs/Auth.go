@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"context"
 	"strconv"
-	"goserver/gpa"
+	"github.com/ecdiy/goserver/gpa"
 	"google.golang.org/grpc"
 	"net"
 	"github.com/cihub/seelog"
 	"fmt"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"strings"
 )
 

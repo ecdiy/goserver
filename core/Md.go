@@ -1,9 +1,9 @@
 package core
 
 import (
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"github.com/gin-gonic/gin"
-	"goserver/webs"
+	"github.com/ecdiy/goserver/webs"
 	"io/ioutil"
 	"gopkg.in/russross/blackfriday.v2"
 	"github.com/microcosm-cc/bluemonday"

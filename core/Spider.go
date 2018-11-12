@@ -1,7 +1,7 @@
 package core
 
 import (
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"github.com/cihub/seelog"
 )
 

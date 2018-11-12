@@ -1,13 +1,13 @@
 package core
 
 import (
-	"goserver/utils"
-	"goserver/xtools/cron"
+	"github.com/ecdiy/goserver/utils"
+	"github.com/ecdiy/goserver/xtools/cron"
 	"github.com/cihub/seelog"
-	"goserver/gpa"
+	"github.com/ecdiy/goserver/gpa"
 	"reflect"
 
-	"goserver/xtools"
+	"github.com/ecdiy/goserver/xtools"
 )
 
 func (app *Module) Cron(ele *utils.Element) {

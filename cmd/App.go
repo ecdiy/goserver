@@ -1,6 +1,6 @@
 package main
 
-import "goserver/core"
+import "github.com/ecdiy/goserver/core"
 
 func main() {
 	core.StartCore()

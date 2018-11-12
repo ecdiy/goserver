@@ -2,13 +2,13 @@ package core
 
 import (
 	"github.com/gin-gonic/gin"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"github.com/cihub/seelog"
 	"fmt"
 	"io/ioutil"
 	"encoding/json"
 	"os"
-	"goserver/webs"
+	"github.com/ecdiy/goserver/webs"
 )
 
 var (

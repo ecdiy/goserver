@@ -1,13 +1,13 @@
 package webs
 
 import (
-	"goserver/gpa"
+	"github.com/ecdiy/goserver/gpa"
 	"github.com/cihub/seelog"
 	"strings"
 	"github.com/gin-gonic/gin"
 	"regexp"
 	"errors"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 )
 
 type WebSp struct {

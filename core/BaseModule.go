@@ -1,9 +1,9 @@
 package core
 
 import (
-	"goserver/webs"
-	"goserver/utils"
-	"goserver/gpa"
+	"github.com/ecdiy/goserver/webs"
+	"github.com/ecdiy/goserver/utils"
+	"github.com/ecdiy/goserver/gpa"
 	"github.com/cihub/seelog"
 )
 

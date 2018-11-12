@@ -9,8 +9,8 @@ import (
 	"github.com/gpmgo/gopm/modules/log"
 	"io"
 	"github.com/cihub/seelog"
-	"goserver/webs"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/webs"
+	"github.com/ecdiy/goserver/utils"
 )
 
 func Upload(nameFun func(c *webs.Param, tmpFileName string) (string, error),

@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"github.com/cihub/seelog"
 	"strings"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 )
 
 type Param struct {

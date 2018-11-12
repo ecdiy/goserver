@@ -1,10 +1,10 @@
 package core
 
 import (
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"github.com/gin-gonic/gin"
 	"strings"
-	"goserver/webs/upload"
+	"github.com/ecdiy/goserver/webs/upload"
 	"strconv"
 	"io/ioutil"
 	"github.com/cihub/seelog"

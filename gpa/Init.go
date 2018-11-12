@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"strings"
 	"github.com/cihub/seelog"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 )
 
 func Init(Driver, Dsn string, models ...interface{}) *Gpa {

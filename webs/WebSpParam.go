@@ -11,7 +11,7 @@ package webs
 
 import (
 	"github.com/cihub/seelog"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"strings"
 	"fmt"
 )

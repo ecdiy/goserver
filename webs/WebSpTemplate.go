@@ -2,7 +2,7 @@ package webs
 
 import (
 	"github.com/gin-gonic/gin"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"strings"
 	"github.com/cihub/seelog"
 	"strconv"

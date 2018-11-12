@@ -5,9 +5,9 @@ import (
 	"strings"
 	"github.com/cihub/seelog"
 	"regexp"
-	"goserver/gpa"
+	"github.com/ecdiy/goserver/gpa"
 	"strconv"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 )
 
 type FmtData struct {

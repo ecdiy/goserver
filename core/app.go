@@ -5,7 +5,7 @@ import (
 	"github.com/cihub/seelog"
 	"os"
 	"strings"
-	"goserver/utils"
+	"github.com/ecdiy/goserver/utils"
 	"github.com/gpmgo/gopm/modules/log"
 )
 
