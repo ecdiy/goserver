@@ -1,0 +1,8 @@
+<Root>
+
+    <Web Port=":7002">
+        <Static Url="/static" Path="${web.static}"/>
+    </Web>
+
+    <ImgResize Url="/api/Resize" Size="150,400,800,60" Dir="${upload.parent}"/>
+</Root>
