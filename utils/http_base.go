@@ -28,7 +28,7 @@ func (th *Http) SetHead(n, v string) {
 func (th *Http) GetBody(method, Url string) ([]byte, int, error) {
 	resp, err := th.GetResponse(method, Url)
 	if err != nil {
-		seelog.Info("Http Error:", Url, err)
+		seelog.Info("Http Error:StatusCode=", resp.StatusCode, ";url=", Url, err)
 		return nil, 0, err
 	}
 	defer resp.Body.Close()

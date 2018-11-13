@@ -98,8 +98,8 @@ func (p *Param) Result(result ...interface{}) {
 	}
 }
 func (p *Param) ST(st *utils.ST, result ...interface{}) {
-	p.Out["code"] = st.Code
-	p.Out["msg"] = st.Msg
+	p.Out["Code"] = st.Code
+	p.Out["Msg"] = st.Msg
 	p.Result(result...)
 }
 func (p *Param) OK(result ...interface{}) {

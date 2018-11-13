@@ -64,7 +64,7 @@ func (ws *WebSp) getTemplateRender(data map[string]interface{}, SpSuffix, loginU
 			if code == 401 {
 				ctx.Redirect(302, loginUrl)
 			} else {
-				seelog.Error("code=", code, ",spName=", spName, ",tplName=", tplName)
+				seelog.Error("Code=", code, ",spName=", spName, ",tplName=", tplName)
 				ctx.HTML(200, strconv.Itoa(code)+"-"+wb.Ua, wb)
 			}
 		}
