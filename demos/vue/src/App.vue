@@ -6,6 +6,7 @@
                     <router-link to="/">首页</router-link>
                     <!--<router-link to="/user/login">登录</router-link>-->
                     <router-link to="/user/register">注册</router-link>
+                    <router-link to="/rule">权限</router-link>
                     <a href="https://www.itgeek.top" target="_blank">ITGeek.top</a>
                     <a href="https://www.itgeek.top/p/goserver" target="_blank">文档</a>
                 </div>

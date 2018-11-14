@@ -28,6 +28,8 @@
 
         <Handle SpSuffix="Ajax" ReloadUrl="/spReload" Url="/sp/:sp"/>
 
+        <Handle SpSuffix="Sys" RuleSp="UserRule" Url="/sys/:sp"/>
+
 
     </Sp>
 

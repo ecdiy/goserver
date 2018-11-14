@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50721
 File Encoding         : 65001
 
-Date: 2018-11-14 11:02:40
+Date: 2018-11-14 13:05:26
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -73,7 +73,7 @@ CREATE TABLE `Token` (
 -- ----------------------------
 -- Records of Token
 -- ----------------------------
-INSERT INTO `Token` VALUES ('11047', 'web', 'c537247730d380dd47ab49c8b766486d', '2018-11-06 12:48:58');
+INSERT INTO `Token` VALUES ('11047', 'web', '57b4d577798e05a16726209ec1917526', '2018-11-14 13:04:57');
 INSERT INTO `Token` VALUES ('11048', 'web', '1a760e15136a02daea0fbb619b6deaad', '2018-11-14 10:50:44');
 
 -- ----------------------------
@@ -119,6 +119,22 @@ BEGIN
 
 	select 1 A,2 B
 	union select 2 A ,3 B;
+
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for TestSys
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `TestSys`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `TestSys`(insp text,ginUserId bigint)
+    COMMENT 'result:map'
+BEGIN
+	#Routine body goes here...
+
+	select insp SpName;
 
 END
 ;;
@@ -255,6 +271,20 @@ BEGIN
 
 	select 0 Code,pToken Token,pId UserId;
 
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for UserRule
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `UserRule`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UserRule`(insp text,ginUserId bigint)
+BEGIN
+	#Routine body goes here...
+	
+	select 1;
 END
 ;;
 DELIMITER ;

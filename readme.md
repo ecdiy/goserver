@@ -36,5 +36,6 @@ goserver 配置文件
   npm run serve
   配置 nginx  demos\demo\vue\admin.conf
   goserver goserver-dev.xml
+  
  
  # QQ群 671735112 讨论GoServer新功能

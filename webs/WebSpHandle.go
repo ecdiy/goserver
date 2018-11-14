@@ -95,7 +95,7 @@ func (sh *SpHandle) Handle(ctx *gin.Context) {
 			ctx.AbortWithStatus(403)
 			return
 		}
-		r, _ := ruleSp.GetInt64(sh.ws.Gpa.Conn, params)
+		r, _ := ruleSp.GetInt64(sh.ws.Gpa.Conn, params...)
 		if r == 0 {
 			ctx.AbortWithStatus(403)
 			return
