@@ -34,7 +34,8 @@ func (ws *WebSp) HandleCaptcha(ele *utils.Element, data map[string]interface{}) 
 }
 
 func (ws *WebSp) Handle(ele *utils.Element, data map[string]interface{}) {
-	spSuffix := ele.MustAttr("SpSuffix")
+	sh := &SpHandle{url: ele.MustAttr("Url"), ws: ws, spSuffix: ele.MustAttr("SpSuffix")}
+
 	if !gin.IsDebugging() {
 		list, err := ws.Gpa.ListArrayString(SqlSpAll)
 		if err != nil {
@@ -43,7 +44,7 @@ func (ws *WebSp) Handle(ele *utils.Element, data map[string]interface{}) {
 			if list != nil {
 				sps := ""
 				for _, val := range list {
-					if strings.LastIndex(val[0], spSuffix) == len(val[0])-len(spSuffix) {
+					if strings.LastIndex(val[0], sh.spSuffix) == len(val[0])-len(sh.spSuffix) {
 						sp, b := ws.NewSp(val)
 						if b {
 							ws.SpCache [sp.Name] = sp
@@ -55,28 +56,57 @@ func (ws *WebSp) Handle(ele *utils.Element, data map[string]interface{}) {
 			}
 		}
 	}
-	url := ele.MustAttr("Url")
-	ws.Engine.POST(url, func(ctx *gin.Context) {
-		defer func() {
-			if err := recover(); err != nil {
-				seelog.Error("sp un catch error;", url, ";", err)
-			}
-		}()
-		spName := ctx.Param("sp") + spSuffix
-		wb := NewParam(ctx)
-		code := ws.SpExec(spName, wb)
-		if code == 200 {
-			ctx.JSON(200, wb.Out)
-		} else {
-			seelog.Error("数据存储过程错误:"+spName, ";", code)
-			ctx.AbortWithStatus(code)
-		}
-	})
+
+	sh.RuleSp, sh.rule = ele.AttrValue("RuleSp")
+
+	ws.Engine.POST(sh.url, sh.Handle)
 	reloadUrl, rExt := ele.AttrValue("ReloadUrl")
 	if rExt {
 		ws.Engine.GET(reloadUrl, func(i *gin.Context) {
 			ws.SpCache = make(map[string]*Sp)
 			i.String(200, "clear cache ok.")
 		})
+	}
+}
+
+type SpHandle struct {
+	rule                  bool
+	url, spSuffix, RuleSp string
+	ws                    *WebSp
+}
+
+func (sh *SpHandle) Handle(ctx *gin.Context) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("sp un catch error;", sh.url, ";", err)
+		}
+	}()
+	spName := ctx.Param("sp") + sh.spSuffix
+	wb := NewParam(ctx)
+	if sh.rule {
+		ruleSp := sh.ws.GetRunSp(sh.RuleSp)
+		if ruleSp == nil {
+			seelog.Error("Rule Sp not exist.", sh.RuleSp)
+			ctx.AbortWithStatus(403)
+			return
+		}
+		params, rCode := sh.ws.GetParams(wb, ruleSp)
+		if rCode != 200 {
+			ctx.AbortWithStatus(403)
+			return
+		}
+		r, _ := ruleSp.GetInt64(sh.ws.Gpa.Conn, params)
+		if r == 0 {
+			ctx.AbortWithStatus(403)
+			return
+		}
+	}
+
+	code := sh.ws.SpExec(spName, wb)
+	if code == 200 {
+		ctx.JSON(200, wb.Out)
+	} else {
+		seelog.Error("数据存储过程错误:"+spName, ";", code)
+		ctx.AbortWithStatus(code)
 	}
 }

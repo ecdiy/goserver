@@ -25,6 +25,11 @@ type SpParam struct {
 type ParamValFunc func(ctx *Param, p *SpParam) (interface{}, int)
 
 func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface{}) error {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("sp Run fail;", sp.Sql, err)
+		}
+	}()
 	rows, err := Conn.Query(sp.Sql, params...)
 	defer rows.Close()
 	if err != nil {
@@ -58,7 +63,7 @@ func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface
 			} else {
 				data[sp.Result[node].Name] = 0
 			}
-		} else if r.Type == "string" || r.Type == "s" {
+		} else if r.Type == "string" {
 			if rows.Next() {
 				var r sql.NullString
 				rows.Scan(&r)
@@ -73,5 +78,25 @@ func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface
 			break
 		}
 	}
+
 	return nil
+}
+func (sp *Sp) GetInt64(Conn *sql.DB, params ...interface{}) (int64, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("sp query int64 error;", sp.Sql, err)
+		}
+	}()
+	rows, err := Conn.Query(sp.Sql, params...)
+	defer rows.Close()
+	if err != nil {
+		seelog.Error("调用存储过程出错了.", sp.Sql, params, "\n\t", err)
+		return 0, err
+	}
+	if rows.Next() {
+		var r sql.NullInt64
+		rows.Scan(&r)
+		return r.Int64, nil
+	}
+	return 0, nil
 }

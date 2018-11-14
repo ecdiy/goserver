@@ -93,14 +93,7 @@ func (ws *WebSp) NewSpByName(spName string) (*Sp, bool) {
 	}
 	return ws.NewSp(info)
 }
-
-func (ws *WebSp) SpExec(spName string, param *Param) int {
-	defer func() {
-		if err := recover(); err != nil {
-			seelog.Error("SP do fail: spName=", spName, ";\n\tparam=", param, "\n\t", err)
-			delete(ws.SpCache, spName)
-		}
-	}()
+func (ws *WebSp) GetRunSp(spName string) *Sp {
 	var sp *Sp
 	var ext bool
 	if utils.EnvIsDev {
@@ -115,6 +108,19 @@ func (ws *WebSp) SpExec(spName string, param *Param) int {
 		}
 	}
 	if !ext {
+		return nil
+	}
+	return sp
+}
+func (ws *WebSp) SpExec(spName string, param *Param) int {
+	defer func() {
+		if err := recover(); err != nil {
+			seelog.Error("SP do fail: spName=", spName, ";\n\tparam=", param, "\n\t", err)
+			delete(ws.SpCache, spName)
+		}
+	}()
+	sp := ws.GetRunSp(spName)
+	if sp == nil {
 		return 404
 	}
 	params, code := ws.GetParams(param, sp)
