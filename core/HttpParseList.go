@@ -1,4 +1,4 @@
-package xtools
+package core
 
 import (
 	"reflect"
@@ -8,7 +8,14 @@ import (
 	"github.com/ecdiy/goserver/gpa"
 	"strconv"
 	"github.com/ecdiy/goserver/utils"
+	"github.com/ecdiy/goserver/webs"
 )
+
+func (we *HttpCore) parseList(ele *utils.Element, param *webs.Param) error {
+	fd := &FmtData{Dao: getGpa(ele)}
+	fd.Spit(ele, we.html)
+	return nil
+}
 
 type FmtData struct {
 	items []string

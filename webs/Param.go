@@ -18,10 +18,6 @@ type Param struct {
 	Context         *gin.Context
 }
 
-//func (p *Param) Username() string {
-//	return fmt.Sprint(p.Auth["Username"])
-//}
-
 func (p *Param) Print() {
 	for k, v := range p.Context.Request.PostForm {
 		seelog.Info("post from:", k, v)

@@ -6,19 +6,7 @@ import (
 	"github.com/ecdiy/goserver/webs"
 	"reflect"
 	"github.com/cihub/seelog"
-	"strings"
 )
-
-func (app *Module) WebExec(ele *utils.Element) {
-	we := &WebExec{ele: ele}
-	we.webExec = reflect.ValueOf(we)
-	method, mb := ele.AttrValue("Method")
-	if mb && strings.ToLower(method) == "post" {
-		getGin(ele).POST(ele.MustAttr("Url"), we.run)
-	} else {
-		getGin(ele).GET(ele.MustAttr("Url"), we.run)
-	}
-}
 
 type WebExec struct {
 	ele     *utils.Element
@@ -32,6 +20,15 @@ func (we *WebExec) run(ctx *gin.Context) {
 		}
 	}()
 	wb := webs.NewParam(ctx)
+	we.exec(wb)
+	ctx.JSON(200, wb.Out)
+}
+
+func (we *WebExec) job() {
+	we.exec(&webs.Param{Out: make(map[string]interface{}), Param: make(map[string]interface{})})
+}
+
+func (we *WebExec) exec(wb *webs.Param) {
 	ns := we.ele.AllNodes()
 	for _, n := range ns {
 		inputs := make([]reflect.Value, 2)
@@ -45,13 +42,13 @@ func (we *WebExec) run(ctx *gin.Context) {
 			} else {
 				wb.Out["Code"] = 1
 				wb.Out["Msg"] = v[0].Interface().(error).Error()
-				break
+				return
 			}
 		} else {
-			panic("没有实现的方法:" + n.Name())
+			seelog.Error("没有实现的方法:" + n.Name())
+			return
 		}
 	}
-	ctx.JSON(200, wb.Out)
 }
 
 //----
@@ -66,4 +63,9 @@ func (we *WebExec) ExecSp(ele *utils.Element, wb *webs.Param) error {
 	spName := ele.MustAttr("SpName")
 	sp.SpExec(spName, wb)
 	return nil
+}
+
+func (we *WebExec) Sql(ele *utils.Element, wb *webs.Param) {
+	dao := getGpa(ele)
+	dao.Exec(ele.Value)
 }
