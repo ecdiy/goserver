@@ -14,7 +14,7 @@ var data = make(map[string]interface{}) //xml 对象保存
 var initAfterFun []func()               //xml 分析完后的回调函数
 
 func StartCore() {
-	seelog.Info("version: 0.0.5")
+	seelog.Info("version: 0.1")
 	defer func() {
 		seelog.Flush()
 		if err := recover(); err != nil {
