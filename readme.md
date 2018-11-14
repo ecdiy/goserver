@@ -28,5 +28,13 @@ goserver 配置文件
 * 前后端分离
 * 接口
 * 大量的SQL操作
+
+# 示例说明
+* 导入SQL： demos\goserver.sql
+* vue : 
+  npm install
+  npm run serve
+  配置 nginx  demos\demo\vue\admin.conf
+  goserver goserver-dev.xml
  
  # QQ群 671735112 讨论GoServer新功能

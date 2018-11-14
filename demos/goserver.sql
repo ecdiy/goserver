@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50721
 File Encoding         : 65001
 
-Date: 2018-11-07 13:30:05
+Date: 2018-11-14 11:02:40
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -23,20 +23,16 @@ CREATE TABLE `GkUser` (
   `Id` bigint(20) NOT NULL AUTO_INCREMENT,
   `Username` varchar(64) NOT NULL COMMENT '用户名',
   `Password` varchar(64) NOT NULL,
-  `Email` varchar(64) NOT NULL COMMENT '邮箱',
-  `Mobile` varchar(16) DEFAULT NULL COMMENT '手机号',
-  `Weixin` varchar(160) DEFAULT NULL COMMENT '微信',
-  `CreateAt` datetime NOT NULL COMMENT '注册时间',
   `PasswordError` int(11) DEFAULT '0',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `Email` (`Email`) USING BTREE,
   UNIQUE KEY `Username` (`Username`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=11048 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=11049 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of GkUser
 -- ----------------------------
-INSERT INTO `GkUser` VALUES ('11047', 'test', 'test', 'a', 'a', 'a', '2018-11-05 22:15:56', '0');
+INSERT INTO `GkUser` VALUES ('11047', 'test', 'test', '0');
+INSERT INTO `GkUser` VALUES ('11048', 'rewrew', '89e12ff9a15a0027561bdf989e8e1388', '0');
 
 -- ----------------------------
 -- Table structure for Project
@@ -55,7 +51,7 @@ CREATE TABLE `Project` (
   `UserId` bigint(20) DEFAULT '0',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `HomeUrl` (`HomeUrl`)
-) ENGINE=InnoDB AUTO_INCREMENT=324 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of Project
@@ -78,6 +74,7 @@ CREATE TABLE `Token` (
 -- Records of Token
 -- ----------------------------
 INSERT INTO `Token` VALUES ('11047', 'web', 'c537247730d380dd47ab49c8b766486d', '2018-11-06 12:48:58');
+INSERT INTO `Token` VALUES ('11048', 'web', '1a760e15136a02daea0fbb619b6deaad', '2018-11-14 10:50:44');
 
 -- ----------------------------
 -- Procedure structure for GetMailAjax
@@ -122,6 +119,22 @@ BEGIN
 
 	select 1 A,2 B
 	union select 2 A ,3 B;
+
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for UserListAjax
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `UserListAjax`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UserListAjax`()
+    COMMENT 'list:list,total:int'
+BEGIN
+
+	SELECT * from GkUser;
+	select count(*) from GkUser;
 
 END
 ;;
@@ -201,6 +214,46 @@ BEGIN
 		update GkUser Set PasswordError=PasswordError+1 where Id=pId and PasswordError<4;
 		select 3 code,'密码错误' msg;
 	end if;
+
+END
+;;
+DELIMITER ;
+
+-- ----------------------------
+-- Procedure structure for UserRegister
+-- ----------------------------
+DROP PROCEDURE IF EXISTS `UserRegister`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UserRegister`(inPassword varchar(32),inUsername varchar(64),ua varchar(8))
+    COMMENT 'result:map'
+proc:
+BEGIN
+	DECLARE pExt int DEFAULT 0;
+	DECLARE pId bigint;
+	DECLARE pToken VARCHAR(64);
+	
+	if LENGTH(inUsername)<5 or LENGTH(inPassword)<6   then
+		select 1 Code,'参数错误' msg;
+		LEAVE proc;
+	end if;
+
+	select count(*) into pExt from `GkUser` where Username=inUsername;
+	if pExt>0 THEN
+		select 1000 Code,'用户名已存在' msg;
+		LEAVE proc;
+	end if;
+
+ 
+	insert into GkUser(Username,Password,PasswordError) 			VALUES (inUsername, inPassword,0);
+
+	set pId=@@IDENTITY;
+	set pToken=md5(CONCAT(pId,inUsername,now()));
+	update GkUser set `Password`=md5(CONCAT(pId,',',inPassword)) where Username=inUsername;
+ 
+	INSERT INTO `Token` (`UserId`, `Ua`,`Token`,`CreateAt`) VALUES (pId,ua,pToken,now());
+
+
+	select 0 Code,pToken Token,pId UserId;
 
 END
 ;;

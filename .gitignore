@@ -1,3 +1,4 @@
 /gpa/*.iml
 /*.iml
 /demos/demo/*.exe
+/demos/vue/node_modules
