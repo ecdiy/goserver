@@ -41,7 +41,10 @@ func (we *WebExec) exec(wb *webs.Param) {
 				continue
 			} else {
 				wb.Out["Code"] = 1
-				wb.Out["Msg"] = v[0].Interface().(error).Error()
+				if len(v) >= 1 {
+					wb.Out["Msg"] = v[0].Interface().(error).Error()
+				}
+				seelog.Error("error on.", n.Name())
 				return
 			}
 		} else {
@@ -61,7 +64,17 @@ func (we *WebExec) ExecSp(ele *utils.Element, wb *webs.Param) error {
 	sp := &webs.WebSp{Gpa: getGpa(ele)}
 	sp.Init()
 	spName := ele.MustAttr("SpName")
-	sp.SpExec(spName, wb)
+	code := sp.SpExec(spName, wb)
+	if code != 200 {
+		seelog.Error("", spName)
+	}
+	return nil
+}
+
+func (we *WebExec) Param(ele *utils.Element, wb *webs.Param) error {
+	for _, attr := range ele.Attrs {
+		wb.Param[attr.Name()] = attr.Value
+	}
 	return nil
 }
 

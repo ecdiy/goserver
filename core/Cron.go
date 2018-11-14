@@ -15,6 +15,10 @@ func (app *Module) Cron(ele *utils.Element) {
 		spec, spb := n.AttrValue("Spec")
 		if spb {
 			cron.AddFunc(spec, job.job)
+			in := ele.Attr("Init", "0")
+			if in == "1" {
+				job.job()
+			}
 		} else {
 			job.job()
 		}

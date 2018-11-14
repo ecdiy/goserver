@@ -16,9 +16,9 @@ var initAfterFun []func()               //xml 分析完后的回调函数
 func StartCore() {
 	seelog.Info("version: 0.1")
 	defer func() {
-		seelog.Flush()
 		if err := recover(); err != nil {
-			seelog.Error("sp un catch error;", err)
+			seelog.Flush()
+			seelog.Error("un catch error;", err)
 			panic(err)
 		}
 	}()

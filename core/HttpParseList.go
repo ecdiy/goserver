@@ -12,8 +12,26 @@ import (
 )
 
 func (we *HttpCore) parseList(ele *utils.Element, param *webs.Param) error {
+	Begin := ele.Node("Begin")
+	html := we.html
+	if Begin != nil {
+		ind := strings.Index(html, Begin.Value)
+		if ind < 0 {
+			seelog.Error("内容没有开始（Begin）标记")
+			return nil
+		}
+		html = html[ind:]
+	}
+	End := ele.Node("End")
+	if End != nil {
+		ind := strings.Index(html, End.Value)
+		if ind < 0 {
+			seelog.Error("内容没有开始（End）标记:", End.Value, html)
+			return nil
+		}
+	}
 	fd := &FmtData{Dao: getGpa(ele)}
-	fd.Spit(ele, we.html)
+	fd.Spit(ele, html, param)
 	return nil
 }
 
@@ -22,12 +40,21 @@ type FmtData struct {
 	Dao   *gpa.Gpa
 }
 
-func (fd *FmtData) Spit(ele *utils.Element, html string) {
-	Spit, SpitExt := ele.AttrValue("SpitString")
-	if SpitExt {
-		fd.items = strings.Split(html, Spit)
+func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
+	Spit := ele.Node("SpitString")
+	if Spit == nil {
+		seelog.Error("<SpitString>没有设置")
+		return
 	}
+	fd.items = strings.Split(html, Spit.Value)
+
 	if fd.items != nil {
+		Param := ele.Node("Param")
+		Sp, spExt := Param.AttrValue("Sp")
+
+		sp := &webs.WebSp{Gpa: getGpa(ele)}
+		sp.Init()
+
 		ItemInclude, ItemIncludeExt := ele.AttrValue("ItemInclude")
 		for _, it := range fd.items {
 			if ItemIncludeExt {
@@ -35,21 +62,33 @@ func (fd *FmtData) Spit(ele *utils.Element, html string) {
 					continue
 				}
 			}
-			val := fd.getParam(it, ele.Node("Param"))
-			if len(val) > 1 {
-				fd.save(ele, val)
+			val := fd.getParam(it, Param)
+			if spExt && len(val) > 0 {
+				wb := &webs.Param{Out: make(map[string]interface{}), Param: val}
+				for k, v := range param.Param {
+					wb.Param[k] = v
+				}
+				code := sp.SpExec(Sp, wb)
+				if code != 200 {
+					seelog.Error("~~", Sp, wb)
+				}
 			}
+			//else {
+			//	if len(val) > 1 {
+			//		fd.save(ele, val)
+			//	}
+			//}
 		}
 	}
-	if len(fd.items) == 1 {
-		//seelog.Warn("?spider error?")
-		//ioutil.WriteFile("", []byte(html), 066)
-	}
-	seelog.Info("items count:", len(fd.items))
+	//if len(fd.items) == 1 {
+	//seelog.Warn("?spider error?")
+	//ioutil.WriteFile("", []byte(html), 066)
+	//}
+	//seelog.Info("items count:", len(fd.items))
 }
 
-func (fd *FmtData) getParam(html string, param *utils.Element) map[string]string {
-	res := make(map[string]string)
+func (fd *FmtData) getParam(html string, param *utils.Element) map[string]interface{} {
+	res := make(map[string]interface{})
 	ns := param.AllNodes()
 	for _, n := range ns {
 		regTxt := strings.TrimSpace(n.Value)
@@ -72,9 +111,15 @@ func (fd *FmtData) getParam(html string, param *utils.Element) map[string]string
 					}
 					if len(gs[0]) > ni && ni > 0 {
 						res[ns[i]] = gs[0][ni]
+					} else {
+						return nil
 					}
 				}
+			} else {
+				return nil
 			}
+		}else {
+			return nil
 		}
 	}
 	return res
