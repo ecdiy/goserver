@@ -37,5 +37,13 @@ goserver 配置文件
   配置 nginx  demos\demo\vue\admin.conf
   goserver goserver-dev.xml
   
+ # 最佳实践
+ * 网站开发，APP接口
+ * 爬虫 格式化数据 示例: https://www.itgeek.top/p/goserver/27 
+ 
+    
+ ITGeek.top 所有后台为5个goserver实例，前台为nuxt.js。
+ 
+  
  
  # QQ群 671735112 讨论GoServer新功能

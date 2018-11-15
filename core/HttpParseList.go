@@ -133,7 +133,7 @@ func (fd *FmtData) getParam(html string, param *utils.Element) (map[string]inter
 					}
 				}
 			} else {
-				seelog.Warn("配置错误，长度不匹配:", Name, " ~~ ", Index)
+				//seelog.Warn("配置错误，长度不匹配:", Name, " ~~ ", Index)
 				return nil
 			}
 		} else {
