@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"github.com/ecdiy/goserver/utils"
 	"github.com/ecdiy/goserver/webs"
+	"fmt"
 )
 
 func (we *HttpCore) parseList(ele *utils.Element, param *webs.Param) error {
@@ -114,6 +115,7 @@ func (fd *FmtData) getParam(html string, param *utils.Element) (map[string]inter
 			Index := n.MustAttr("Index")
 			ns := strings.Split(Name, ",")
 			is := strings.Split(Index, ",")
+			Sprintf, sfb := n.AttrValue("Sprintf")
 			if len(ns) == len(is) && len(gs[0]) > len(ns) {
 				for i := 0; i < len(ns); i++ {
 					ni, _ := strconv.Atoi(is[i])
@@ -121,13 +123,17 @@ func (fd *FmtData) getParam(html string, param *utils.Element) (map[string]inter
 						ni = len(gs[0]) + ni
 					}
 					if len(gs[0]) > ni && ni > 0 {
-						res[ns[i]] = gs[0][ni]
+						if sfb {
+							res[ns[i]] = fmt.Sprintf(Sprintf, gs[0][ni])
+						} else {
+							res[ns[i]] = gs[0][ni]
+						}
 					} else {
 						return nil
 					}
 				}
 			} else {
-				//seelog.Warn()
+				seelog.Warn("配置错误，长度不匹配:", Name, " ~~ ", Index)
 				return nil
 			}
 		} else {
