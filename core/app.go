@@ -13,6 +13,8 @@ var app = reflect.ValueOf(new(Module))
 var data = make(map[string]interface{}) //xml 对象保存
 var initAfterFun []func()               //xml 分析完后的回调函数
 
+var ElementMap = make(map[string]*utils.Element)
+
 func StartCore() {
 	seelog.Info("version: 0.1")
 	defer func() {

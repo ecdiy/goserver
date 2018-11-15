@@ -23,7 +23,10 @@ func (app *Module) Include(ele *utils.Element) {
 }
 
 func (app *Module) Map(ele *utils.Element) {
-	seelog.Info("TODO")
+	ms := ele.AllNodes()
+	for _, m := range ms {
+		ElementMap[m.MustAttr("Id")] = m
+	}
 }
 
 func (app *Module) Parameter(ele *utils.Element) {
@@ -32,7 +35,6 @@ func (app *Module) Parameter(ele *utils.Element) {
 		utils.EnvParamSet(p.Name(), p.Value)
 	}
 }
-
 func (app *Module) Gpa(ele *utils.Element) {
 	dsn, b := ele.AttrValue("DbDsn")
 	if b && len(dsn) > 0 {

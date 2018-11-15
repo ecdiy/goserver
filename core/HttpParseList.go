@@ -36,8 +36,9 @@ func (we *HttpCore) parseList(ele *utils.Element, param *webs.Param) error {
 }
 
 type FmtData struct {
-	items []string
-	Dao   *gpa.Gpa
+	items    []string
+	Dao      *gpa.Gpa
+	ErrorReg string
 }
 
 func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
@@ -57,6 +58,9 @@ func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
 
 		ItemInclude, ItemIncludeExt := ele.AttrValue("ItemInclude")
 		//for _, it := range fd.items {
+		//errRes:=""
+		saveNode := 0
+		errorNode := 0
 		for i := len(fd.items) - 1; i >= 0; i-- {
 			it := fd.items[i]
 			if ItemIncludeExt {
@@ -70,8 +74,10 @@ func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
 				for k, v := range param.Param {
 					wb.Param[k] = v
 				}
+				saveNode++
 				code := sp.SpExec(Sp, wb)
 				if code != 200 {
+					errorNode++
 					seelog.Error("~~", Sp, wb)
 				}
 			}
@@ -81,18 +87,20 @@ func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
 			//	}
 			//}
 		}
+		if saveNode == 0 {
+			seelog.Error("没在匹配到数据.出错表达式:", fd.ErrorReg, "\n\t", param.Param)
+		}
 	}
-	//if len(fd.items) == 1 {
-	//seelog.Warn("?spider error?")
-	//ioutil.WriteFile("", []byte(html), 066)
-	//}
-	//seelog.Info("items count:", len(fd.items))
 }
 
-func (fd *FmtData) getParam(html string, param *utils.Element) map[string]interface{} {
+func (fd *FmtData) getParam(html string, param *utils.Element) (map[string]interface{}) {
 	res := make(map[string]interface{})
 	ns := param.AllNodes()
 	for _, n := range ns {
+		if n.Name() == "Ref" {
+			n = ElementMap[n.MustAttr("Id")]
+		}
+
 		regTxt := strings.TrimSpace(n.Value)
 		if len(regTxt) < 1 {
 			seelog.Error("没有设置正则表达式", n.ToString())
@@ -122,7 +130,7 @@ func (fd *FmtData) getParam(html string, param *utils.Element) map[string]interf
 				return nil
 			}
 		} else {
-			seelog.Warn("not find:", regTxt)
+			fd.ErrorReg = regTxt
 			return nil
 		}
 	}
