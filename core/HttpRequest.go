@@ -23,6 +23,7 @@ func (we *HttpCore) DoHttp(ele *utils.Element, param *webs.Param) error {
 				GetUrl = strings.Replace(GetUrl, "${"+p+"}", param.String(p), -1)
 			}
 		}
+		seelog.Info("GetUrl:", GetUrl)
 		html, e := http.Get(GetUrl)
 		if e == nil {
 			return we.parseHtml(html, ele, param)
@@ -32,6 +33,7 @@ func (we *HttpCore) DoHttp(ele *utils.Element, param *webs.Param) error {
 		}
 	} else {
 		//TODO　POST
+		seelog.Warn("没有GetUrl，POST?")
 	}
 	return nil
 }

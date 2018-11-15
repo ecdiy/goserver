@@ -43,25 +43,28 @@ func (p *Param) String(n string) string {
 	if vb {
 		return fmt.Sprint(v)
 	}
-	vx := p.Context.GetHeader(n)
-	if vx != "" {
-		return vx
-	}
-	sut, e := p.Context.Cookie(n)
-	if e == nil && len(sut) > 0 {
-		return sut
-	}
-	v2 := p.Context.Param(n)
-	if v2 == "" {
-		v2 = p.Context.PostForm(n)
+	if p.Context != nil {
+		vx := p.Context.GetHeader(n)
+		if vx != "" {
+			return vx
+		}
+		sut, e := p.Context.Cookie(n)
+		if e == nil && len(sut) > 0 {
+			return sut
+		}
+		v2 := p.Context.Param(n)
 		if v2 == "" {
-			v2 = p.Context.Query(n)
+			v2 = p.Context.PostForm(n)
 			if v2 == "" {
-				v2, _ = p.Context.GetQuery(n)
+				v2 = p.Context.Query(n)
+				if v2 == "" {
+					v2, _ = p.Context.GetQuery(n)
+				}
 			}
 		}
+		return v2
 	}
-	return v2
+	return ""
 }
 
 func (p *Param) Int64(n string) int64 {

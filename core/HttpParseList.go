@@ -17,7 +17,7 @@ func (we *HttpCore) parseList(ele *utils.Element, param *webs.Param) error {
 	if Begin != nil {
 		ind := strings.Index(html, Begin.Value)
 		if ind < 0 {
-			seelog.Error("内容没有开始（Begin）标记")
+			seelog.Error("内容没有开始（Begin）标记", Begin.Value)
 			return nil
 		}
 		html = html[ind:]
@@ -88,7 +88,9 @@ func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
 			//}
 		}
 		if saveNode == 0 {
-			seelog.Error("没在匹配到数据.出错表达式:", fd.ErrorReg, "\n\t", param.Param)
+			seelog.Error("没在匹配到数据.出错正则表达式:", fd.ErrorReg, "\n\t", param.Param)
+		} else {
+			seelog.Info("save node=", saveNode, ";spit length=", len(fd.items), ";最后没有匹配的正则表达式", fd.ErrorReg)
 		}
 	}
 }
@@ -100,7 +102,6 @@ func (fd *FmtData) getParam(html string, param *utils.Element) (map[string]inter
 		if n.Name() == "Ref" {
 			n = ElementMap[n.MustAttr("Id")]
 		}
-
 		regTxt := strings.TrimSpace(n.Value)
 		if len(regTxt) < 1 {
 			seelog.Error("没有设置正则表达式", n.ToString())

@@ -9,21 +9,18 @@ import (
 
 func (app *Module) Cron(ele *utils.Element) {
 	cron := cron.New()
-	ns := ele.AllNodes()
-	for _, n := range ns {
-		job := &WebExec{ele: ele}
-		job.webExec = reflect.ValueOf(job)
-		spec, spb := n.AttrValue("Spec")
-		if spb && len(spec) > 1 {
-			seelog.Info("Add Job:", spec)
-			cron.AddFunc(spec, job.job)
-			in := ele.Attr("Init", "0")
-			if in == "1" {
-				job.job()
-			}
-		} else {
+	job := &WebExec{ele: ele}
+	job.webExec = reflect.ValueOf(job)
+	spec, spb := ele.AttrValue("Spec")
+	if spb && len(spec) > 1 {
+		seelog.Info("Add Job:", spec)
+		cron.AddFunc(spec, job.job)
+		in := ele.Attr("Init", "0")
+		if in == "1" {
 			job.job()
 		}
+	} else {
+		job.job()
 	}
 	cron.Start()
 }
