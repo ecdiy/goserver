@@ -56,7 +56,9 @@ func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
 		sp.Init()
 
 		ItemInclude, ItemIncludeExt := ele.AttrValue("ItemInclude")
-		for _, it := range fd.items {
+		//for _, it := range fd.items {
+		for i := len(fd.items) - 1; i >= 0; i-- {
+			it := fd.items[i]
 			if ItemIncludeExt {
 				if strings.Index(it, ItemInclude) < 0 {
 					continue
@@ -116,9 +118,11 @@ func (fd *FmtData) getParam(html string, param *utils.Element) map[string]interf
 					}
 				}
 			} else {
+				//seelog.Warn()
 				return nil
 			}
-		}else {
+		} else {
+			seelog.Warn("not find:", regTxt)
 			return nil
 		}
 	}
