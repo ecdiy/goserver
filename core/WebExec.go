@@ -25,6 +25,7 @@ func (we *WebExec) run(ctx *gin.Context) {
 }
 
 func (we *WebExec) job() {
+	seelog.Info("Run Job ... ")
 	we.exec(&webs.Param{Out: make(map[string]interface{}), Param: make(map[string]interface{})})
 }
 
