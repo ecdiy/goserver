@@ -25,25 +25,26 @@ goserver 配置文件
 
 # 本项目适合人群
 * 想快速开发
-* 前后端分离
-* 接口
+* 前后端分离 
+* 网站开发 (nuxt.js/vue+json数据请求接口)
+* JSON接口  (APP开发)
 * 大量的SQL操作
+* 定时任务+爬虫 格式化数据 示例: https://www.itgeek.top/p/goserver/27 
 
 # 示例说明
 * 导入SQL： demos\goserver.sql
 * vue : 
+
   npm install
+  
   npm run serve
-  配置 nginx  demos\demo\vue\admin.conf
-  goserver goserver-dev.xml
   
- # 最佳实践
- * 网站开发，APP接口
- * 爬虫 格式化数据 示例: https://www.itgeek.top/p/goserver/27 
- 
-    
- ITGeek.top 所有后台为5个goserver实例，前台为nuxt.js。
- 
+* 配置 nginx  demos\demo\vue\admin.conf
   
- 
- # QQ群 671735112 讨论GoServer新功能
+* goserver goserver-dev.xml
+  
+# 谁在使用     
+* ITGeek.top 所有后台为5个goserver实例，前台为nuxt.js。
+* 加QQ群671735112，提交你的作品，讨论GoServer新功能 
+ ....
+   
