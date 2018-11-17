@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"encoding/json"
-	"os"
 	"github.com/ecdiy/goserver/webs"
 )
 
@@ -71,23 +70,15 @@ func (au *AppUpdater) initApp() {
 		e := json.Unmarshal(conf, &m)
 		if e == nil {
 			ver := fmt.Sprint(m["jsVersion"])
-			zipF := au.AppsDir + "/" + ver + ".zip"
-			_, e := os.Stat(zipF)
-			if os.IsNotExist(e) {
-				seelog.Info("!!not exist.", zipF)
-				bf, _ := ioutil.ReadFile(au.AppsDir + "/bundle.zip")
-				ioutil.WriteFile(zipF, bf, 0644)
-			} else {
-				seelog.Info("exist zip file.", zipF)
-			}
 			au.LastVersion = ver
+			seelog.Info("App Version:", ver)
 			return
 		} else {
 			seelog.Error("", e.Error())
 			return
 		}
 	} else {
-		seelog.Error("文件错误：", file, e)
+		seelog.Error("EROS文件错误：", file, e)
 		return
 	}
 }
