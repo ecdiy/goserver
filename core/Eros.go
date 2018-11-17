@@ -1,11 +1,5 @@
 package core
 
-/**
-
-<Eros AppDir="D:\apps\geek\app\platforms\android\WeexFrameworkWrapper\app\src\main\assets" Prefix="http://www.itgeek.top/appassets/">
-</Eros>
-
- */
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ecdiy/goserver/utils"
@@ -43,13 +37,11 @@ func (au *AppUpdater) Check(c *gin.Context) {
 			o["resCode"] = 4000
 			o["msg"] = "当前版本已是最新，不需要更新"
 		} else {
-			seelog.Info("update...,feq Ver=", jsVersion)
 			o["resCode"] = 0
 			o["msg"] = "需要更新"
 			o["data"] = map[string]interface{}{
-				"diff":      false,
-				"jsVersion": au.LastVersion,
-				"path":      au.Prefix + au.LastVersion + ".zip"}
+				"diff": false, "jsVersion": au.LastVersion,
+				"path": au.Prefix + au.LastVersion + ".zip"}
 		}
 		c.JSON(200, o)
 		return
