@@ -1,17 +1,24 @@
-package webs
+package core
 
 import (
-	"github.com/yuin/gopher-lua"
 	"github.com/ecdiy/goserver/utils"
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"github.com/cihub/seelog"
-	"encoding/json"
-	//"github.com/layeh/gopher-luar"
-	"github.com/ecdiy/goserver/utils/luar"
-	"github.com/ecdiy/goserver/gpa"
+	"github.com/gin-gonic/gin"
 	"strings"
+	"github.com/yuin/gopher-lua"
+	"github.com/ecdiy/goserver/gpa"
+	"github.com/ecdiy/goserver/webs"
+	"encoding/json"
+	"github.com/ecdiy/goserver/utils/luar"
 )
+
+func (app *Module) Lua(ele *utils.Element) {
+	sl := &SpLua{uri: ele.MustAttr("Url"), Gpa: getGpa(ele), IsDev: utils.EnvIsDev,
+		ContentType: ele.Attr("ContentType", "application/json; charset=utf-8"),
+		LuaScriptMap: make(map[string]string), LuaScriptDir: ele.MustAttr("Dir")}
+	getGin(ele).NoRoute(sl.DoWebContext)
+}
 
 type SpLua struct {
 	IsDev                          bool
@@ -45,7 +52,7 @@ func (sl *SpLua) DoWebContext(ctx *gin.Context) {
 		ctx.Header("Content-Type", sl.ContentType)
 		script, ext := sl.GetLuaScript(path)
 		if ext {
-			p := NewParam(ctx)
+			p := webs.NewParam(ctx)
 			L := lua.NewState()
 			defer L.Close()
 			sl.LuaFun(L, p)
@@ -63,13 +70,6 @@ func (sl *SpLua) DoWebContext(ctx *gin.Context) {
 			}
 		}
 	}
-}
-
-func (ws *WebSp) Lua(ele *utils.Element, data map[string]interface{}) {
-	sl := &SpLua{uri: ele.MustAttr("Url"), Gpa: ws.Gpa, IsDev: utils.EnvIsDev,
-		ContentType: ele.Attr("ContentType", "application/json; charset=utf-8"),
-		LuaScriptMap: make(map[string]string), LuaScriptDir: ele.MustAttr("Dir")}
-	ws.Engine.NoRoute(sl.DoWebContext)
 }
 
 func luaConvertLValueToInterface(value2 lua.LValue) interface{} {
@@ -99,7 +99,7 @@ func luaConvertTableToMap(lv lua.LValue) map[string]interface{} {
 	return m
 }
 
-func (sl *SpLua) LuaFun(L *lua.LState, param *Param) {
+func (sl *SpLua) LuaFun(L *lua.LState, param *webs.Param) {
 
 	L.SetGlobal("db", luar.New(L, sl.Gpa))
 
