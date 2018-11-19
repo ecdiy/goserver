@@ -30,6 +30,8 @@
 
         <Handle SpSuffix="Sys" RuleSp="UserRule" Url="/sys/:sp"/>
 
+        <Lua Url="/lua" Dir="C:\gopath\src\github.com\ecdiy\goserver\demos\vue\lua"
+             ContentType="application/json; charset=utf-8"/>
 
     </Sp>
 
