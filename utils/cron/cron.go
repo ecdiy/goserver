@@ -5,6 +5,7 @@ package cron
 import (
 	"sort"
 	"time"
+	"github.com/cihub/seelog"
 )
 
 // 删除job的检查函数，返回true则删除
@@ -41,14 +42,14 @@ type Entry struct {
 
 	// The next time the job will run. This is the zero time if Cron has not been
 	// started or this entry's schedule is unsatisfiable
-	Next     time.Time
+	Next time.Time
 
 	// The last time this job was run. This is the zero time if the job has never
 	// been run.
-	Prev     time.Time
+	Prev time.Time
 
 	// The Job to run.
-	Job      Job
+	Job Job
 }
 
 // byTime is a wrapper for sorting the entry array by time
@@ -130,12 +131,13 @@ func (c *Cron) RemoveAll() {
 }
 func (c *Cron) Remove(i int) bool {
 	if len(c.entries) > i {
-		c.entries = append(c.entries[:i], c.entries[i + 1:]...)
+		c.entries = append(c.entries[:i], c.entries[i+1:]...)
 		return true
 	} else {
 		return false
 	}
 }
+
 // Entries returns a snapshot of the cron entries.
 func (c *Cron) Entries() []*Entry {
 	if c.running {
@@ -148,8 +150,13 @@ func (c *Cron) Entries() []*Entry {
 
 // Start the cron scheduler in its own go-routine.
 func (c *Cron) Start() {
-	c.running = true
-	go c.run()
+	if len(c.entries) > 0 {
+		seelog.Info("job number:", len(c.entries))
+		c.running = true
+		go c.run()
+	} else {
+		seelog.Warn("no job start.")
+	}
 }
 
 // Run the scheduler.. this is private just due to the need to synchronize
@@ -176,7 +183,7 @@ func (c *Cron) run() {
 
 		select {
 		case now = <-time.After(effective.Sub(now)):
-		// Run every entry whose next time was this effective time.
+			// Run every entry whose next time was this effective time.
 			for _, e := range c.entries {
 				if e.Next != effective {
 					break

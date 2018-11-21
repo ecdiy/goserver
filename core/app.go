@@ -7,16 +7,17 @@ import (
 	"strings"
 	"github.com/ecdiy/goserver/utils"
 	"github.com/gpmgo/gopm/modules/log"
+	"github.com/ecdiy/goserver/utils/cron"
 )
 
 var app = reflect.ValueOf(new(Module))
 var data = make(map[string]interface{}) //xml 对象保存
 var initAfterFun []func()               //xml 分析完后的回调函数
-
+var AppCron *cron.Cron
 var ElementMap = make(map[string]*utils.Element)
 
 func StartCore() {
-	seelog.Info("version: 0.2")
+	seelog.Info("version: 0.3")
 	defer func() {
 		if err := recover(); err != nil {
 			seelog.Flush()
@@ -36,11 +37,6 @@ func StartCore() {
 	dom, err := utils.LoadByFile(os.Args[1])
 	if err == nil {
 		InvokeByXml(dom)
-		if len(initAfterFun) > 0 {
-			for _, fun := range initAfterFun {
-				fun()
-			}
-		}
 	} else {
 		seelog.Error("读取配置文件出错:", os.Args[1], ",", err)
 		return
@@ -48,6 +44,7 @@ func StartCore() {
 }
 
 func InvokeByXml(ecXml *utils.Element) {
+	AppCron = cron.New()
 	ns := ""
 	defer func() {
 		seelog.Info("analysis element:", ns, "\n\tdata:", data)
@@ -72,4 +69,11 @@ func InvokeByXml(ecXml *utils.Element) {
 			panic("没有实现的方法:" + n.Name())
 		}
 	}
+
+	if len(initAfterFun) > 0 {
+		for _, fun := range initAfterFun {
+			fun()
+		}
+	}
+	AppCron.Start()
 }

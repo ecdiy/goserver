@@ -8,7 +8,7 @@ import (
 )
 
 func (app *Module) Cron(ele *utils.Element) {
-	cron := cron.New()
+
 	job := &WebExec{ele: ele}
 	job.webExec = reflect.ValueOf(job)
 	spec, spb := ele.AttrValue("Spec")
@@ -22,5 +22,5 @@ func (app *Module) Cron(ele *utils.Element) {
 	} else {
 		job.job()
 	}
-	cron.Start()
+
 }
