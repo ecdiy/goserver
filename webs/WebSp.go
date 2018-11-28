@@ -127,7 +127,6 @@ func (ws *WebSp) SpExec(spName string, param *Param) int {
 	if code == 200 {
 		e := sp.Run(param.Out, ws.Gpa.Conn, params...)
 		if e != nil {
-			seelog.Error("exec SP失败:", sp.Name, "\n\t", e)
 			delete(ws.SpCache, sp.Name)
 			return 500
 		}

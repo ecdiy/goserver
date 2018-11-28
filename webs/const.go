@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"github.com/cihub/seelog"
 	"github.com/gin-gonic/gin"
+	"strings"
+	"fmt"
 )
 
 //	c.Header("Access-Control-Allow-Origin", "*")
@@ -40,4 +42,14 @@ func GetUa(ctx *gin.Context) string {
 	}
 
 	return "web"
+}
+
+func FmtSql(sql string, param ... interface{}) string {
+	s := sql
+	if param != nil {
+		for _, p := range param {
+			s = strings.Replace(s, "?", "'"+fmt.Sprint(p)+"'", 1)
+		}
+	}
+	return s
 }

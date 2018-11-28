@@ -105,8 +105,7 @@ func (sh *SpHandle) Handle(ctx *gin.Context) {
 	code := sh.ws.SpExec(spName, wb)
 	if code == 200 {
 		ctx.JSON(200, wb.Out)
-	} else {
-		seelog.Error("数据存储过程错误:"+spName, ";", code)
+	} else { 
 		ctx.AbortWithStatus(code)
 	}
 }

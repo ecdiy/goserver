@@ -5,7 +5,7 @@
 </template>
 
 <script>
-    import list from '@/components/web/list'
+    import list from '@/components/base/list'
 
     export default {
         data(){
