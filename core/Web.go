@@ -8,10 +8,11 @@ import (
 	"reflect"
 	"fmt"
 	"github.com/ecdiy/goserver/webs/upload"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 func (app *Module) Sp(ele *utils.Element) {
-	sp := &webs.WebSp{Gpa: getGpa(ele), Engine: getGin(ele)}
+	sp := &webs.WebSp{Gpa: plugins.GetGpa(ele), Engine:plugins.GetGin(ele)}
 	sp.Init()
 	doSubElement(ele, sp)
 	put(ele, sp)
@@ -37,9 +38,9 @@ func (app *Module) WebExec(ele *utils.Element) {
 	we.webExec = reflect.ValueOf(we)
 	method, mb := ele.AttrValue("Method")
 	if mb && strings.ToLower(method) == "post" {
-		getGin(ele).POST(ele.MustAttr("Url"), we.run)
+		plugins.GetGin(ele).POST(ele.MustAttr("Url"), we.run)
 	} else {
-		getGin(ele).GET(ele.MustAttr("Url"), we.run)
+		plugins.GetGin(ele).GET(ele.MustAttr("Url"), we.run)
 	}
 }
 
@@ -68,9 +69,9 @@ func (app *Module) Upload(ele *utils.Element) {
 	}
 
 	if spExt {
-		upload.Upload(nameFun, getGin(ele), data[sp].(*webs.WebSp), getVerify(ele), ele)
+		upload.Upload(nameFun, plugins.GetGin(ele), plugins.Data[sp].(*webs.WebSp), getVerify(ele), ele)
 	} else {
-		upload.Upload(nameFun, getGin(ele), nil, getVerify(ele), ele)
+		upload.Upload(nameFun, plugins.GetGin(ele), nil, getVerify(ele), ele)
 	}
 }
 

@@ -10,14 +10,15 @@ import (
 	"github.com/ecdiy/goserver/gpa"
 	"github.com/ecdiy/goserver/webs"
 	"encoding/json"
-	"github.com/ecdiy/goserver/utils/luar"
+	"github.com/ecdiy/goserver/plugins/lua/luar"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 func (app *Module) Lua(ele *utils.Element) {
-	sl := &SpLua{uri: ele.MustAttr("Url"), Gpa: getGpa(ele), IsDev: utils.EnvIsDev,
+	sl := &SpLua{uri: ele.MustAttr("Url"), Gpa: plugins.GetGpa(ele), IsDev: utils.EnvIsDev,
 		ContentType: ele.Attr("ContentType", "application/json; charset=utf-8"),
 		LuaScriptMap: make(map[string]string), LuaScriptDir: ele.MustAttr("Dir")}
-	getGin(ele).NoRoute(sl.DoWebContext)
+	plugins.GetGin(ele).NoRoute(sl.DoWebContext)
 }
 
 type SpLua struct {

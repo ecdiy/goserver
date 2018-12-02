@@ -1,4 +1,4 @@
-package core
+package upgrade
 
 import (
 	"github.com/ecdiy/goserver/utils"
@@ -8,10 +8,16 @@ import (
 	"os/exec"
 	"syscall"
 	"io"
+	"github.com/ecdiy/goserver/plugins"
+	"github.com/ecdiy/goserver/core"
 )
 
-func (app *Module) Upgrade(ele *utils.Element) {
-	up := &UpgradeImpl{CheckUrl: ele.MustAttr("CheckUrl"),
+func init() {
+	plugins.Plugins["Upgrade"] = Upgrade
+}
+
+func Upgrade(ele *utils.Element) {
+	up := &Impl{CheckUrl: ele.MustAttr("CheckUrl"),
 		UpgradeFlag: ele.Attr("UpgradeFlag", "upgrade")}
 	up.Bin = os.Args[0]
 	idx := strings.LastIndex(os.Args[0], string(os.PathSeparator))
@@ -26,18 +32,18 @@ func (app *Module) Upgrade(ele *utils.Element) {
 		if spb && len(spec) > 1 {
 			seelog.Info("Add upgrade Job:", spec)
 			up.DoUpgrade()
-			AppCron.AddFunc(spec, up.DoUpgrade)
+			core.AppCron.AddFunc(spec, up.DoUpgrade)
 		} else {
 			up.DoUpgrade()
 		}
 	}
 }
 
-type UpgradeImpl struct {
+type Impl struct {
 	Bin, UpgradeFlag, CheckUrl, BinVersion, WorkPath string
 }
 
-func (u *UpgradeImpl) BinReplaceCheck() {
+func (u *Impl) BinReplaceCheck() {
 	initBin := u.WorkPath + u.Bin[len(u.UpgradeFlag):]
 	seelog.Info(initBin, "~~", os.Args[0])
 	CopyFile(os.Args[0], u.WorkPath+u.Bin[len(u.UpgradeFlag):])
@@ -45,7 +51,7 @@ func (u *UpgradeImpl) BinReplaceCheck() {
 	os.Exit(1)
 }
 
-func (u *UpgradeImpl) RunCmd(newBin string) {
+func (u *Impl) RunCmd(newBin string) {
 	cmd := exec.Command(newBin)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	cmd.Stdout = os.Stdout
@@ -66,7 +72,7 @@ func CopyFile(srcName, dstName string) (written int64, err error) {
 	return io.Copy(dst, src)
 }
 
-func (u *UpgradeImpl) DoUpgrade() {
+func (u *Impl) DoUpgrade() {
 	http := utils.Http{}
 	val, e := http.Json("GET", u.CheckUrl)
 	if e != nil {
@@ -85,7 +91,7 @@ func (u *UpgradeImpl) DoUpgrade() {
 	}
 }
 
-func (u *UpgradeImpl) BinUpgrade(UrlBinZip string) {
+func (u *Impl) BinUpgrade(UrlBinZip string) {
 	http := utils.Http{}
 	http.GetUnzip(UrlBinZip, u.WorkPath+"/"+u.UpgradeFlag)
 	upgrade := u.WorkPath + "/" + u.UpgradeFlag + "/" + u.Bin
@@ -96,7 +102,7 @@ func (u *UpgradeImpl) BinUpgrade(UrlBinZip string) {
 	os.Exit(1)
 }
 
-func (u *UpgradeImpl) StaticUpdate(UrlStaticZip string) {
+func (u *Impl) StaticUpdate(UrlStaticZip string) {
 	http := utils.Http{}
 	http.GetUnzip(UrlStaticZip, u.WorkPath)
 }

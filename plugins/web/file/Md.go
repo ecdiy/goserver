@@ -1,10 +1,7 @@
-package core
+package file
 
 import (
 	"github.com/ecdiy/goserver/utils"
-	"github.com/gin-gonic/gin"
-	"github.com/ecdiy/goserver/webs"
-	"io/ioutil"
 	"gopkg.in/russross/blackfriday.v2"
 	"github.com/microcosm-cc/bluemonday"
 	"regexp"
@@ -12,26 +9,26 @@ import (
 	"strconv"
 )
 
-func (app *Module) Md(ele *utils.Element) {
-	dir := ele.MustAttr("MdDir")
-	fun := func(context *gin.Context) {
-		wp := webs.NewParam(context)
-		md := wp.String("Md")
-		bs, e := ioutil.ReadFile(dir + md)
-		if e == nil {
-			context.JSON(200, Md2Html(bs))
-		} else {
-			context.JSON(200, "")
-		}
-	}
-	gj, gje := ele.AttrValue("GetJsonUrl")
-	if gje {
-		getGin(ele).GET(gj, fun)
-	}
-	pj, pje := ele.AttrValue("PostJsonUrl")
-	if pje {
-		getGin(ele).POST(pj, fun)
-	}
+func Md(ele *utils.Element) {
+	//dir := ele.MustAttr("MdDir")
+	//fun := func(context *gin.Context) {
+	//	wp := webs.NewParam(context)
+	//	md := wp.String("Md")
+	//	bs, e := ioutil.ReadFile(dir + md)
+	//	if e == nil {
+	//		context.JSON(200, Md2Html(bs))
+	//	} else {
+	//		context.JSON(200, "")
+	//	}
+	//}
+	//gj, gje := ele.AttrValue("GetJsonUrl")
+	//if gje {
+	//	getGin(ele).GET(gj, fun)
+	//}
+	//pj, pje := ele.AttrValue("PostJsonUrl")
+	//if pje {
+	//	getGin(ele).POST(pj, fun)
+	//}
 }
 
 func Md2Html(bs []byte) string {

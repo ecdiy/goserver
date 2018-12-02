@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"io/ioutil"
 	"github.com/cihub/seelog"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 type ImgResize struct {
@@ -50,5 +51,5 @@ func (ir *ImgResize) DoResize(context *gin.Context) {
 func (app *Module) ImgResize(ele *utils.Element) {
 	ir := &ImgResize{dir: ele.MustAttr("Dir"),
 		size: strings.Split(ele.MustAttr("Size"), ",")}
-	getGin(ele).GET(ele.MustAttr("Url"), ir.DoResize)
+	plugins.GetGin(ele).GET(ele.MustAttr("Url"), ir.DoResize)
 }

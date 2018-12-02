@@ -6,15 +6,15 @@ import (
 	"os"
 	"strings"
 	"github.com/ecdiy/goserver/utils"
-	"github.com/gpmgo/gopm/modules/log"
 	"github.com/ecdiy/goserver/utils/cron"
+	"github.com/ecdiy/goserver/plugins"
 )
 
+//---
 var app = reflect.ValueOf(new(Module))
-var data = make(map[string]interface{}) //xml 对象保存
+
 var initAfterFun []func()               //xml 分析完后的回调函数
 var AppCron *cron.Cron
-var ElementMap = make(map[string]*utils.Element)
 
 func StartCore() {
 	seelog.Info("version: 0.3")
@@ -47,10 +47,10 @@ func InvokeByXml(ecXml *utils.Element) {
 	AppCron = cron.New()
 	ns := ""
 	defer func() {
-		seelog.Info("analysis element:", ns, "\n\tdata:", data)
+		seelog.Info("analysis element:", ns, "\n\tdata:",plugins. Data)
 	}()
 	allNode := ecXml.AllNodes()
-	log.Debug("配置节点数:", len(allNode))
+	seelog.Info("配置节点数:", len(allNode), ",WebPlugin:", plugins.WebPlugins, ",Plugin:", plugins.Plugins)
 	for _, n := range allNode {
 		ns += n.Name() + ";"
 		//if IsReload {
@@ -60,6 +60,21 @@ func InvokeByXml(ecXml *utils.Element) {
 		//	}
 		//	log.Info("~~~reload~~~", n.Name())
 		//}
+		w, we := plugins.WebPlugins[n.Name()]
+		if we {
+			mtd := strings.ToUpper(n.Attr("Method", "Get"))
+			if strings.Index(mtd, "GET") >= 0 {
+				plugins.GetGin(n).GET(n.MustAttr("Url"), w(n))
+			}
+			continue
+		}
+
+		p, pFd := plugins.Plugins[n.Name()]
+		if pFd {
+			p(n)
+			continue
+		}
+
 		inputs := make([]reflect.Value, 1)
 		inputs[0] = reflect.ValueOf(n)
 		m := app.MethodByName(n.Name())
@@ -68,6 +83,7 @@ func InvokeByXml(ecXml *utils.Element) {
 		} else {
 			panic("没有实现的方法:" + n.Name())
 		}
+
 	}
 
 	if len(initAfterFun) > 0 {

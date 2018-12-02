@@ -6,6 +6,7 @@ import (
 	"github.com/ecdiy/goserver/webs"
 	"reflect"
 	"github.com/cihub/seelog"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 type WebExec struct {
@@ -62,7 +63,7 @@ func (we *WebExec) Http(ele *utils.Element, wb *webs.Param) error {
 }
 
 func (we *WebExec) ExecSp(ele *utils.Element, wb *webs.Param) error {
-	sp := &webs.WebSp{Gpa: getGpa(ele)}
+	sp := &webs.WebSp{Gpa: plugins.GetGpa(ele)}
 	sp.Init()
 	spName := ele.MustAttr("SpName")
 	code := sp.SpExec(spName, wb)
@@ -80,6 +81,6 @@ func (we *WebExec) Param(ele *utils.Element, wb *webs.Param) error {
 }
 
 func (we *WebExec) Sql(ele *utils.Element, wb *webs.Param) {
-	dao := getGpa(ele)
+	dao := plugins.GetGpa(ele)
 	dao.Exec(ele.Value)
 }

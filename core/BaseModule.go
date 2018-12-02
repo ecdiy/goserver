@@ -5,6 +5,7 @@ import (
 	"github.com/ecdiy/goserver/utils"
 	"github.com/ecdiy/goserver/gpa"
 	"github.com/cihub/seelog"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 type Module struct {
@@ -25,7 +26,7 @@ func (app *Module) Include(ele *utils.Element) {
 func (app *Module) Map(ele *utils.Element) {
 	ms := ele.AllNodes()
 	for _, m := range ms {
-		ElementMap[m.MustAttr("Id")] = m
+		plugins.ElementMap[m.MustAttr("Id")] = m
 	}
 }
 
@@ -44,7 +45,7 @@ func (app *Module) Gpa(ele *utils.Element) {
 }
 
 func (app *Module) Verify(ele *utils.Element) {
-	vb := webs.NewVerify(ele, getGpa(ele), putFunRun)
+	vb := webs.NewVerify(ele, plugins.GetGpa(ele), putFunRun)
 	put(ele, vb)
 	tfn, ext := ele.AttrValue("TplFunName")
 	if ext {

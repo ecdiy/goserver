@@ -5,13 +5,14 @@ import (
 	"github.com/dchest/captcha"
 	"github.com/ecdiy/goserver/webs"
 	"github.com/gin-gonic/gin"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 /**
 认证码
  */
 func (app *Module) WebCaptcha(ele *utils.Element) {
-	getGin(ele).GET(ele.MustAttr("Url"), func(c *gin.Context) {
+	plugins.GetGin(ele).GET(ele.MustAttr("Url"), func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Cache-Control", "no-Cache, no-store, must-revalidate")
 		c.Header("Pragma", "no-Cache")

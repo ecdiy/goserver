@@ -10,6 +10,7 @@ import (
 	"github.com/ecdiy/goserver/utils"
 	"github.com/ecdiy/goserver/webs"
 	"fmt"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 func (we *HttpCore) parseList(ele *utils.Element, param *webs.Param) error {
@@ -31,7 +32,7 @@ func (we *HttpCore) parseList(ele *utils.Element, param *webs.Param) error {
 			return nil
 		}
 	}
-	fd := &FmtData{Dao: getGpa(ele)}
+	fd := &FmtData{Dao: plugins.GetGpa(ele)}
 	fd.Spit(ele, html, param)
 	return nil
 }
@@ -54,7 +55,7 @@ func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
 		Param := ele.Node("Param")
 		Sp, spExt := Param.AttrValue("Sp")
 
-		sp := &webs.WebSp{Gpa: getGpa(ele)}
+		sp := &webs.WebSp{Gpa: plugins.GetGpa(ele)}
 		sp.Init()
 
 		ItemInclude, ItemIncludeExt := ele.AttrValue("ItemInclude")
@@ -101,7 +102,7 @@ func (fd *FmtData) getParam(html string, param *utils.Element) (map[string]inter
 	ns := param.AllNodes()
 	for _, n := range ns {
 		if n.Name() == "Ref" {
-			n = ElementMap[n.MustAttr("Id")]
+			n = plugins.ElementMap[n.MustAttr("Id")]
 		}
 		regTxt := strings.TrimSpace(n.Value)
 		if len(regTxt) < 1 {

@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"github.com/ecdiy/goserver/webs"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 func (app *Module) Eros(ele *utils.Element) {
@@ -15,7 +16,7 @@ func (app *Module) Eros(ele *utils.Element) {
 		Prefix:  ele.MustAttr("Prefix"),
 		AppsDir: ele.MustAttr("AppDir")}
 	au.initApp()
-	Web := getGin(ele)
+	Web :=plugins.GetGin(ele)
 	//"/app/check"
 	Web.GET(ele.Attr("CheckUrl", "/app/check"), au.Check)
 	Web.GET(ele.Attr("ReloadUrl", "/app/reload"), au.Reload)
@@ -39,7 +40,7 @@ func (au *AppUpdater) Check(c *gin.Context) {
 		} else {
 			o["resCode"] = 0
 			o["msg"] = "需要更新"
-			o["data"] = map[string]interface{}{
+			o["Data"] = map[string]interface{}{
 				"diff": false, "jsVersion": au.LastVersion,
 				"path": au.Prefix + au.LastVersion + ".zip"}
 		}

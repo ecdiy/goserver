@@ -3,11 +3,11 @@ package core
 import (
 	"github.com/ecdiy/goserver/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/ecdiy/goserver/gpa"
 	"reflect"
 	"github.com/ecdiy/goserver/webs"
 	"strings"
 	"os"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 func putFunRun(fun func()) {
@@ -23,11 +23,11 @@ func put(ele *utils.Element, v interface{}) {
 	if !idb {
 		id = ele.Name()
 	}
-	_, de := data[id]
+	_, de := plugins.Data[id]
 	if de {
 		panic("Id重复" + id)
 	} else {
-		data[id] = v
+		plugins.Data[id] = v
 	}
 }
 
@@ -36,19 +36,7 @@ func getVerify(ele *utils.Element) webs.BaseFun {
 	if !vb {
 		VerifyId = "Verify"
 	}
-	return data[VerifyId].(webs.BaseFun)
-}
-
-func getGpa(ele *utils.Element) *gpa.Gpa {
-	ref := ele.Attr("GpaRef", "Gpa")
-	web := data[ref].(*gpa.Gpa)
-	return web
-}
-
-func getGin(ele *utils.Element) *gin.Engine {
-	ref := ele.Attr("WebRef", "Web")
-	web := data[ref].(*gin.Engine)
-	return web
+	return plugins.Data[VerifyId].(webs.BaseFun)
 }
 
 func doSubElement(ele *utils.Element, obj interface{}) {
@@ -58,7 +46,7 @@ func doSubElement(ele *utils.Element, obj interface{}) {
 		for _, e := range ns {
 			inputs := make([]reflect.Value, 2)
 			inputs[0] = reflect.ValueOf(e)
-			inputs[1] = reflect.ValueOf(data)
+			inputs[1] = reflect.ValueOf(plugins.Data)
 			m := spv.MethodByName(e.Name())
 			m.Call(inputs)
 		}
@@ -66,7 +54,7 @@ func doSubElement(ele *utils.Element, obj interface{}) {
 }
 
 func post(ele *utils.Element, fun func(param *webs.Param)) {
-	getGin(ele).POST(ele.MustAttr("Url"), func(c *gin.Context) {
+	plugins.GetGin(ele).POST(ele.MustAttr("Url"), func(c *gin.Context) {
 		wb := webs.NewParam(c)
 		fun(wb)
 		c.JSON(200, wb.Out)
