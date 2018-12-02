@@ -105,7 +105,7 @@ func (sh *SpHandle) Handle(ctx *gin.Context) {
 	code := sh.ws.SpExec(spName, wb)
 	if code == 200 {
 		ctx.JSON(200, wb.Out)
-	} else { 
+	} else {
 		ctx.AbortWithStatus(code)
 	}
 }

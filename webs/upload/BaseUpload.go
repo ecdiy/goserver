@@ -1,17 +1,21 @@
 package upload
 
 import (
-	"strings"
+	"github.com/ecdiy/goserver/webs"
 	"github.com/gin-gonic/gin"
-	"strconv"
-	"time"
+	"github.com/ecdiy/goserver/utils"
 	"os"
+	"strings"
+	"strconv"
+	"github.com/cihub/seelog"
+	"time"
 	"github.com/gpmgo/gopm/modules/log"
 	"io"
-	"github.com/cihub/seelog"
-	"github.com/ecdiy/goserver/webs"
-	"github.com/ecdiy/goserver/utils"
 )
+
+/**
+window 下， os.Rename 需要在同一磁盘下，否则会不成功。
+ */
 
 func Upload(nameFun func(c *webs.Param, tmpFileName string) (string, error),
 	engine *gin.Engine, sp *webs.WebSp, bf webs.BaseFun, ele *utils.Element) {
@@ -23,10 +27,16 @@ func Upload(nameFun func(c *webs.Param, tmpFileName string) (string, error),
 	}
 	url := ele.MustAttr("Url")
 	spName, spExt := ele.AttrValue("Sp")
-	tmpDir := ele.Attr("TmpDir", "./temp/upload/")
-	os.MkdirAll(tmpDir, 0777)
+
 	DirUpload := ele.MustAttr("DirUpload")
 	os.MkdirAll(DirUpload, 0777)
+	edc := DirUpload[len(DirUpload)-1:]
+	if edc != "/" && edc != "/" {
+		DirUpload += "/"
+	}
+	tmpDir := ele.Attr("TmpDir", DirUpload+"temp/")
+	os.MkdirAll(tmpDir, 0777)
+
 	var ImgWidth []int
 	iw, iwb := ele.AttrValue("ImgWidth")
 	if iwb {
@@ -88,7 +98,7 @@ func doUploadFileMd5(ToExt string, cover bool, nameFun func(c *webs.Param, tmpFi
 	}
 	md5Name, e := nameFun(c, tmpFileName) // Md5File(tmpFileName)
 	if e == nil {
-		pre, uri := utils.FmtImgDir(DirUpload+"/", md5Name)
+		pre, uri := utils.FmtImgDir(DirUpload, md5Name)
 		path := pre + ext
 		if _, err := os.Stat(path); cover || os.IsNotExist(err) {
 			os.Rename(tmpFileName, path)
