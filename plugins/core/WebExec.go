@@ -7,11 +7,12 @@ import (
 	"reflect"
 	"github.com/cihub/seelog"
 	"github.com/ecdiy/goserver/plugins"
+	"github.com/ecdiy/goserver/plugins/http"
 )
 
 type WebExec struct {
-	ele     *utils.Element
-	webExec reflect.Value
+	Ele     *utils.Element
+	WebExec reflect.Value
 }
 
 func (we *WebExec) run(ctx *gin.Context) {
@@ -25,18 +26,18 @@ func (we *WebExec) run(ctx *gin.Context) {
 	ctx.JSON(200, wb.Out)
 }
 
-func (we *WebExec) job() {
+func (we *WebExec) Job() {
 	seelog.Info("Run Job ... ")
 	we.exec(&webs.Param{Out: make(map[string]interface{}), Param: make(map[string]interface{})})
 }
 
 func (we *WebExec) exec(wb *webs.Param) {
-	ns := we.ele.AllNodes()
+	ns := we.Ele.AllNodes()
 	for _, n := range ns {
 		inputs := make([]reflect.Value, 2)
 		inputs[0] = reflect.ValueOf(n)
 		inputs[1] = reflect.ValueOf(wb)
-		m := we.webExec.MethodByName(n.Name())
+		m := we.WebExec.MethodByName(n.Name())
 		if m.IsValid() {
 			v := m.Call(inputs)
 			if len(v) == 1 && v[0].IsNil() {
@@ -58,7 +59,7 @@ func (we *WebExec) exec(wb *webs.Param) {
 
 //----
 func (we *WebExec) Http(ele *utils.Element, wb *webs.Param) error {
-	hc := &HttpCore{}
+	hc := &http.HttpCore{}
 	return hc.DoHttp(ele, wb)
 }
 
@@ -81,6 +82,6 @@ func (we *WebExec) Param(ele *utils.Element, wb *webs.Param) error {
 }
 
 func (we *WebExec) Sql(ele *utils.Element, wb *webs.Param) {
-	dao := plugins.GetGpa(ele)
+	dao :=plugins. GetGpa(ele)
 	dao.Exec(ele.Value)
 }

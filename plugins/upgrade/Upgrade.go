@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"io"
 	"github.com/ecdiy/goserver/plugins"
-	"github.com/ecdiy/goserver/core"
+	"github.com/ecdiy/goserver/plugins/cron"
 )
 
 func init() {
@@ -32,7 +32,7 @@ func Upgrade(ele *utils.Element) {
 		if spb && len(spec) > 1 {
 			seelog.Info("Add upgrade Job:", spec)
 			up.DoUpgrade()
-			core.AppCron.AddFunc(spec, up.DoUpgrade)
+			cron.AppCron.AddFunc(spec, up.DoUpgrade)
 		} else {
 			up.DoUpgrade()
 		}

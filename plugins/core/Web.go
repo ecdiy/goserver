@@ -34,8 +34,8 @@ func (app *Module) Web(ele *utils.Element) {
 }
 
 func (app *Module) WebExec(ele *utils.Element) {
-	we := &WebExec{ele: ele}
-	we.webExec = reflect.ValueOf(we)
+	we := &WebExec{Ele : ele}
+	we.WebExec = reflect.ValueOf(we)
 	method, mb := ele.AttrValue("Method")
 	if mb && strings.ToLower(method) == "post" {
 		plugins.GetGin(ele).POST(ele.MustAttr("Url"), we.run)

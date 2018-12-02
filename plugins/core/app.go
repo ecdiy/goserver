@@ -6,15 +6,11 @@ import (
 	"os"
 	"strings"
 	"github.com/ecdiy/goserver/utils"
-	"github.com/ecdiy/goserver/utils/cron"
 	"github.com/ecdiy/goserver/plugins"
 )
 
 //---
 var app = reflect.ValueOf(new(Module))
-
-var initAfterFun []func()               //xml 分析完后的回调函数
-var AppCron *cron.Cron
 
 func StartCore() {
 	seelog.Info("version: 0.3")
@@ -44,10 +40,10 @@ func StartCore() {
 }
 
 func InvokeByXml(ecXml *utils.Element) {
-	AppCron = cron.New()
+
 	ns := ""
 	defer func() {
-		seelog.Info("analysis element:", ns, "\n\tdata:",plugins. Data)
+		seelog.Info("analysis element:", ns, "\n\tdata:", plugins.Data)
 	}()
 	allNode := ecXml.AllNodes()
 	seelog.Info("配置节点数:", len(allNode), ",WebPlugin:", plugins.WebPlugins, ",Plugin:", plugins.Plugins)
@@ -86,10 +82,10 @@ func InvokeByXml(ecXml *utils.Element) {
 
 	}
 
-	if len(initAfterFun) > 0 {
-		for _, fun := range initAfterFun {
+	if len(plugins.InitAfterFun) > 0 {
+		for _, fun := range plugins.InitAfterFun {
 			fun()
 		}
 	}
-	AppCron.Start()
+
 }

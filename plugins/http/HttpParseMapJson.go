@@ -1,4 +1,4 @@
-package core
+package http
 
 import (
 	"github.com/ecdiy/goserver/utils"
@@ -7,9 +7,6 @@ import (
 	"github.com/ecdiy/goserver/webs"
 	"errors"
 )
-
-
-
 
 func (we *HttpCore) parseMap(ele *utils.Element, param *webs.Param) error {
 	ns := ele.AllNodes()
@@ -29,7 +26,7 @@ func (we *HttpCore) parseMap(ele *utils.Element, param *webs.Param) error {
 	}
 }
 
-func (we *HttpCore)parseJson(ele *utils.Element, param *webs.Param) error {
+func (we *HttpCore) parseJson(ele *utils.Element, param *webs.Param) error {
 	var js map[string]interface{}
 	err := json.Unmarshal([]byte(we.html), &js)
 	if err == nil {

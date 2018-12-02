@@ -11,10 +11,10 @@ import (
 )
 
 func putFunRun(fun func()) {
-	if len(initAfterFun) > 0 {
+	if len(plugins.InitAfterFun) > 0 {
 		go fun()
 	} else {
-		initAfterFun = append(initAfterFun, fun)
+		plugins.InitAfterFun = append(plugins.InitAfterFun, fun)
 	}
 }
 

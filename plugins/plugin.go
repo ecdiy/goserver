@@ -6,6 +6,7 @@ import (
 	"github.com/ecdiy/goserver/gpa"
 )
 
+
 var Data = make(map[string]interface{}) //xml 对象保存
 
 var Plugins = make(map[string]func(xml *utils.Element))
@@ -13,6 +14,8 @@ var Plugins = make(map[string]func(xml *utils.Element))
 var WebPlugins = make(map[string]func(xml *utils.Element) func(c *gin.Context))
 
 var ElementMap = make(map[string]*utils.Element)
+
+var InitAfterFun []func() //xml 分析完后的回调函数
 
 func GetGpa(ele *utils.Element) *gpa.Gpa {
 	ref := ele.Attr("GpaRef", "Gpa")

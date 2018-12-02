@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ecdiy/goserver/core"
+	"github.com/ecdiy/goserver/plugins/core"
 
 	_ "github.com/ecdiy/goserver/plugins/web/file"
 )

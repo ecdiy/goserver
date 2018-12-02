@@ -1,4 +1,4 @@
-package core
+package http
 
 import (
 	"github.com/ecdiy/goserver/utils"
