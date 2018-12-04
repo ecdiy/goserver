@@ -27,12 +27,13 @@ type ParamValFunc func(ctx *Param, p *SpParam) (interface{}, int)
 func (sp *Sp) Run(data map[string]interface{}, Conn *sql.DB, params ...interface{}) error {
 	defer func() {
 		if err := recover(); err != nil {
-			seelog.Error("调用存储过程出错了.", err, "\n\t", FmtSql(sp.Sql, params...))
+			seelog.Error("调用存储过程出错了.", err)
 		}
 	}()
 	rows, err := Conn.Query(sp.Sql, params...)
 	defer rows.Close()
 	if err != nil {
+		seelog.Error(err, "\n\t", FmtSql(sp.Sql, params...))
 		return err
 	}
 	for node := 0; node < len(sp.Result); node++ {
