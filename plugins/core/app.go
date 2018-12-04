@@ -13,7 +13,7 @@ import (
 var app = reflect.ValueOf(new(Module))
 
 func StartCore() {
-	seelog.Info("version: 0.3")
+	seelog.Info("version: 0.1.1")
 	defer func() {
 		if err := recover(); err != nil {
 			seelog.Flush()
