@@ -35,9 +35,7 @@ goserver 配置文件
 # 示例说明
 * 导入SQL： demos\goserver.sql
 * vue : 
-
-  npm install
-  
+  npm install  
   npm run serve
   
 * 配置 nginx  demos\demo\vue\admin.conf

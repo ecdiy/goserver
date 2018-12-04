@@ -61,6 +61,8 @@ func InvokeByXml(ecXml *utils.Element) {
 			mtd := strings.ToUpper(n.Attr("Method", "Get"))
 			if strings.Index(mtd, "GET") >= 0 {
 				plugins.GetGin(n).GET(n.MustAttr("Url"), w(n))
+			} else {
+				plugins.GetGin(n).POST(n.MustAttr("Url"), w(n))
 			}
 			continue
 		}

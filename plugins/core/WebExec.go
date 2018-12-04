@@ -59,7 +59,7 @@ func (we *WebExec) exec(wb *webs.Param) {
 
 //----
 func (we *WebExec) Http(ele *utils.Element, wb *webs.Param) error {
-	hc := &http.HttpCore{}
+	hc := &http.HCore{}
 	return hc.DoHttp(ele, wb)
 }
 

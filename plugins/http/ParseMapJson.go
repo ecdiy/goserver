@@ -8,7 +8,7 @@ import (
 	"errors"
 )
 
-func (we *HttpCore) parseMap(ele *utils.Element, param *webs.Param) error {
+func (we *HCore) parseMap(ele *utils.Element, param *webs.Param) error {
 	ns := ele.AllNodes()
 	if ns != nil {
 		for _, n := range ns {
@@ -26,7 +26,7 @@ func (we *HttpCore) parseMap(ele *utils.Element, param *webs.Param) error {
 	}
 }
 
-func (we *HttpCore) parseJson(ele *utils.Element, param *webs.Param) error {
+func (we *HCore) parseJson(ele *utils.Element, param *webs.Param) error {
 	var js map[string]interface{}
 	err := json.Unmarshal([]byte(we.html), &js)
 	if err == nil {

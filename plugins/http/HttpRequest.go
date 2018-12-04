@@ -8,11 +8,11 @@ import (
 	"errors"
 )
 
-type HttpCore struct {
+type HCore struct {
 	html string
 }
 
-func (we *HttpCore) DoHttp(ele *utils.Element, param *webs.Param) error {
+func (we *HCore) DoHttp(ele *utils.Element, param *webs.Param) error {
 	GetUrl, gb := ele.AttrValue("GetUrl")
 	if gb {
 		http := utils.Http{}
@@ -38,7 +38,7 @@ func (we *HttpCore) DoHttp(ele *utils.Element, param *webs.Param) error {
 	return nil
 }
 
-func (we *HttpCore) parseHtml(html string, ele *utils.Element, param *webs.Param) error {
+func (we *HCore) parseHtml(html string, ele *utils.Element, param *webs.Param) error {
 	hs := ele.AllNodes()
 	if hs != nil {
 		we.html = html
