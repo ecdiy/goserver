@@ -7,11 +7,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"encoding/json"
-	"github.com/ecdiy/goserver/webs"
 	"github.com/ecdiy/goserver/plugins"
 )
 
-func (app *Module) Eros(ele *utils.Element) {
+func   Eros(ele *utils.Element) {
 	au := &AppUpdater{
 		Prefix:  ele.MustAttr("Prefix"),
 		AppsDir: ele.MustAttr("AppDir")}
@@ -29,7 +28,7 @@ type AppUpdater struct {
 
 ///app/check?jsVersion=72f32bf37c3377e205d1e6c06b47645e&appName=molove&android=0.0.1&isDiff=1
 func (au *AppUpdater) Check(c *gin.Context) {
-	wb := webs.NewParam(c)
+	wb := utils.NewParam(c)
 	jsVersion := wb.String("jsVersion")
 	android := wb.String("android")
 	if android != "" {

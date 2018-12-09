@@ -18,7 +18,7 @@ func init() {
 			if n.Name() == "Static" {
 				web.Static(n.MustAttr("Url"), n.MustAttr("Path"))
 			} else {
-				mth := strings.ToUpper(n.Attr("Method", "GET"))
+				mth := strings.ToUpper(n.Attr("Method", "POST"))
 				url, ub := n.AttrValue("Url")
 				if !ub {
 					panic("Web Attr设置错误:" + n.Name() + ";缺少Url")
@@ -59,25 +59,12 @@ func init() {
 	})
 }
 
-func RegisterWebPlugin(pluginName string, plugin func(xml *utils.Element) func(c *gin.Context)) {
+func RegisterWebPlugin(pluginName string, plugin func(ele *utils.Element) func(c *gin.Context)) {
 	webPluginsMap[pluginName] = plugin
 }
-func RegisterWeb(pluginName string, plugin func(xml *utils.Element) func(c *utils.Param)) {
+func RegisterWeb(pluginName string, plugin func(ele *utils.Element) func(c *utils.Param)) {
 	pluginsMap[pluginName] = plugin
 }
-
-//文件上传
-/**
-TmpDir,MainWidth,ImgWidth（多个用,分隔） 可选
-
-	两种方式:
-    1.上传完成后不调用存储过程，输出 文件名对应的参数Url
-    <Upload WebRef="Web" TmpDir="./upload/temp/" DirUpload="./upload/" ImgWidth="800" MainWidth="800" UrlPrefix="/upload"/>
-
-	2.上传完成后调用存储过程， 存储过程返回值决定输出内容
-    <Upload SpRef="Sp" WebRef="Web" TmpDir="./upload/temp/" DirUpload="./upload/" ImgWidth="800" Sp="Upload" MainWidth="800" UrlPrefix="/upload"/>
-
- */
 
 //func post(ele *utils.Element, fun func(param *utils.Param)) {
 //	GetGin(ele).POST(ele.MustAttr("Url"), func(c *gin.Context) {

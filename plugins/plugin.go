@@ -2,7 +2,6 @@ package plugins
 
 import (
 	"github.com/ecdiy/goserver/utils"
-	"github.com/gin-gonic/gin"
 )
 
 type BaseFun func(param *utils.Param, ps ... interface{}) interface{}
@@ -15,11 +14,6 @@ var ElementMap = make(map[string]*utils.Element)
 
 var InitAfterFun []func() //xml 分析完后的回调函数
 
-func GetGin(ele *utils.Element) *gin.Engine {
-	ref := ele.Attr("WebRef", "Web")
-	web := Data[ref].(*gin.Engine)
-	return web
-}
 
 func RegisterPlugin(pluginName string, plugin func(xml *utils.Element) interface{}) {
 	_, ext := pluginsMap[pluginName]

@@ -1,21 +1,29 @@
 package resize
 
 import (
-	"github.com/ecdiy/goserver/utils"
+	"github.com/ecdiy/goserver/plugins/web"
 	"github.com/gin-gonic/gin"
 	"strings"
 	"strconv"
 	"io/ioutil"
 	"github.com/cihub/seelog"
-	"github.com/ecdiy/goserver/plugins"
+	"github.com/ecdiy/goserver/utils"
 )
 
-type ImgResize struct {
+func init() {
+	web.RegisterWebPlugin("Resize", func(ele *utils.Element) func(c *gin.Context) {
+		ir := &ImageResize{dir: ele.MustAttr("Dir"),
+			size: strings.Split(ele.MustAttr("Size"), ",")}
+		return ir.DoResize
+	})
+}
+
+type ImageResize struct {
 	dir  string
 	size []string
 }
 
-func (ir *ImgResize) DoResize(context *gin.Context) {
+func (ir *ImageResize) DoResize(context *gin.Context) {
 	url := context.Query("url")
 	if len(url) > 1 {
 		dp := strings.LastIndex(url, ".")
@@ -29,7 +37,7 @@ func (ir *ImgResize) DoResize(context *gin.Context) {
 					if strings.Index(w, "x") < 0 {
 						tw, twe := strconv.Atoi(w)
 						if twe == nil {
-							upload.ImgResize(source, target, tw)
+							ImgResize(source, target, tw)
 							bs, err := ioutil.ReadFile(target)
 							if err == nil {
 								context.Header("Content-Type", "image/"+url[dp+1:])
@@ -45,10 +53,4 @@ func (ir *ImgResize) DoResize(context *gin.Context) {
 			seelog.Error("生成的宽度不支持,", w)
 		}
 	}
-}
-
-func (app *Module) ImgResize(ele *utils.Element) {
-	ir := &ImgResize{dir: ele.MustAttr("Dir"),
-		size: strings.Split(ele.MustAttr("Size"), ",")}
-	plugins.GetGin(ele).GET(ele.MustAttr("Url"), ir.DoResize)
 }
