@@ -24,33 +24,48 @@ type Plugin struct {
 func (p *Plugin) Impl(c *gin.Context) {
 	wb := webs.NewParam(c)
 	action := wb.String("action")
-	path := wb.String("path")
+	path := p.Dir + wb.String("path")
 	if action == "mkdir" {
-		os.MkdirAll(p.Dir+path, 0644)
+		os.MkdirAll(path, 0644)
+	}
+	if action == "delFile" {
+		os.Remove(path)
+		return
 	}
 	if action == "md2Html" {
-		bs, e := ioutil.ReadFile(p.Dir + path)
+		bs, e := ioutil.ReadFile(path)
 		if e == nil {
 			c.JSON(200, Md2Html(bs))
 		} else {
 			c.JSON(200, "")
 		}
+		return
+	}
+
+	if action == "read" {
+		bs, e := ioutil.ReadFile(path)
+		if e == nil {
+			c.Data(200, wb.String("contentType"), bs)
+		} else {
+			c.String(200, "")
+		}
+		return
 	}
 
 	if action == "save" {
-		pt := p.Dir + path
-		ix := strings.LastIndex(pt, "/")
+		ix := strings.LastIndex(path, "/")
 		if ix < 0 {
-			ix = strings.LastIndex(pt, "\\")
+			ix = strings.LastIndex(path, "\\")
 		}
 		if ix > 0 {
-			dir := pt[0:ix]
+			dir := path[0:ix]
 			os.MkdirAll(dir, 0644)
 		}
-		out, err := os.Create(pt)
+		out, err := os.Create(path)
 		if err == nil {
 			out.Write([]byte(wb.String("body")))
 		}
 		out.Close()
+		return
 	}
 }

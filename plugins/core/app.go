@@ -56,32 +56,16 @@ func InvokeByXml(ecXml *utils.Element) {
 		//	}
 		//	log.Info("~~~reload~~~", n.Name())
 		//}
-		w, we := plugins.WebPlugins[n.Name()]
-		if we {
-			mtd := strings.ToUpper(n.Attr("Method", "Get"))
-			if strings.Index(mtd, "GET") >= 0 {
-				plugins.GetGin(n).GET(n.MustAttr("Url"), w(n))
+		if !plugins.Invoke(n) {
+			inputs := make([]reflect.Value, 1)
+			inputs[0] = reflect.ValueOf(n)
+			m := app.MethodByName(n.Name())
+			if m.IsValid() {
+				m.Call(inputs)
 			} else {
-				plugins.GetGin(n).POST(n.MustAttr("Url"), w(n))
+				panic("没有实现的方法:" + n.Name())
 			}
-			continue
 		}
-
-		p, pFd := plugins.Plugins[n.Name()]
-		if pFd {
-			p(n)
-			continue
-		}
-
-		inputs := make([]reflect.Value, 1)
-		inputs[0] = reflect.ValueOf(n)
-		m := app.MethodByName(n.Name())
-		if m.IsValid() {
-			m.Call(inputs)
-		} else {
-			panic("没有实现的方法:" + n.Name())
-		}
-
 	}
 
 	if len(plugins.InitAfterFun) > 0 {

@@ -4,8 +4,8 @@ import (
 	"github.com/ecdiy/goserver/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/ecdiy/goserver/gpa"
+	"strings"
 )
-
 
 var Data = make(map[string]interface{}) //xml 对象保存
 
@@ -27,4 +27,23 @@ func GetGin(ele *utils.Element) *gin.Engine {
 	ref := ele.Attr("WebRef", "Web")
 	web := Data[ref].(*gin.Engine)
 	return web
+}
+
+func Invoke(n *utils.Element) bool {
+	w, we := WebPlugins[n.Name()]
+	if we {
+		mtd := strings.ToUpper(n.Attr("Method", "Get"))
+		if strings.Index(mtd, "GET") >= 0 {
+			GetGin(n).GET(n.MustAttr("Url"), w(n))
+		} else {
+			GetGin(n).POST(n.MustAttr("Url"), w(n))
+		}
+		return true
+	}
+	p, pFd := Plugins[n.Name()]
+	if pFd {
+		p(n)
+		return true
+	}
+	return false
 }

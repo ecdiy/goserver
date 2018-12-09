@@ -1,3 +1,9 @@
+# goserver
+目标：类似JAVA的spring.
+
+#两种方式使用
+*  配置文件，类似spring的配置文件，一个xml节点一个功能
+*  建一个go main导入插件方式
 
 ###  goserver 功能介绍
 * 存储过程映射成JSON接口
