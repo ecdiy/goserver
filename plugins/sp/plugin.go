@@ -3,7 +3,6 @@ package sp
 import (
 	"github.com/ecdiy/goserver/utils"
 	"github.com/ecdiy/goserver/plugins/verify"
-	"regexp"
 	"strings"
 	"fmt"
 	"github.com/ecdiy/goserver/plugins"
@@ -16,7 +15,7 @@ const (
 
 var (
 	spReloadFun = make(map[string]func(c *utils.Param) *verify.UserBase)
-	UaH5        *regexp.Regexp
+
 	ParamDoMap  = make(map[string]ParamValFunc)
 	//存储过程参数处理规制
 )
@@ -34,12 +33,16 @@ func FmtSql(sql string, param ... interface{}) string {
 func init() {
 	plugins.RegisterPlugin("SpParamGin", func(ele *utils.Element) interface{} {
 		vf := plugins.GetRef(ele, "Verify")
-		ParamDoMap[ ele.MustAttr("Prefix")] = ginWk(vf.(plugins.BaseFun), 401)
+		ParamDoMap[ ele.Attr("Prefix", "gin")] = ginWk(vf.(plugins.BaseFun), 401)
 		return nil
 	})
 	plugins.RegisterPlugin("SpParamWk", func(ele *utils.Element) interface{} {
 		vf := plugins.GetRef(ele, "Verify")
 		ParamDoMap[ ele.MustAttr("Prefix")] = ginWk(vf.(plugins.BaseFun), 200)
+		return nil
+	})
+	plugins.RegisterPlugin("SpParamWx", func(ele *utils.Element) interface{} {
+		ParamDoMap[ ele.Attr("Prefix", "wx")] = ParamWx(ele)
 		return nil
 	})
 }
