@@ -2,6 +2,8 @@ package plugins
 
 import (
 	"github.com/ecdiy/goserver/utils"
+	"os"
+	"strings"
 )
 
 type BaseFun func(param *utils.Param, ps ... interface{}) interface{}
@@ -14,8 +16,7 @@ var ElementMap = make(map[string]*utils.Element)
 
 var InitAfterFun []func() //xml 分析完后的回调函数
 
-
-func RegisterPlugin(pluginName string, plugin func(xml *utils.Element) interface{}) {
+func RegisterPlugin(pluginName string, plugin func(ele *utils.Element) interface{}) {
 	_, ext := pluginsMap[pluginName]
 	if ext {
 		panic("插件已存在：" + pluginName)
@@ -34,4 +35,37 @@ func GetRef(ele *utils.Element, DefaultRef string) interface{} {
 		panic("不存在:" + bfId)
 	}
 	return dv
+}
+
+func PutFunRun(fun func()) {
+	if len(InitAfterFun) > 0 {
+		go fun()
+	} else {
+		InitAfterFun = append(InitAfterFun, fun)
+	}
+}
+
+func put(ele *utils.Element, v interface{}) {
+	id, idb := ele.AttrValue("Id")
+	if !idb {
+		id = ele.Name()
+	}
+	_, de := Data[id]
+	if de {
+		panic("Id重复" + id)
+	} else {
+		Data[id] = v
+	}
+}
+
+func getFile(file string) string {
+	dir := os.Args[1]
+	fg := []string{"/", "\\"}
+	for _, flg := range fg {
+		lst := strings.LastIndex(dir, flg)
+		if lst > 0 {
+			return dir[0:lst+1] + file
+		}
+	}
+	return file
 }
