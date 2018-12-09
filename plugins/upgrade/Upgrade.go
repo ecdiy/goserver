@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	plugins.Plugins["Upgrade"] = Upgrade
+	plugins.pluginsMap["Upgrade"] = Upgrade
 }
 
 func Upgrade(ele *utils.Element) {

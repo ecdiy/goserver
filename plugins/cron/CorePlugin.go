@@ -11,7 +11,7 @@ import (
 var AppCron = New()
 
 func init() {
-	plugins.Plugins["Cron"] = func(ele *utils.Element) {
+	plugins.pluginsMap["Cron"] = func(ele *utils.Element) {
 		job := &core.WebExec{Ele: ele}
 		job.WebExec = reflect.ValueOf(job)
 		spec, spb := ele.AttrValue("Spec")
