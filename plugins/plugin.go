@@ -25,6 +25,14 @@ func RegisterPlugin(pluginName string, plugin func(ele *utils.Element) interface
 	}
 }
 
+func GetRefByName(  name string) interface{} {
+
+	dv, dvb := Data[name]
+	if !dvb {
+		panic("不存在:" + name)
+	}
+	return dv
+}
 func GetRef(ele *utils.Element, DefaultRef string) interface{} {
 	bfId, vb := ele.AttrValue(DefaultRef + "Ref")
 	if !vb {

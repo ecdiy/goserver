@@ -2,7 +2,6 @@ package http
 
 import (
 	"github.com/ecdiy/goserver/utils"
-	"github.com/ecdiy/goserver/webs"
 	"strings"
 	"github.com/cihub/seelog"
 	"errors"
@@ -12,7 +11,7 @@ type HCore struct {
 	html string
 }
 
-func (we *HCore) DoHttp(ele *utils.Element, param *webs.Param) error {
+func (we *HCore) DoHttp(ele *utils.Element, param *utils.Param) error {
 	GetUrl, gb := ele.AttrValue("GetUrl")
 	if gb {
 		http := utils.Http{}
@@ -38,7 +37,7 @@ func (we *HCore) DoHttp(ele *utils.Element, param *webs.Param) error {
 	return nil
 }
 
-func (we *HCore) parseHtml(html string, ele *utils.Element, param *webs.Param) error {
+func (we *HCore) parseHtml(html string, ele *utils.Element, param *utils.Param) error {
 	hs := ele.AllNodes()
 	if hs != nil {
 		we.html = html

@@ -65,11 +65,3 @@ func RegisterWebPlugin(pluginName string, plugin func(ele *utils.Element) func(c
 func RegisterWeb(pluginName string, plugin func(ele *utils.Element) func(c *utils.Param)) {
 	pluginsMap[pluginName] = plugin
 }
-
-//func post(ele *utils.Element, fun func(param *utils.Param)) {
-//	GetGin(ele).POST(ele.MustAttr("Url"), func(c *gin.Context) {
-//		wb := utils.NewParam(c)
-//		fun(wb)
-//		c.JSON(200, wb.Out)
-//	})
-//}

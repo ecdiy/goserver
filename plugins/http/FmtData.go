@@ -2,7 +2,6 @@ package http
 
 import (
 	"github.com/ecdiy/goserver/utils"
-	"github.com/ecdiy/goserver/webs"
 	"github.com/cihub/seelog"
 	"strings"
 	"github.com/ecdiy/goserver/plugins"
@@ -11,6 +10,7 @@ import (
 	"fmt"
 	"reflect"
 	"github.com/ecdiy/goserver/gpa"
+	"github.com/ecdiy/goserver/plugins/sp"
 )
 
 type FmtData struct {
@@ -19,7 +19,7 @@ type FmtData struct {
 	ErrorReg string
 }
 
-func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
+func (fd *FmtData) Spit(ele *utils.Element, html string, param *utils.Param) {
 	Spit := ele.Node("SpitString")
 	if Spit == nil {
 		seelog.Error("<SpitString>没有设置")
@@ -31,8 +31,8 @@ func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
 		Param := ele.Node("Param")
 		Sp, spExt := Param.AttrValue("Sp")
 
-		sp := &webs.WebSp{Gpa: plugins.GetGpa(ele)}
-		sp.Init()
+		sp := &sp.WebSp{Gpa: plugins.GetRef(ele, "Gpa").(*gpa.Gpa)}
+		sp.Init(ele)
 
 		ItemInclude, ItemIncludeExt := ele.AttrValue("ItemInclude")
 		//for _, it := range fd.items {
@@ -48,7 +48,7 @@ func (fd *FmtData) Spit(ele *utils.Element, html string, param *webs.Param) {
 			}
 			val := fd.getParam(it, Param)
 			if spExt && len(val) > 0 {
-				wb := &webs.Param{Out: make(map[string]interface{}), Param: val}
+				wb := &utils.Param{Out: make(map[string]interface{}), Param: val}
 				for k, v := range param.Param {
 					wb.Param[k] = v
 				}

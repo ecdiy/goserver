@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"encoding/json"
 	"strings"
+	"github.com/ecdiy/goserver/utils"
+	"github.com/ecdiy/goserver/plugins"
 )
 
 var FunConstantMaps = template.FuncMap{
@@ -17,7 +19,7 @@ var FunConstantMaps = template.FuncMap{
 	"get": func(m map[string]interface{}, n string) interface{} {
 		return m[n]
 	},
-	"ginGet": func(m *Param, n string) (interface{}) {
+	"ginGet": func(m *utils.Param, n string) (interface{}) {
 		v, b := m.Context.Get(n)
 		if b {
 			return v
@@ -104,8 +106,8 @@ var FunConstantMaps = template.FuncMap{
 	},
 }
 
-func RegisterBaseFun(fn string, bf BaseFun) {
-	FunConstantMaps[fn] = func(param *Param, show bool, params ... interface{}) interface{} {
+func RegisterBaseFun(fn string, bf plugins.BaseFun) {
+	FunConstantMaps[fn] = func(param *utils.Param, show bool, params ... interface{}) interface{} {
 		res := bf(param, params...)
 		if show {
 			return res

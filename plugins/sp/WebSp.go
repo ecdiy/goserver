@@ -34,7 +34,10 @@ func (ws *WebSp) Init(ele *utils.Element) {
 			}
 		}
 	} else {
-		seelog.Warn("没有设置ParamPrefix,Name=", ele.Name())
+		for name := range ParamDoMap {
+			ws.SpParamDoMap[name] = ParamDoMap[name]
+		}
+		seelog.Warn("没有设置ParamPrefix过滤规则，使用所有规则,", ele.ToString())
 	}
 }
 

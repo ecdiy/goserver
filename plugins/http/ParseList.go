@@ -4,11 +4,11 @@ import (
 	"strings"
 	"github.com/cihub/seelog"
 	"github.com/ecdiy/goserver/utils"
-	"github.com/ecdiy/goserver/webs"
 	"github.com/ecdiy/goserver/plugins"
+	"github.com/ecdiy/goserver/gpa"
 )
 
-func (we *HCore) parseList(ele *utils.Element, param *webs.Param) error {
+func (we *HCore) parseList(ele *utils.Element, param *utils.Param) error {
 	Begin := ele.Node("Begin")
 	html := we.html
 	if Begin != nil {
@@ -27,7 +27,7 @@ func (we *HCore) parseList(ele *utils.Element, param *webs.Param) error {
 			return nil
 		}
 	}
-	fd := &FmtData{Dao: plugins.GetGpa(ele)}
+	fd := &FmtData{Dao: plugins.GetRef(ele, "Gpa").(*gpa.Gpa)}
 	fd.Spit(ele, html, param)
 	return nil
 }

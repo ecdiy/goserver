@@ -4,11 +4,10 @@ import (
 	"github.com/ecdiy/goserver/utils"
 	"encoding/json"
 	"github.com/cihub/seelog"
-	"github.com/ecdiy/goserver/webs"
 	"errors"
 )
 
-func (we *HCore) parseMap(ele *utils.Element, param *webs.Param) error {
+func (we *HCore) parseMap(ele *utils.Element, param *utils.Param) error {
 	ns := ele.AllNodes()
 	if ns != nil {
 		for _, n := range ns {
@@ -26,7 +25,7 @@ func (we *HCore) parseMap(ele *utils.Element, param *webs.Param) error {
 	}
 }
 
-func (we *HCore) parseJson(ele *utils.Element, param *webs.Param) error {
+func (we *HCore) parseJson(ele *utils.Element, param *utils.Param) error {
 	var js map[string]interface{}
 	err := json.Unmarshal([]byte(we.html), &js)
 	if err == nil {

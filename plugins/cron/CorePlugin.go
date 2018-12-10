@@ -5,13 +5,12 @@ import (
 	"github.com/ecdiy/goserver/utils"
 	"reflect"
 	"github.com/cihub/seelog"
-	"github.com/ecdiy/goserver/plugins/core"
 )
 
 var AppCron = New()
 
 func init() {
-	plugins.pluginsMap["Cron"] = func(ele *utils.Element) {
+	plugins.RegisterPlugin("Cron", func(ele *utils.Element) interface{} {
 		job := &core.WebExec{Ele: ele}
 		job.WebExec = reflect.ValueOf(job)
 		spec, spb := ele.AttrValue("Spec")
@@ -28,5 +27,6 @@ func init() {
 		} else {
 			job.Job()
 		}
-	}
+		return nil
+	})
 }
