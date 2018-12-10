@@ -7,6 +7,10 @@ import (
 	"github.com/ecdiy/goserver/plugins"
 	"github.com/cihub/seelog"
 	"github.com/ecdiy/goserver/gpa"
+	"fmt"
+	"github.com/ecdiy/goserver/plugins/web/ws"
+	"github.com/gorilla/websocket"
+	"encoding/json"
 )
 
 //----
@@ -36,4 +40,23 @@ func (we *WebExec) Param(ele *utils.Element, wb *utils.Param) error {
 func (we *WebExec) Sql(ele *utils.Element, wb *utils.Param) {
 	dao := plugins.GetRef(ele, "Gpa").(*gpa.Gpa)
 	dao.Exec(ele.Value)
+}
+
+func (we *WebExec) WebSocket(ele *utils.Element, wb *utils.Param) {
+	UserIdName := ele.Attr("SocketIdName", "UserId")
+	userIdFc, idExt := wb.Out[UserIdName]
+	if idExt {
+		userId := fmt.Sprint(userIdFc)
+		conn, connExt := ws.OnlineUser[userId]
+		if connExt {
+			bs, err := json.Marshal(wb.Out)
+			if err == nil {
+				conn.WriteMessage(websocket.TextMessage, bs)
+			}
+		} else {
+			seelog.Error("user not online.", userId)
+		}
+	} else {
+		seelog.Error("session value not find key=", UserIdName)
+	}
 }

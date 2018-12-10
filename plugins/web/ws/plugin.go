@@ -1,4 +1,4 @@
-package websocket
+package ws
 
 import "github.com/ecdiy/goserver/plugins/web"
 import (
@@ -24,12 +24,12 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-var wsOnlineUser = make(map[string]interface{})
+var OnlineUser = make(map[string]*websocket.Conn)
 
 func init() {
 	web.RegisterWebPlugin("WebSocket", func(ele *utils.Element) func(c *gin.Context) {
 		ws := &Ws{verify: plugins.GetRef(ele, "Verify").(plugins.BaseFun),
-			UserIdName: ele.Attr("UserIdName", "UserId")}
+			UserIdName: ele.Attr("SocketIdName", "UserId")}
 		spName, spExt := ele.AttrValue("SpName")
 		if spExt {
 			ws.spName = spName
@@ -62,7 +62,7 @@ func (ws *Ws) WsHandler(c *gin.Context) {
 		fmt.Println("Failed to set websocket upgrade: %+v", err)
 		return
 	}
-	wsOnlineUser[userId] = conn
+	OnlineUser[userId] = conn
 	isOk := true
 	go func() {
 		for {
@@ -80,7 +80,7 @@ func (ws *Ws) WsHandler(c *gin.Context) {
 		_, bs, err := conn.ReadMessage()
 		if err != nil {
 			isOk = false
-			delete(wsOnlineUser, userId)
+			delete(OnlineUser, userId)
 			seelog.Error("read message error", userId)
 			break
 		}

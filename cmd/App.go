@@ -9,7 +9,7 @@ import (
 	_ "github.com/ecdiy/goserver/plugins/web/image/resize"
 	_ "github.com/ecdiy/goserver/plugins/web/sp"
 	_ "github.com/ecdiy/goserver/plugins/web/upload"
-	_ "github.com/ecdiy/goserver/plugins/web/websocket"
+	_ "github.com/ecdiy/goserver/plugins/web/ws"
 	_ "github.com/ecdiy/goserver/plugins/web/webexec"
 	"github.com/ecdiy/goserver/plugins"
 )
