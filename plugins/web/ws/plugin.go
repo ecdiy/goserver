@@ -24,7 +24,13 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-var OnlineUser = make(map[string]*websocket.Conn)
+type Bean struct {
+	msgId, id string
+	ws        *websocket.Conn
+}
+
+var Online []*Bean
+//var OnlineUser = make(map[string]*websocket.Conn)
 
 func init() {
 	web.RegisterWebPlugin("WebSocket", func(ele *utils.Element) func(c *gin.Context) {
@@ -48,7 +54,6 @@ type Ws struct {
 
 // 处理ws请求
 func (ws *Ws) WsHandler(c *gin.Context) {
-
 	ws.verify(utils.NewParam(c))
 	userFace, uExt := c.Get(ws.UserIdName)
 	if !uExt {
@@ -62,7 +67,8 @@ func (ws *Ws) WsHandler(c *gin.Context) {
 		fmt.Println("Failed to set websocket upgrade: %+v", err)
 		return
 	}
-	OnlineUser[userId] = conn
+	bean := &Bean{msgId: userId, ws: conn, id: userId + fmt.Sprint(time.Now().UnixNano())}
+	Online = append(Online, bean)
 	isOk := true
 	go func() {
 		for {
@@ -74,13 +80,16 @@ func (ws *Ws) WsHandler(c *gin.Context) {
 			}
 		}
 	}()
-	// 必须死循环，gin通过协程调用该handler函数，一旦退出函数，ws会被主动销毁
 	for {
 		// recieve
 		_, bs, err := conn.ReadMessage()
 		if err != nil {
 			isOk = false
-			delete(OnlineUser, userId)
+			for i, v := range Online {
+				if v.id == bean.id {
+					Online = append(Online[:i], Online[i+1:]...)
+				}
+			}
 			seelog.Error("read message error", userId)
 			break
 		}
@@ -101,6 +110,14 @@ func (ws *Ws) WsHandler(c *gin.Context) {
 			}
 		} else {
 			conn.WriteMessage(websocket.TextMessage, []byte("{}"))
+		}
+	}
+}
+
+func WrMsg(msgId string, msg []byte) {
+	for _, b := range Online {
+		if b.msgId == msgId {
+			b.ws.WriteMessage(websocket.TextMessage, msg)
 		}
 	}
 }

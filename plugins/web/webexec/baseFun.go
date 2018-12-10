@@ -9,54 +9,57 @@ import (
 	"github.com/ecdiy/goserver/gpa"
 	"fmt"
 	"github.com/ecdiy/goserver/plugins/web/ws"
-	"github.com/gorilla/websocket"
 	"encoding/json"
 )
 
 //----
-func (we *WebExec) Http(ele *utils.Element, wb *utils.Param) error {
+func Http(we *WebExec, ele *utils.Element, wb *utils.Param) error {
 	hc := &http.HCore{}
 	return hc.DoHttp(ele, wb)
 }
 
-func (we *WebExec) Sp(ele *utils.Element, wb *utils.Param) error {
-	sp := &sp.WebSp{Gpa: plugins.GetRef(ele, "Gpa").(*gpa.Gpa)}
-	sp.Init(ele)
+func Sp(we *WebExec, ele *utils.Element, wb *utils.Param) error {
 	spName := ele.MustAttr("SpName")
-	code := sp.SpExec(spName, wb)
+	webSp, spExt := we.cache[spName]
+	var spn *sp.WebSp
+	if !spExt {
+		spn = &sp.WebSp{Gpa: plugins.GetRef(ele, "Gpa").(*gpa.Gpa)}
+		spn.Init(ele)
+		we.cache[spName] = spn
+	} else {
+		spn = webSp.(*sp.WebSp)
+	}
+	code := spn.SpExec(spName, wb)
 	if code != 200 {
 		seelog.Error("", spName)
 	}
 	return nil
 }
 
-func (we *WebExec) Param(ele *utils.Element, wb *utils.Param) error {
+func Param(we *WebExec, ele *utils.Element, wb *utils.Param) error {
 	for _, attr := range ele.Attrs {
 		wb.Param[attr.Name()] = attr.Value
 	}
 	return nil
 }
 
-func (we *WebExec) Sql(ele *utils.Element, wb *utils.Param) {
+func Sql(we *WebExec, ele *utils.Element, wb *utils.Param) error {
 	dao := plugins.GetRef(ele, "Gpa").(*gpa.Gpa)
 	dao.Exec(ele.Value)
+	return nil
 }
 
-func (we *WebExec) WebSocket(ele *utils.Element, wb *utils.Param) {
+func WebSocket(we *WebExec, ele *utils.Element, wb *utils.Param) error {
 	UserIdName := ele.Attr("SocketIdName", "UserId")
 	userIdFc, idExt := wb.Out[UserIdName]
 	if idExt {
 		userId := fmt.Sprint(userIdFc)
-		conn, connExt := ws.OnlineUser[userId]
-		if connExt {
-			bs, err := json.Marshal(wb.Out)
-			if err == nil {
-				conn.WriteMessage(websocket.TextMessage, bs)
-			}
-		} else {
-			seelog.Error("user not online.", userId)
+		bs, err := json.Marshal(wb.Out)
+		if err == nil {
+			ws.WrMsg(userId, bs)
 		}
 	} else {
 		seelog.Error("session value not find key=", UserIdName)
 	}
+	return nil
 }
