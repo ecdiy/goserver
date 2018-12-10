@@ -1,9 +1,42 @@
 # goserver
-目标：类似JAVA的spring.
+类似JAVA的spring.
 
 #两种方式使用
 *  配置文件，类似spring的配置文件，一个xml节点一个功能
 *  建一个go main导入插件方式
+*  cmd/App.go 默认导入了所有实现的插件，可以根据项目的需要，只导入自己需要的
+
+## 如何注册插件
+* web 插件 
+```
+import (
+	"github.com/ecdiy/goserver/utils"
+	"github.com/dchest/captcha"
+	"github.com/gin-gonic/gin"
+	"github.com/ecdiy/goserver/plugins/web"
+)
+.....
+web.RegisterWeb("CaptchaNew", func(xml *utils.Element) func(wb *utils.Param) {
+		return func(wb *utils.Param) {
+			wb.OK(captcha.New())
+		}
+})
+```
+* 插件
+```
+import (
+	"github.com/ecdiy/goserver/utils"
+	"github.com/ecdiy/goserver/plugins"
+	"github.com/cihub/seelog"
+	"github.com/ecdiy/goserver/gpa"
+)
+
+func init() {
+	plugins.RegisterPlugin("Verify", func(ele *utils.Element) interface{} {
+	...
+	})
+```
+
 
 ###  goserver 功能介绍
 * 存储过程映射成JSON接口
@@ -15,6 +48,7 @@
 * Web服务,静态资源
 * 图片缩放
 * Lua脚本支持
+* WebSocket
 * .........
 
 更多的项目文档请参考：
@@ -52,9 +86,4 @@ goserver 配置文件
 * ITGeek.top 所有后台为5个goserver实例，前台为nuxt.js。
 * 加QQ群671735112，提交你的作品，讨论GoServer新功能 
  ....
-   
-## 下一步开发计划 DevOps
-* DevOps 基于GoServer应用项目,汇集：笔记，任务管理，软件库
-* 笔记记录内容到本机
-* 任务管理（可视化配置）
-* 开发软件安装
+    
