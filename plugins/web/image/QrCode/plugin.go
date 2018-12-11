@@ -19,9 +19,15 @@ func init() {
 			c.Header("Expires", "0")
 			c.Header("Content-Type", "image/png")
 			url := c.Query("url")
+			w := c.Query("w")
+			wi := wInt
+			if len(w) > 0 && len(w) < 4 {
+				wi, _ = strconv.Atoi(w)
+			}
 			qr, err := New(url, Medium)
 			if err == nil {
-				qr.Write(wInt, c.Writer)
+				seelog.Info("width=", wi, ";qrCode=", url)
+				qr.Write(wi, c.Writer)
 			} else {
 				seelog.Error("生成二维码出错")
 			}
