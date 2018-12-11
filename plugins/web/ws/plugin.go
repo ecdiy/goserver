@@ -93,7 +93,6 @@ func (ws *Ws) WsHandler(c *gin.Context) {
 			seelog.Error("read message error", userId)
 			break
 		}
-		seelog.Error("read message in...")
 		wb := utils.NewParam(c)
 		je := json.Unmarshal(bs, &wb.Param)
 		if je != nil {
@@ -101,7 +100,7 @@ func (ws *Ws) WsHandler(c *gin.Context) {
 			//	web.Context.Set("param", web.Param)
 		}
 		ws.sp.SpExec(ws.spName, wb)
-		if len(wb.Out) > 1 {
+		if len(wb.Out) >= 1 {
 			bs, err := json.Marshal(wb.Out)
 			if err == nil {
 				conn.WriteMessage(websocket.TextMessage, bs)
