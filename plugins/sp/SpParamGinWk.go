@@ -12,6 +12,7 @@ package sp
 import (
 	"github.com/ecdiy/goserver/utils"
 	"github.com/ecdiy/goserver/plugins"
+	"github.com/cihub/seelog"
 )
 
 //--
@@ -26,8 +27,6 @@ func ParamIn(ctx *utils.Param, p *SpParam) (interface{}, int) {
 	}
 	return v, 200
 }
-
-
 
 //-----------
 
@@ -44,6 +43,9 @@ func ginWk(verify plugins.BaseFun, unFindCode int) func(wb *utils.Param, p *SpPa
 			return v2, 200
 		}
 		if unFindCode == 401 {
+			if len(wb.Context.Keys) > 0 {
+				seelog.Error("Key Error?", p.ParamName, ";session Keys=", wb.Context.Keys)
+			}
 			return 0, 401
 		} else {
 			return p.DefaultVal, 200
