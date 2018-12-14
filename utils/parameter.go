@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"github.com/gin-gonic/gin"
+	"regexp"
 )
 
 //--所有常量
@@ -79,11 +80,15 @@ func EnvParam(key string) string {
 }
 
 func FmtVal(v string) string {
-	if len(v) > 2 && v[0:2] == "${" {
-		kn := v[2 : len(v)-1]
-		return EnvParam(kn)
+	vv := v
+	re := regexp.MustCompile("[$][{]([^}]*)[}]")
+	gs := re.FindAllStringSubmatch(v, -1)
+	if gs != nil {
+		for _, p := range gs {
+			vv = strings.Replace(vv, "${"+p[1]+"}", EnvParam(p[1]), -1)
+		}
 	}
-	return v
+	return vv
 }
 
 func EnvParamInt(key string, defaultVal int) int {

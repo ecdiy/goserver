@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"github.com/cihub/seelog"
 	"github.com/ecdiy/goserver/utils"
+	"github.com/ecdiy/goserver/plugins/web/image"
 )
 
 func init() {
@@ -37,7 +38,7 @@ func (ir *ImageResize) DoResize(context *gin.Context) {
 					if strings.Index(w, "x") < 0 {
 						tw, twe := strconv.Atoi(w)
 						if twe == nil {
-							ImgResize(source, target, tw)
+							image.ImgResize(source, target, tw)
 							bs, err := ioutil.ReadFile(target)
 							if err == nil {
 								context.Header("Content-Type", "image/"+url[dp+1:])
