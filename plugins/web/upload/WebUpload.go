@@ -14,7 +14,8 @@ import (
 	"os"
 	"github.com/gpmgo/gopm/modules/log"
 	"io"
-	"github.com/ecdiy/goserver/plugins/web/image/resize"
+	"github.com/ecdiy/goserver/plugins/web/image"
+	"github.com/gin-gonic/gin"
 )
 
 //文件上传
@@ -63,7 +64,8 @@ func (wu *WebUpload) setNameFun(ele *utils.Element) {
 	}
 }
 
-func (wu *WebUpload) Upload(wb *utils.Param) {
+func (wu *WebUpload) Upload(c *gin.Context) {
+	wb := utils.NewParam(c)
 	ub := wu.baseFun(wb).(*verify.UserBase)
 
 	if ub != nil && ub.Result {
@@ -122,7 +124,7 @@ func (wu *WebUpload) doUploadFileMd5(c *utils.Param, key string) {
 					os.Remove(pre + ext8)
 				}
 				if _, err := os.Stat(pre + ext8); os.IsNotExist(err) {
-					resize.ImgResize(path, pre+ext8, w)
+					image.ImgResize(path, pre+ext8, w)
 				}
 				if wu.MainWidth == 0 || wu.MainWidth == w || len(wu.ImgWidth) == 1 {
 					ut := uri + ext8

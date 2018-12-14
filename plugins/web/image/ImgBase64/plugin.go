@@ -7,27 +7,33 @@ import (
 	"github.com/ecdiy/goserver/plugins"
 	"strings"
 	"encoding/base64"
-	"fmt"
 	"github.com/cihub/seelog"
 	"os"
 	"io/ioutil"
+	"fmt"
 )
 
 func init() { /**
 base 64 保存成图片.
  */
 	web.RegisterWeb("ImgBase64", func(ele *utils.Element) func(c *utils.Param) {
-
+		p, pb := ele.AttrValue("Param")
+		jp, jpb := ele.AttrValue("GinParam")
 		bi := &Base64Img{
-			OutFile:  ele.MustAttr("Uri"),
-			Dir:      ele.MustAttr("Dir"),
-			vf:       plugins.GetRef(ele, "Verify").(plugins.BaseFun),
-			Param:    strings.Split(ele.Attr("Param", ""), ","),
-			GinParam: strings.Split(ele.Attr("GinParam", ""), ","),
+			OutFile:   ele.Attr("OutFile", ""),
+			UriPrefix: ele.MustAttr("UriPrefix"),
+			Dir:       ele.MustAttr("Dir"),
+			vf:        plugins.GetRef(ele, "Verify").(plugins.BaseFun),
 		}
-		if len(bi.Param) == 0 && len(bi.GinParam) == 0 {
+		if !pb && !jpb {
 			return bi.SaveByMd5
 		} else {
+			if len(p) > 0 {
+				bi.Param = strings.Split(p, ",")
+			}
+			if len(jp) > 0 {
+				bi.GinParam = strings.Split(jp, ",")
+			}
 			return bi.SaveByParamName
 		}
 
@@ -35,9 +41,9 @@ base 64 保存成图片.
 }
 
 type Base64Img struct {
-	GinParam, Param []string
-	Dir, OutFile    string
-	vf              plugins.BaseFun
+	GinParam, Param         []string
+	Dir, OutFile, UriPrefix string
+	vf                      plugins.BaseFun
 }
 
 func (bi *Base64Img) SaveByMd5(wb *utils.Param) {
@@ -45,11 +51,18 @@ func (bi *Base64Img) SaveByMd5(wb *utils.Param) {
 	data := wb.String("data")
 	md5 := image.Md5Byte([]byte(data))
 	path, uri := image.FmtImgDir(bi.Dir, md5)
-	wb.Out["Uri"] = uri + ".jpg"
+	wb.Out["Uri"] = bi.UriPrefix + uri + ".jpg"
+	saveData(wb, path)
+}
+func saveData(wb *utils.Param, path string) {
+	data := wb.String("data")
+	flg := "data:image/png;base64,"
+	if data[0:len(flg)] == flg {
+		data = data[len(flg):]
+	}
 	ddd, _ := base64.StdEncoding.DecodeString(data) //成图片文件并把文件写入到buffer
 	ioutil.WriteFile(path+".jpg", ddd, 0666)
 }
-
 func (bi *Base64Img) SaveByParamName(wb *utils.Param) {
 	bi.vf(wb)
 	pp := bi.OutFile
@@ -78,19 +91,20 @@ func (bi *Base64Img) SaveByParamName(wb *utils.Param) {
 			}
 		}
 		if !err {
-			wb.Out["Uri"] = pp + ".jpg"
+			wb.Out["Uri"] = bi.UriPrefix + pp + ".jpg"
 			ix := strings.LastIndex(pp, "/")
 			if ix > 0 {
 				pDir := bi.Dir + pp[0:ix]
 				os.MkdirAll(pDir, 0644)
 			}
-			data := wb.String("data")
-			flg := "data:image/png;base64,"
-			if data[0:len(flg)] == flg {
-				data = data[len(flg):]
-			}
-			ddd, _ := base64.StdEncoding.DecodeString(data) //成图片文件并把文件写入到buffer
-			ioutil.WriteFile(bi.Dir+pp+".jpg", ddd, 0666)   //buffer输出到jpg文件中（不做处理，直接写到文件）
+			saveData(wb, bi.Dir+pp)
+			//data := wb.String("data")
+			//flg := "data:image/png;base64,"
+			//if data[0:len(flg)] == flg {
+			//	data = data[len(flg):]
+			//}
+			//ddd, _ := base64.StdEncoding.DecodeString(data) //成图片文件并把文件写入到buffer
+			//ioutil.WriteFile(bi.Dir+pp+".jpg", ddd, 0666)   //buffer输出到jpg文件中（不做处理，直接写到文件）
 		}
 	}
 }

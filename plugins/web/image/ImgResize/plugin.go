@@ -1,4 +1,4 @@
-package resize
+package ImgResize
 
 import (
 	"github.com/ecdiy/goserver/plugins/web"
@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	web.RegisterWebPlugin("Resize", func(ele *utils.Element) func(c *gin.Context) {
+	web.RegisterWebPlugin("ImgResize", func(ele *utils.Element) func(c *gin.Context) {
 		ir := &ImageResize{dir: ele.MustAttr("Dir"),
 			size: strings.Split(ele.MustAttr("Size"), ",")}
 		return ir.DoResize

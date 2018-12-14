@@ -8,10 +8,11 @@ import (
 	"github.com/ecdiy/goserver/plugins/sp"
 	"os"
 	"strconv"
+	"github.com/gin-gonic/gin"
 )
 
 func init() {
-	web.RegisterWeb("Upload", func(ele *utils.Element) func(c *utils.Param) {
+	web.RegisterWebPlugin("Upload", func(ele *utils.Element) func(c *gin.Context) {
 		wu := &WebUpload{UrlPrefix: ele.MustAttr("UrlPrefix"), DirUpload: ele.MustAttr("DirUpload")}
 		wu.setNameFun(ele)
 		wu.baseFun = plugins.GetRef(ele, "Verify").(plugins.BaseFun)
