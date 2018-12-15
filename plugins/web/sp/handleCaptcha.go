@@ -10,6 +10,7 @@ import (
 
 func HandleCaptcha(ele *utils.Element) func(c *gin.Context) {
 	ws := &sp.WebSp{}
+	ws.Init(ele)
 	spName := ele.MustAttr("Sp")
 	return func(ctx *gin.Context) {
 		defer func() {

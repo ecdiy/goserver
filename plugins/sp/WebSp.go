@@ -8,6 +8,7 @@ import (
 	"errors"
 	"github.com/ecdiy/goserver/utils"
 	"github.com/ecdiy/goserver/plugins"
+	"runtime/debug"
 )
 
 type WebSp struct {
@@ -134,7 +135,9 @@ func (ws *WebSp) GetRunSp(spName string) *Sp {
 func (ws *WebSp) SpExec(spName string, param *utils.Param) int {
 	defer func() {
 		if err := recover(); err != nil {
-			seelog.Error("SP do fail: spName=", spName, ";\n\tparam=", param, "\n\t", err)
+			debug.PrintStack()
+			seelog.Error("SP do fail: spName=", spName, ";param=", param)
+			seelog.Errorf("\n\t%v", err)
 			delete(ws.SpCache, spName)
 		}
 	}()

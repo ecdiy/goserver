@@ -9,7 +9,7 @@ import (
 )
 
 func HandleBase(ele *utils.Element) func(c *gin.Context) {
-	ws := &sp.WebSp{}
+	ws := &sp.WebSp{ }
 	ws.Init(ele)
 	sh := &Handle{ws: ws, spSuffix: ele.MustAttr("SpSuffix")}
 

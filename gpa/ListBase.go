@@ -3,12 +3,13 @@ package gpa
 import (
 	"database/sql"
 	"github.com/cihub/seelog"
+	"runtime/debug"
 )
 
 func (dao *Gpa) ListInt64(sqlString string, param ...interface{}) ([]int64, error) {
 	defer func() {
 		if err := recover(); err != nil {
-			seelog.Error("Query fail.\n\t", sqlString , param, "\n", err)
+			seelog.Error("Query fail.\n\t", sqlString, param, "\n", err)
 		}
 	}()
 	rows, err := dao.Conn.Query(sqlString, param...)
@@ -59,7 +60,8 @@ func (dao *Gpa) ListInt64(sqlString string, param ...interface{}) ([]int64, erro
 func (dao *Gpa) ListString(sqlString string, param ...interface{}) ([]string, error) {
 	defer func() {
 		if err := recover(); err != nil {
-			seelog.Error("Query fail.\n\t", sqlString , param, "\n", err)
+			seelog.Error("Query fail. connect is nil", dao==nil || dao.Conn == nil, ".\n\t", sqlString, param, "\n", err)
+			debug.PrintStack()
 		}
 	}()
 	rows, err := dao.Conn.Query(sqlString, param...)
